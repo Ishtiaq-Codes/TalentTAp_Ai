@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { applicationsAPI } from '@/api/applications'
 import { Bookmark, BookmarkCheck, Loader2 } from 'lucide-react'
 
-export default function ShortlistButton({ candidateId, jobId, initialIsShortlisted = false }) {
+export default function ShortlistButton({ candidateId, jobId, initialIsShortlisted = false, className = '' }) {
   const [isShortlisted, setIsShortlisted] = useState(initialIsShortlisted)
   const [loading, setLoading] = useState(false)
 
@@ -43,7 +43,7 @@ export default function ShortlistButton({ candidateId, jobId, initialIsShortlist
         isShortlisted 
           ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' 
           : 'border border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary hover:shadow-sm'
-      }`}
+      } ${className}`}
     >
       {loading ? (
         <Loader2 className="h-3.5 w-3.5 animate-spin" />

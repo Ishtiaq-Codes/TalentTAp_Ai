@@ -1,8 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { candidatesAPI } from '@/api/candidates'
-import { MapPin, Briefcase, Calendar, User, ArrowLeft, Mail, FileText, BookmarkPlus } from 'lucide-react'
+import { MapPin, Briefcase, Calendar, User, ArrowLeft, FileText } from 'lucide-react'
 import SkeletonCard from '@/components/common/SkeletonCard'
+import MessageButton from '@/components/common/MessageButton'
+import ShortlistButton from '@/components/common/ShortlistButton'
 
 export default function CandidateDetailPage() {
   const { id } = useParams()
@@ -91,12 +93,8 @@ export default function CandidateDetailPage() {
         <div className="space-y-6">
           {/* Actions */}
           <div className="rounded-3xl border bg-white p-6 shadow-sm space-y-3">
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-md hover:bg-primary/90 transition-all">
-              <Mail className="h-4 w-4" /> Message Candidate
-            </button>
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold hover:bg-slate-50 transition-all">
-              <BookmarkPlus className="h-4 w-4" /> Add to Shortlist
-            </button>
+            <MessageButton recipientId={profile.user?.id} name={profile.user?.first_name} className="w-full justify-center py-3 text-sm border-primary text-primary" />
+            <ShortlistButton candidateId={profile.id} className="w-full justify-center py-3 text-sm" />
             {profile.resume && (
               <a href={profile.resume} target="_blank" rel="noreferrer" className="flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold text-primary hover:bg-slate-50 transition-all">
                 <FileText className="h-4 w-4" /> View Resume

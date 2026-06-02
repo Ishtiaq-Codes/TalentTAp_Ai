@@ -6,6 +6,24 @@ import SkeletonCard from '@/components/common/SkeletonCard'
 import { EMPLOYMENT_STATUS, AVAILABILITY, EMPLOYMENT_TYPE } from '@/lib/constants'
 import { Save, Plus, X, Upload } from 'lucide-react'
 
+const SelectField = ({ label, field, options, form, update }) => (
+  <div>
+    <label className="text-sm font-medium">{label}</label>
+    <select value={form[field] || ''} onChange={update(field)}
+      className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  </div>
+)
+
+const InputField = ({ label, field, type = 'text', placeholder = '', form, update }) => (
+  <div>
+    <label className="text-sm font-medium">{label}</label>
+    <input type={type} value={form[field] || ''} onChange={update(field)} placeholder={placeholder}
+      className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+  </div>
+)
+
 export default function ProfilePage() {
   const { user } = useAuth()
   const { data: profile, loading, refetch } = useFetch(() => candidatesAPI.getProfile())
@@ -16,7 +34,8 @@ export default function ProfilePage() {
 
   // Initialize form when profile loads
   if (profile && !form) setForm({ ...profile })
-  if (loading) return <div className="space-y-4">{[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}</div>
+  
+  if (loading && !form) return <div className="space-y-4">{[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}</div>
   if (!form) return null
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
@@ -25,7 +44,7 @@ export default function ProfilePage() {
     setSaving(true)
     setMessage('')
     try {
-      const { skills, experiences, user_name, user_email, avatar, ...data } = form
+      const { skills, experiences, user_name, user_email, avatar, resume, ...data } = form
       await candidatesAPI.updateProfile(data)
       setMessage('Profile saved!')
       refetch()
@@ -62,24 +81,6 @@ export default function ProfilePage() {
     }
   }
 
-  const SelectField = ({ label, field, options }) => (
-    <div>
-      <label className="text-sm font-medium">{label}</label>
-      <select value={form[field] || ''} onChange={update(field)}
-        className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
-        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
-    </div>
-  )
-
-  const InputField = ({ label, field, type = 'text', placeholder = '' }) => (
-    <div>
-      <label className="text-sm font-medium">{label}</label>
-      <input type={type} value={form[field] || ''} onChange={update(field)} placeholder={placeholder}
-        className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
-    </div>
-  )
-
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
@@ -95,32 +96,32 @@ export default function ProfilePage() {
       {/* Basic Info */}
       <section className="rounded-xl border bg-card p-6 space-y-4">
         <h2 className="text-lg font-semibold">Basic Information</h2>
-        <InputField label="Headline" field="headline" placeholder="e.g. Full-Stack Developer" />
+        <InputField label="Headline" field="headline" placeholder="e.g. Full-Stack Developer" form={form} update={update} />
         <div>
           <label className="text-sm font-medium">About</label>
           <textarea value={form.about || ''} onChange={update('about')} rows={4}
             className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <InputField label="Country" field="country" />
-          <InputField label="City" field="city" />
+          <InputField label="Country" field="country" form={form} update={update} />
+          <InputField label="City" field="city" form={form} update={update} />
         </div>
-        <InputField label="Phone" field="phone" />
+        <InputField label="Phone" field="phone" form={form} update={update} />
       </section>
 
       {/* Professional Info */}
       <section className="rounded-xl border bg-card p-6 space-y-4">
         <h2 className="text-lg font-semibold">Professional</h2>
-        <InputField label="Years of Experience" field="years_of_experience" type="number" />
+        <InputField label="Years of Experience" field="years_of_experience" type="number" form={form} update={update} />
         <div className="grid grid-cols-2 gap-4">
-          <SelectField label="Employment Status" field="employment_status" options={EMPLOYMENT_STATUS} />
-          <SelectField label="Availability" field="availability" options={AVAILABILITY} />
+          <SelectField label="Employment Status" field="employment_status" options={EMPLOYMENT_STATUS} form={form} update={update} />
+          <SelectField label="Availability" field="availability" options={AVAILABILITY} form={form} update={update} />
         </div>
-        <SelectField label="Preferred Employment Type" field="employment_type_preferred" options={EMPLOYMENT_TYPE} />
+        <SelectField label="Preferred Employment Type" field="employment_type_preferred" options={EMPLOYMENT_TYPE} form={form} update={update} />
         <div className="grid grid-cols-3 gap-4">
-          <InputField label="Min Salary" field="salary_min" type="number" />
-          <InputField label="Max Salary" field="salary_max" type="number" />
-          <InputField label="Currency" field="salary_currency" />
+          <InputField label="Min Salary" field="salary_min" type="number" form={form} update={update} />
+          <InputField label="Max Salary" field="salary_max" type="number" form={form} update={update} />
+          <InputField label="Currency" field="salary_currency" form={form} update={update} />
         </div>
       </section>
 
@@ -148,9 +149,9 @@ export default function ProfilePage() {
       {/* Links */}
       <section className="rounded-xl border bg-card p-6 space-y-4">
         <h2 className="text-lg font-semibold">Links</h2>
-        <InputField label="LinkedIn" field="linkedin_url" placeholder="https://linkedin.com/in/..." />
-        <InputField label="GitHub" field="github_url" placeholder="https://github.com/..." />
-        <InputField label="Portfolio" field="portfolio_url" placeholder="https://..." />
+        <InputField label="LinkedIn" field="linkedin_url" placeholder="https://linkedin.com/in/..." form={form} update={update} />
+        <InputField label="GitHub" field="github_url" placeholder="https://github.com/..." form={form} update={update} />
+        <InputField label="Portfolio" field="portfolio_url" placeholder="https://..." form={form} update={update} />
       </section>
 
       {/* Resume */}
