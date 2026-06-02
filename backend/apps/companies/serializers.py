@@ -1,7 +1,7 @@
 """Company & recruiter serializers."""
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Company, RecruiterProfile
+from .models import Company, RecruiterProfile, CompanyInvitation
 
 User = get_user_model()
 
@@ -28,7 +28,7 @@ class RecruiterProfileSerializer(serializers.ModelSerializer):
 
 
 class InviteRecruiterSerializer(serializers.Serializer):
-    """Invite a new recruiter — creates user + recruiter profile."""
+    """Invite a new recruiter — creates an invitation token."""
     email = serializers.EmailField()
     first_name = serializers.CharField(max_length=100)
     last_name = serializers.CharField(max_length=100)
@@ -38,3 +38,10 @@ class InviteRecruiterSerializer(serializers.Serializer):
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError('A user with this email already exists.')
         return value
+
+
+class CompanyInvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompanyInvitation
+        fields = ['id', 'email', 'first_name', 'last_name', 'title', 'status', 'created_at', 'expires_at']
+

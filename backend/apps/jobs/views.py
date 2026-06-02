@@ -48,8 +48,18 @@ class JobListCreateView(generics.ListCreateAPIView):
         return qs
 
     def perform_create(self, serializer):
-        profile = RecruiterProfile.objects.get(user=self.request.user)
-        serializer.save(company=profile.company, recruiter=profile)
+        user = self.request.user
+        profile = RecruiterProfile.objects.filter(user=user).first()
+        if profile:
+            serializer.save(company=profile.company, recruiter=profile)
+        else:
+            from apps.companies.models import Company
+            company = Company.objects.filter(created_by=user).first()
+            if company:
+                profile = RecruiterProfile.objects.create(user=user, company=company, title='Admin')
+                serializer.save(company=company, recruiter=profile)
+            else:
+                serializer.save(recruiter=None)
 
 
 class JobDetailView(generics.RetrieveUpdateAPIView):

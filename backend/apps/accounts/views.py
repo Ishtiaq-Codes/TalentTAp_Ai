@@ -70,3 +70,62 @@ class ForgotPasswordView(APIView):
         # In production: generate token, send email
         # For now, always return success (security: don't reveal if email exists)
         return Response({'detail': 'If an account exists, a reset link has been sent.'})
+
+
+class AcceptInviteView(APIView):
+    """Accept a company invitation and register."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token = request.data.get('token')
+        password = request.data.get('password')
+        
+        if not token or not password:
+            return Response({'detail': 'Token and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        from apps.companies.models import CompanyInvitation, RecruiterProfile
+        from django.utils import timezone
+        
+        try:
+            invitation = CompanyInvitation.objects.get(id=token, status='pending')
+        except CompanyInvitation.DoesNotExist:
+            return Response({'detail': 'Invalid or expired invitation.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if invitation.expires_at < timezone.now():
+            invitation.status = 'expired'
+            invitation.save()
+            return Response({'detail': 'Invitation has expired.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Check if user already exists
+        if User.objects.filter(email=invitation.email).exists():
+            return Response({'detail': 'User already exists. Please log in.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Create user
+        user = User.objects.create_user(
+            email=invitation.email,
+            password=password,
+            first_name=invitation.first_name,
+            last_name=invitation.last_name,
+            role='recruiter'
+        )
+        
+        # Create profile
+        RecruiterProfile.objects.create(
+            user=user,
+            company=invitation.company,
+            title=invitation.title
+        )
+        
+        # Mark as accepted
+        invitation.status = 'accepted'
+        invitation.save()
+        
+        # Generate tokens
+        from rest_framework_simplejwt.tokens import RefreshToken
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user': UserSerializer(user).data
+        }, status=status.HTTP_201_CREATED)

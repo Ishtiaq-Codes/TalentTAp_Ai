@@ -1,12 +1,12 @@
 """Company & recruiter views."""
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.permissions import IsCompanyAdmin, IsRecruiter
-from .models import Company, RecruiterProfile
-from .serializers import CompanySerializer, RecruiterProfileSerializer, InviteRecruiterSerializer
+from .models import Company, RecruiterProfile, CompanyInvitation
+from .serializers import CompanySerializer, RecruiterProfileSerializer, InviteRecruiterSerializer, CompanyInvitationSerializer
 from . import services
 
 
@@ -31,7 +31,12 @@ class CompanyCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated, IsCompanyAdmin]
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        company = serializer.save(created_by=self.request.user)
+        # Ensure the admin has a RecruiterProfile so they can post jobs
+        RecruiterProfile.objects.get_or_create(
+            user=self.request.user,
+            defaults={'company': company, 'title': 'Admin'}
+        )
 
 
 class RecruiterListView(generics.ListAPIView):
@@ -59,14 +64,51 @@ class InviteRecruiterView(APIView):
         company = Company.objects.filter(created_by=request.user).first()
         if not company:
             return Response({'detail': 'Create a company first.'}, status=status.HTTP_400_BAD_REQUEST)
-        profile = services.invite_recruiter(
+        invitation = services.invite_recruiter(
             company=company,
             email=serializer.validated_data['email'],
             first_name=serializer.validated_data['first_name'],
             last_name=serializer.validated_data['last_name'],
             title=serializer.validated_data.get('title', ''),
+            invited_by=request.user,
         )
-        return Response(RecruiterProfileSerializer(profile).data, status=status.HTTP_201_CREATED)
+        return Response(CompanyInvitationSerializer(invitation).data, status=status.HTTP_201_CREATED)
+
+
+class GetInvitationView(generics.RetrieveAPIView):
+    """Get details of a pending invitation."""
+    permission_classes = [AllowAny]
+    serializer_class = CompanyInvitationSerializer
+    queryset = CompanyInvitation.objects.filter(status='pending')
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        from django.utils import timezone
+        return CompanyInvitation.objects.filter(status='pending', expires_at__gt=timezone.now())
+
+
+class PendingInvitationsListView(generics.ListAPIView):
+    """List pending invitations for the company."""
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
+    serializer_class = CompanyInvitationSerializer
+
+    def get_queryset(self):
+        company = Company.objects.filter(created_by=self.request.user).first()
+        if company:
+            return CompanyInvitation.objects.filter(company=company, status='pending')
+        return CompanyInvitation.objects.none()
+
+
+class RevokeInvitationView(generics.DestroyAPIView):
+    """Revoke a pending invitation."""
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        company = Company.objects.filter(created_by=self.request.user).first()
+        if company:
+            return CompanyInvitation.objects.filter(company=company)
+        return CompanyInvitation.objects.none()
 
 
 class RemoveRecruiterView(generics.DestroyAPIView):

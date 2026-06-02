@@ -108,3 +108,32 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f'{self.company.name} — {self.plan.name}'
+
+
+class CompanyInvitation(models.Model):
+    """Secure invitation token for adding team members."""
+
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Pending'
+        ACCEPTED = 'accepted', 'Accepted'
+        EXPIRED = 'expired', 'Expired'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='invitations')
+    email = models.EmailField()
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    invited_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='sent_invitations'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ['company', 'email']
+
+    def __str__(self):
+        return f'Invite to {self.email} for {self.company.name}'
