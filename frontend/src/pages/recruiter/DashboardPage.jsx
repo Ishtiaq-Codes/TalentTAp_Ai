@@ -79,7 +79,7 @@ export default function RecruiterDashboard() {
             <h2 className="text-xl font-bold tracking-tight">Active Jobs Pipeline</h2>
             <Link to="/recruiter/jobs" className="text-sm font-semibold text-primary hover:underline">View all jobs</Link>
           </div>
-          
+
           <div className="grid gap-4">
             {jobList.length > 0 ? jobList.filter(j => j.status === 'active').slice(0, 4).map((job) => (
               <Link key={job.id} to={`/recruiter/jobs/${job.id}`} className="group rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-primary/30">
@@ -101,7 +101,7 @@ export default function RecruiterDashboard() {
                     <ArrowRight className="h-5 w-5" />
                   </div>
                 </div>
-                
+
                 <div className="mt-6 flex items-center justify-between border-t pt-4">
                   <div className="flex items-center gap-6">
                     <div>
@@ -138,13 +138,13 @@ export default function RecruiterDashboard() {
         {/* Action Center / Tasks */}
         <div className="space-y-6">
           <h2 className="text-xl font-bold tracking-tight">Action Center</h2>
-          
+
           <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
             <div className="p-5 border-b bg-slate-50/50">
               <h3 className="font-semibold text-sm">Tasks & Notifications</h3>
             </div>
             <div className="divide-y p-2">
-              
+
               {newApps > 0 && (
                 <Link to="/recruiter/jobs" className="flex items-start gap-3 p-3 hover:bg-slate-50 transition-colors rounded-lg">
                   <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">

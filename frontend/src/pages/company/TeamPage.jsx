@@ -7,7 +7,7 @@ import SkeletonCard from '@/components/common/SkeletonCard'
 export default function TeamPage() {
   const { data: team, loading: loadingTeam, refetch: refetchTeam } = useFetch(() => companiesAPI.getRecruiters())
   const { data: pendingData, loading: loadingPending, refetch: refetchPending } = useFetch(() => companiesAPI.getPendingInvites())
-  
+
   const [inviting, setInviting] = useState(false)
   const [form, setForm] = useState({ first_name: '', last_name: '', email: '', title: '' })
   const [showInvite, setShowInvite] = useState(false)
@@ -81,8 +81,8 @@ export default function TeamPage() {
             Manage who has access to your company's hiring pipeline. Invite recruiters to help you source and evaluate candidates.
           </p>
         </div>
-        <button 
-          onClick={() => setShowInvite(!showInvite)} 
+        <button
+          onClick={() => setShowInvite(!showInvite)}
           className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-primary/90 transition-all"
         >
           <UserPlus className="h-4 w-4" /> Invite Team Member
@@ -111,23 +111,23 @@ export default function TeamPage() {
                   <p className="text-xs text-muted-foreground">They will receive an email to create their recruiter account linked to this company.</p>
                 </div>
               </div>
-              
+
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">First Name</label>
-                  <input required value={form.first_name} onChange={e => setForm({...form, first_name: e.target.value})} placeholder="Jane" className="w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+                  <input required value={form.first_name} onChange={e => setForm({ ...form, first_name: e.target.value })} placeholder="Jane" className="w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Last Name</label>
-                  <input required value={form.last_name} onChange={e => setForm({...form, last_name: e.target.value})} placeholder="Doe" className="w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+                  <input required value={form.last_name} onChange={e => setForm({ ...form, last_name: e.target.value })} placeholder="Doe" className="w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email Address</label>
-                  <input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="jane@yourcompany.com" className="w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+                  <input required type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="jane@yourcompany.com" className="w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Job Title</label>
-                  <input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="Senior Recruiter" className="w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+                  <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Senior Recruiter" className="w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
@@ -147,7 +147,7 @@ export default function TeamPage() {
           <Users className="h-5 w-5 text-slate-500" />
           <h3 className="font-semibold text-slate-700">Active Members ({recruiters.length})</h3>
         </div>
-        
+
         {recruiters.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-center">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
@@ -176,9 +176,9 @@ export default function TeamPage() {
                   <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">
                     <ShieldCheck className="h-3 w-3" /> Active
                   </div>
-                  <button 
-                    onClick={() => handleRemove(r.id)} 
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors" 
+                  <button
+                    onClick={() => handleRemove(r.id)}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
                     title="Remove member"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -197,7 +197,7 @@ export default function TeamPage() {
             <Mail className="h-5 w-5 text-amber-600" />
             <h3 className="font-semibold text-amber-800">Pending Invitations ({pendingInvites.length})</h3>
           </div>
-          
+
           <div className="divide-y">
             {pendingInvites.map(invite => (
               <div key={invite.id} className="flex items-center justify-between p-6 hover:bg-slate-50/50 transition-colors">
@@ -218,9 +218,9 @@ export default function TeamPage() {
                   <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 border border-amber-200">
                     Pending Acceptance
                   </div>
-                  <button 
-                    onClick={() => handleRevoke(invite.id)} 
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors" 
+                  <button
+                    onClick={() => handleRevoke(invite.id)}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
                     title="Revoke invitation"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -231,7 +231,7 @@ export default function TeamPage() {
           </div>
         </div>
       )}
-      
+
       {/* Info Notice */}
       <div className="flex items-start gap-3 rounded-2xl bg-blue-50 p-5 text-blue-800 border border-blue-100">
         <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />

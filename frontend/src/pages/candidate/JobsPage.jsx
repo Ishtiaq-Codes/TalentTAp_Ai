@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useFetch } from '@/hooks/useFetch'
 import { useDebounce } from '@/hooks/useDebounce'
 import { jobsAPI } from '@/api/jobs'
@@ -18,8 +18,17 @@ export default function JobsPage() {
     () => jobsAPI.list({ search: debounced, status: 'active', ...filters }),
     [debounced, filters],
   )
+  const { data: myApplications } = useFetch(() => applicationsAPI.list(), [])
+
   const [applying, setApplying] = useState(null)
   const [applied, setApplied] = useState(new Set())
+
+  // Populate applied set when applications load
+  useEffect(() => {
+    if (Array.isArray(myApplications)) {
+      setApplied(new Set(myApplications.map(app => app.job)))
+    }
+  }, [myApplications])
 
   const handleApply = async (jobId) => {
     setApplying(jobId)
@@ -74,30 +83,33 @@ export default function JobsPage() {
                     <h3 className="text-lg font-semibold">{job.title}</h3>
                     <p className="mt-1 text-sm font-medium text-primary">{job.company_name}</p>
                     <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted-foreground">
-                    <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {job.city || job.country || 'Remote'}</span>
-                    <span className="inline-flex items-center gap-1"><Briefcase className="h-3.5 w-3.5" /> {job.employment_type?.replace('_', ' ')}</span>
-                    <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {job.is_remote}</span>
-                    {job.salary_min && <span className="inline-flex items-center gap-1"><DollarSign className="h-3.5 w-3.5" /> {job.salary_min}-{job.salary_max} {job.salary_currency}</span>}
-                  </div>
-                  {job.skills?.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {job.skills.map((s) => (
-                        <span key={s.id} className={`rounded-full px-2.5 py-0.5 text-xs ${s.is_required ? 'bg-primary/10 text-primary font-medium' : 'bg-muted text-muted-foreground'}`}>
-                          {s.name}
-                        </span>
-                      ))}
+                      <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {job.city || job.country || 'Remote'}</span>
+                      <span className="inline-flex items-center gap-1"><Briefcase className="h-3.5 w-3.5" /> {job.employment_type?.replace('_', ' ')}</span>
+                      <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {job.is_remote}</span>
+                      {job.salary_min && <span className="inline-flex items-center gap-1"><DollarSign className="h-3.5 w-3.5" /> {job.salary_min}-{job.salary_max} {job.salary_currency}</span>}
                     </div>
-                  )}
+                    {job.skills?.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {job.skills.map((s) => (
+                          <span key={s.id} className={`rounded-md px-2.5 py-1 text-xs font-medium border ${s.is_required ? 'bg-primary/5 text-primary border-primary/20' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>
+                            {s.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <button
-                  onClick={() => handleApply(job.id)}
-                  disabled={applying === job.id || applied.has(job.id)}
-                  className="ml-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 shrink-0"
-                >
-                  {applied.has(job.id) ? '✓ Applied' : applying === job.id ? 'Applying...' : 'Apply'}
-                </button>
+                <div className="flex flex-col items-end gap-3 shrink-0">
+                  <button
+                    onClick={() => handleApply(job.id)}
+                    disabled={applying === job.id || applied.has(job.id)}
+                    className="w-full sm:w-auto rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50 transition-all"
+                  >
+                    {applied.has(job.id) ? '✓ Applied' : applying === job.id ? 'Applying...' : 'Apply Now'}
+                  </button>
+                  <p className="text-xs text-slate-500 font-medium">Posted {formatDate(job.created_at)}</p>
+                </div>
               </div>
-              <p className="mt-2 text-xs text-muted-foreground">Posted {formatDate(job.created_at)}</p>
             </div>
           ))}
         </div>

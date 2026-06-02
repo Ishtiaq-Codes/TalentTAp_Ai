@@ -70,7 +70,7 @@ export default function AdminDashboardPage() {
             {/* Chart Placeholder */}
             <div className="h-64 flex items-end justify-between gap-2 px-2 border-b border-l border-slate-200 pb-2">
               {[40, 55, 45, 60, 75, 65, 80, 95, 85, 100, 110, 130].map((h, i) => (
-                <div key={i} className="w-full bg-primary/20 hover:bg-primary/40 rounded-t transition-colors relative group" style={{ height: `${(h/130)*100}%` }}>
+                <div key={i} className="w-full bg-primary/20 hover:bg-primary/40 rounded-t transition-colors relative group" style={{ height: `${(h / 130) * 100}%` }}>
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-slate-800 text-white text-xs py-1 px-2 rounded transition-opacity">
                     {h}
                   </div>
@@ -149,15 +149,15 @@ export default function AdminDashboardPage() {
 function BrainIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
-      <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
-      <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>
-      <path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/>
-      <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/>
-      <path d="M3.477 10.896a4 4 0 0 1 .585-.396"/>
-      <path d="M19.938 10.5a4 4 0 0 1 .585.396"/>
-      <path d="M6 18a4 4 0 0 1-1.967-.516"/>
-      <path d="M19.967 17.484A4 4 0 0 1 18 18"/>
+      <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />
+      <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z" />
+      <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4" />
+      <path d="M17.599 6.5a3 3 0 0 0 .399-1.375" />
+      <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5" />
+      <path d="M3.477 10.896a4 4 0 0 1 .585-.396" />
+      <path d="M19.938 10.5a4 4 0 0 1 .585.396" />
+      <path d="M6 18a4 4 0 0 1-1.967-.516" />
+      <path d="M19.967 17.484A4 4 0 0 1 18 18" />
     </svg>
   )
 }

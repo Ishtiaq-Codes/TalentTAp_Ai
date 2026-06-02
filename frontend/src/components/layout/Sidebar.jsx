@@ -9,47 +9,61 @@ import {
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 
 const candidateLinks = [
-  { section: 'Dashboard', items: [
-    { to: '/candidate/dashboard', icon: LayoutDashboard, label: 'Overview' },
-    { to: '/candidate/matches', icon: Sparkles, label: 'AI Matches' },
-  ]},
-  { section: 'Job Search', items: [
-    { to: '/candidate/jobs', icon: Briefcase, label: 'Browse Jobs' },
-    { to: '/candidate/applications', icon: FileText, label: 'Applications' },
-    { to: '/candidate/messages', icon: MessageSquare, label: 'Messages' },
-  ]},
-  { section: 'Settings', items: [
-    { to: '/candidate/profile', icon: User, label: 'My Profile' },
-  ]}
+  {
+    section: 'Dashboard', items: [
+      { to: '/candidate/dashboard', icon: LayoutDashboard, label: 'Overview' },
+      { to: '/candidate/matches', icon: Sparkles, label: 'AI Matches' },
+    ]
+  },
+  {
+    section: 'Job Search', items: [
+      { to: '/candidate/jobs', icon: Briefcase, label: 'Browse Jobs' },
+      { to: '/candidate/applications', icon: FileText, label: 'Applications' },
+      { to: '/candidate/messages', icon: MessageSquare, label: 'Messages' },
+    ]
+  },
+  {
+    section: 'Settings', items: [
+      { to: '/candidate/profile', icon: User, label: 'My Profile' },
+    ]
+  }
 ]
 
 const recruiterLinks = [
-  { section: 'Dashboard', items: [
-    { to: '/recruiter/dashboard', icon: LayoutDashboard, label: 'Overview' },
-    { to: '/recruiter/jobs', icon: Briefcase, label: 'Manage Jobs' },
-  ]},
-  { section: 'Talent Discovery', items: [
-    { to: '/recruiter/candidates', icon: Search, label: 'Search Candidates' },
-    { to: '/recruiter/shortlists', icon: Heart, label: 'Shortlists' },
-    { to: '/recruiter/messages', icon: MessageSquare, label: 'Messages' },
-  ]}
+  {
+    section: 'Dashboard', items: [
+      { to: '/recruiter/dashboard', icon: LayoutDashboard, label: 'Overview' },
+      { to: '/recruiter/jobs', icon: Briefcase, label: 'Manage Jobs' },
+    ]
+  },
+  {
+    section: 'Talent Discovery', items: [
+      { to: '/recruiter/candidates', icon: Search, label: 'Search Candidates' },
+      { to: '/recruiter/shortlists', icon: Heart, label: 'Shortlists' },
+      { to: '/recruiter/messages', icon: MessageSquare, label: 'Messages' },
+    ]
+  }
 ]
 
 const companyLinks = [
-  { section: 'Organization', items: [
-    { to: '/company/profile', icon: Building2, label: 'Company Profile' },
-    { to: '/company/team', icon: Users, label: 'Team Members' },
-    { to: '/company/settings', icon: Settings, label: 'Settings' },
-  ]}
+  {
+    section: 'Organization', items: [
+      { to: '/company/profile', icon: Building2, label: 'Company Profile' },
+      { to: '/company/team', icon: Users, label: 'Team Members' },
+      { to: '/company/settings', icon: Settings, label: 'Settings' },
+    ]
+  }
 ]
 
 const adminLinks = [
-  { section: 'Platform', items: [
-    { to: '/admin/dashboard', icon: BarChart3, label: 'Analytics' },
-    { to: '/admin/companies', icon: Building2, label: 'Companies' },
-    { to: '/admin/candidates', icon: Users, label: 'Candidates' },
-    { to: '/admin/jobs', icon: Briefcase, label: 'Jobs' },
-  ]}
+  {
+    section: 'Platform', items: [
+      { to: '/admin/dashboard', icon: BarChart3, label: 'Analytics' },
+      { to: '/admin/companies', icon: Building2, label: 'Companies' },
+      { to: '/admin/candidates', icon: Users, label: 'Candidates' },
+      { to: '/admin/jobs', icon: Briefcase, label: 'Jobs' },
+    ]
+  }
 ]
 
 export default function Sidebar() {

@@ -6,11 +6,11 @@ import { authAPI } from '@/api/auth'
 export default function SettingsPage() {
   const { user: authUser, fetchUser } = useAuth()
   const [activeTab, setActiveTab] = useState('profile')
-  
+
   const [prefs, setPrefs] = useState({ newApps: true, aiMatch: true, messages: true })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  
+
   const [uiState, setUiState] = useState({
     mfaEnabling: false,
     mfaEnabled: false,
@@ -79,11 +79,10 @@ export default function SettingsPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all whitespace-nowrap ${
-                  activeTab === tab.id
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all whitespace-nowrap ${activeTab === tab.id
                     ? 'bg-primary text-white shadow-md shadow-primary/20'
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`}
+                  }`}
               >
                 <tab.icon className={`h-5 w-5 ${activeTab === tab.id ? 'text-white' : 'text-slate-400'}`} />
                 {tab.label}
@@ -100,7 +99,7 @@ export default function SettingsPage() {
                 <h2 className="text-lg font-bold">Personal Profile</h2>
                 <p className="text-sm text-muted-foreground mt-1">Manage your personal information and avatar.</p>
               </div>
-              
+
               <div className="p-6 space-y-8">
                 <div className="space-y-4">
                   <label className="text-sm font-semibold text-slate-900">Profile Picture</label>
@@ -148,7 +147,7 @@ export default function SettingsPage() {
                 <h2 className="text-lg font-bold">Email Notifications</h2>
                 <p className="text-sm text-muted-foreground mt-1">Control which alerts are sent to your inbox.</p>
               </div>
-              
+
               <div className="p-6 space-y-6">
                 {[
                   { id: 'newApps', title: 'New Applications', desc: 'Receive an email when a candidate applies to your job.' },
@@ -161,11 +160,11 @@ export default function SettingsPage() {
                       <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{item.desc}</p>
                     </div>
                     <label className="relative inline-flex cursor-pointer items-center shrink-0">
-                      <input 
-                        type="checkbox" 
-                        className="peer sr-only" 
-                        checked={prefs[item.id]} 
-                        onChange={() => setPrefs({...prefs, [item.id]: !prefs[item.id]})}
+                      <input
+                        type="checkbox"
+                        className="peer sr-only"
+                        checked={prefs[item.id]}
+                        onChange={() => setPrefs({ ...prefs, [item.id]: !prefs[item.id] })}
                       />
                       <div className="peer h-7 w-12 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:border after:border-white after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 shadow-inner"></div>
                     </label>
@@ -173,15 +172,15 @@ export default function SettingsPage() {
                 ))}
 
                 <div className="pt-6 border-t flex items-center gap-4">
-                  <button 
-                    onClick={handleSave} 
+                  <button
+                    onClick={handleSave}
                     disabled={saving}
                     className="inline-flex items-center justify-center min-w-[140px] gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-primary/90 disabled:opacity-50 transition-all"
                   >
                     {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
-                  
+
                   {saved && (
                     <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 animate-fade-in">
                       <CheckCircle className="h-4 w-4" /> Preferences saved
@@ -198,20 +197,19 @@ export default function SettingsPage() {
                 <h2 className="text-lg font-bold">Security Settings</h2>
                 <p className="text-sm text-muted-foreground mt-1">Manage your account security and authentication methods.</p>
               </div>
-              
+
               <div className="p-6 space-y-8">
                 <div>
                   <h3 className="font-semibold text-slate-900 mb-2">Two-Factor Authentication (2FA)</h3>
                   <p className="text-sm text-muted-foreground mb-4">Add an extra layer of security to your account by requiring a code from your mobile device upon login.</p>
-                  
-                  <button 
-                    onClick={handleMFA} 
+
+                  <button
+                    onClick={handleMFA}
                     disabled={uiState.mfaEnabling}
-                    className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition-all ${
-                      uiState.mfaEnabled 
-                        ? 'border-2 border-red-200 bg-red-50 text-red-600 hover:bg-red-100' 
+                    className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition-all ${uiState.mfaEnabled
+                        ? 'border-2 border-red-200 bg-red-50 text-red-600 hover:bg-red-100'
                         : 'border-2 border-slate-200 bg-white text-slate-700 hover:border-primary hover:text-primary'
-                    }`}
+                      }`}
                   >
                     {uiState.mfaEnabling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
                     {uiState.mfaEnabled ? 'Disable 2FA' : 'Enable 2FA via Authenticator'}
@@ -221,7 +219,7 @@ export default function SettingsPage() {
                 <div className="border-t pt-8">
                   <h3 className="font-semibold text-slate-900 mb-2">Password</h3>
                   <p className="text-sm text-muted-foreground mb-4">To change your password, please use the secure password reset flow.</p>
-                  <button 
+                  <button
                     onClick={() => window.location.href = '/forgot-password'}
                     className="inline-flex items-center gap-2 rounded-full border-2 border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                   >
@@ -238,13 +236,13 @@ export default function SettingsPage() {
                 <h2 className="text-lg font-bold">Billing & Plan</h2>
                 <p className="text-sm text-muted-foreground mt-1">Manage your subscription, payment methods, and billing history.</p>
               </div>
-              
+
               <div className="p-6 space-y-8">
                 <div className="rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-blue-50 p-6 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
                     <CreditCard className="h-32 w-32 -mt-8 -mr-8" />
                   </div>
-                  
+
                   <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div>
                       <div className="flex items-center gap-3 mb-2">
@@ -255,7 +253,7 @@ export default function SettingsPage() {
                         Unlimited active jobs, premium AI matching, and advanced candidate filtering.
                       </p>
                     </div>
-                    
+
                     <div className="text-left sm:text-right">
                       <p className="text-3xl font-bold tracking-tight text-slate-900">$49<span className="text-lg text-muted-foreground font-medium">/mo</span></p>
                       <p className="text-xs text-muted-foreground mt-1">Renews on July 1, 2025</p>
@@ -264,7 +262,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="pt-2">
-                  <button 
+                  <button
                     onClick={handleBilling}
                     disabled={uiState.portalLoading}
                     className="inline-flex items-center justify-center min-w-[200px] gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-slate-800 disabled:opacity-50 transition-all"

@@ -91,7 +91,7 @@ export default function CompanyProfilePage() {
             <input type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
           </label>
         </div>
-        
+
         <div className="px-6 pb-6">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div className="flex items-end gap-4">

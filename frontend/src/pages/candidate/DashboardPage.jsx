@@ -55,7 +55,7 @@ export default function CandidateDashboard() {
         {/* Background elements */}
         <div className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
-        
+
         <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div>
             <h1 className="text-3xl font-bold text-white">Welcome back, {user?.first_name}! 👋</h1>
@@ -108,7 +108,7 @@ export default function CandidateDashboard() {
             <h2 className="text-xl font-bold tracking-tight">Top Recommended Matches</h2>
             <Link to="/candidate/matches" className="text-sm font-semibold text-primary hover:underline">View all matches</Link>
           </div>
-          
+
           <div className="grid gap-4">
             {Array.isArray(matches) && matches.length > 0 ? matches.slice(0, 3).map((match) => (
               <div key={match.id} className="group relative flex flex-col gap-4 rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-primary/30 sm:flex-row sm:items-center justify-between">
@@ -120,7 +120,7 @@ export default function CandidateDashboard() {
                     <span>{match.job?.is_remote || 'On-site'}</span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center justify-between gap-6">
                   <div className="text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -156,7 +156,7 @@ export default function CandidateDashboard() {
         {/* Sidebar Activity */}
         <div className="space-y-6">
           <h2 className="text-xl font-bold tracking-tight">Recent Activity</h2>
-          
+
           <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
             <div className="p-5 border-b bg-slate-50/50">
               <h3 className="font-semibold">Application Status</h3>

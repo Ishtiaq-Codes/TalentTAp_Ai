@@ -38,7 +38,7 @@ export default function ProfilePage() {
 
   // Initialize form when profile loads
   if (profile && !form) setForm({ ...profile })
-  
+
   if (loading && !form) return <div className="space-y-4">{[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}</div>
   if (!form) return null
 
@@ -143,7 +143,7 @@ export default function ProfilePage() {
       <section className="rounded-xl border bg-card p-6 space-y-4">
         <h2 className="text-lg font-semibold">Profile Images</h2>
         <p className="text-sm text-muted-foreground">Recommended: 1:1 ratio (e.g., 400x400px) for avatars, 3:1 ratio (e.g., 1200x400px) for banners.</p>
-        
+
         <div className="grid sm:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-medium">Profile Avatar</label>
@@ -245,30 +245,30 @@ export default function ProfilePage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Job Title</label>
-                <input required value={expForm.title} onChange={e => setExpForm({...expForm, title: e.target.value})} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
+                <input required value={expForm.title} onChange={e => setExpForm({ ...expForm, title: e.target.value })} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
               </div>
               <div>
                 <label className="text-sm font-medium">Company</label>
-                <input required value={expForm.company_name} onChange={e => setExpForm({...expForm, company_name: e.target.value})} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
+                <input required value={expForm.company_name} onChange={e => setExpForm({ ...expForm, company_name: e.target.value })} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Start Date</label>
-                <input type="date" required value={expForm.start_date} onChange={e => setExpForm({...expForm, start_date: e.target.value})} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
+                <input type="date" required value={expForm.start_date} onChange={e => setExpForm({ ...expForm, start_date: e.target.value })} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
               </div>
               <div>
                 <label className="text-sm font-medium">End Date</label>
-                <input type="date" disabled={expForm.is_current} value={expForm.end_date} onChange={e => setExpForm({...expForm, end_date: e.target.value})} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none disabled:bg-slate-100" />
+                <input type="date" disabled={expForm.is_current} value={expForm.end_date} onChange={e => setExpForm({ ...expForm, end_date: e.target.value })} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none disabled:bg-slate-100" />
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <input type="checkbox" id="current" checked={expForm.is_current} onChange={e => setExpForm({...expForm, is_current: e.target.checked, end_date: ''})} className="rounded border-slate-300" />
+              <input type="checkbox" id="current" checked={expForm.is_current} onChange={e => setExpForm({ ...expForm, is_current: e.target.checked, end_date: '' })} className="rounded border-slate-300" />
               <label htmlFor="current" className="text-sm font-medium cursor-pointer">I currently work here</label>
             </div>
             <div>
               <label className="text-sm font-medium">Description</label>
-              <textarea value={expForm.description} onChange={e => setExpForm({...expForm, description: e.target.value})} rows={3} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
+              <textarea value={expForm.description} onChange={e => setExpForm({ ...expForm, description: e.target.value })} rows={3} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setShowExpForm(false)} className="rounded-lg px-4 py-2 text-sm font-medium hover:bg-slate-200">Cancel</button>

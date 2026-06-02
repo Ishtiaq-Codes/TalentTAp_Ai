@@ -24,7 +24,7 @@ export default function ShortlistsPage() {
       </div>
     )
   }
-  
+
   const list = Array.isArray(shortlists) ? shortlists : []
 
   return (
@@ -58,15 +58,15 @@ export default function ShortlistsPage() {
           list.map(item => (
             <div key={item.id} className="group relative flex flex-col justify-between rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-xl hover:border-primary/40 hover:-translate-y-1">
               <Link to={`/recruiter/candidates/${item.candidate}`} className="absolute inset-0 z-0" aria-label={`View ${item.candidate_name}'s profile`} />
-              
-              <div className="relative z-10">
+
+              <div className="relative z-10 pointer-events-none">
                 <div className="flex items-start justify-between">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-slate-100 bg-slate-50 overflow-hidden shadow-sm shrink-0">
                     <User className="h-8 w-8 text-slate-300" />
                   </div>
-                  <button 
+                  <button
                     onClick={(e) => { e.preventDefault(); removeShortlist(item.id); }}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-destructive/10 hover:text-destructive transition-colors shrink-0"
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-destructive/10 hover:text-destructive transition-colors shrink-0 pointer-events-auto"
                     title="Remove from shortlist"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -84,9 +84,11 @@ export default function ShortlistsPage() {
                   </div>
                 )}
               </div>
-              
-              <div className="relative z-10 mt-6 pt-5 border-t flex items-center justify-between">
-                <MessageButton recipientId={item.candidate_user_id} name={item.candidate_name} />
+
+              <div className="relative z-10 mt-6 pt-5 border-t flex items-center justify-between pointer-events-none">
+                <div className="pointer-events-auto">
+                  <MessageButton recipientId={item.candidate_user_id} name={item.candidate_name} />
+                </div>
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">
                   <ArrowRight className="h-4 w-4" />
                 </div>

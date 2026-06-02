@@ -88,7 +88,7 @@ export default function Topbar({ onToggleMobile }) {
             <>
               {/* Backdrop */}
               <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-              
+
               <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border bg-white py-2 shadow-xl animate-fade-in-up origin-top-right">
                 <div className="px-4 py-2 border-b mb-2">
                   <p className="text-sm font-semibold">{user?.first_name} {user?.last_name}</p>
@@ -96,7 +96,7 @@ export default function Topbar({ onToggleMobile }) {
                 </div>
 
                 <div className="px-2 space-y-1 border-b pb-2 mb-2">
-                  <Link 
+                  <Link
                     to={user?.role === 'candidate' ? '/candidate/profile' : '/company/profile'}
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-slate-100 transition-colors"
                     onClick={() => setShowMenu(false)}
@@ -104,7 +104,7 @@ export default function Topbar({ onToggleMobile }) {
                     <User className="h-4 w-4 text-slate-400" />
                     My Profile
                   </Link>
-                  <Link 
+                  <Link
                     to={user?.role === 'candidate' ? '/candidate/profile' : '/company/settings'}
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-slate-100 transition-colors"
                     onClick={() => setShowMenu(false)}

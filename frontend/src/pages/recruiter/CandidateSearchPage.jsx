@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { useDebounce } from '@/hooks/useDebounce'
 import { candidatesAPI } from '@/api/candidates'
+import { applicationsAPI } from '@/api/applications'
 import EmptyState from '@/components/common/EmptyState'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import ShortlistButton from '@/components/common/ShortlistButton'
@@ -18,8 +19,10 @@ export default function CandidateSearchPage() {
     () => candidatesAPI.search({ search: debounced, ...filters }),
     [debounced, filters],
   )
+  const { data: shortlists } = useFetch(() => applicationsAPI.getShortlists(), [])
 
   const list = Array.isArray(candidates) ? candidates : []
+  const shortlistedIds = new Set(Array.isArray(shortlists) ? shortlists.map(s => s.candidate) : [])
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -34,15 +37,15 @@ export default function CandidateSearchPage() {
       <div className="rounded-2xl border bg-white p-2 shadow-sm flex flex-col gap-2 sm:flex-row focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
         <div className="relative flex-1 flex items-center">
           <Search className="absolute left-4 h-5 w-5 text-muted-foreground" />
-          <input 
-            value={search} 
-            onChange={(e) => setSearch(e.target.value)} 
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by role, skills, headline..."
-            className="w-full bg-transparent py-3 pl-12 pr-4 text-sm focus:outline-none" 
+            className="w-full bg-transparent py-3 pl-12 pr-4 text-sm focus:outline-none"
           />
         </div>
         <div className="hidden sm:block w-px bg-border my-2" />
-        <select 
+        <select
           onChange={(e) => setFilters({ ...filters, availability: e.target.value || undefined })}
           className="border-none bg-transparent px-4 py-3 text-sm focus:ring-0 cursor-pointer text-muted-foreground"
         >
@@ -61,24 +64,24 @@ export default function CandidateSearchPage() {
           {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : list.length === 0 ? (
-        <EmptyState 
-          icon={Search} 
-          title="No candidates found" 
-          description="Try broadening your search terms or adjusting filters to see more results." 
+        <EmptyState
+          icon={Search}
+          title="No candidates found"
+          description="Try broadening your search terms or adjusting filters to see more results."
         />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((c) => (
             <div key={c.id} className="group relative flex flex-col justify-between rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-xl hover:border-primary/40 hover:-translate-y-1">
               <Link to={`/recruiter/candidates/${c.id}`} className="absolute inset-0 z-0" aria-label={`View ${c.user_name}'s profile`} />
-              
-              <div className="relative z-10">
+
+              <div className="relative z-10 pointer-events-none">
                 <div className="flex items-start justify-between">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-slate-100 bg-slate-50 overflow-hidden shadow-sm">
                     <ProfileAvatar name={c.user_name} src={c.avatar} size="lg" className="h-full w-full" />
                   </div>
-                  <div className="flex flex-col gap-2">
-                    <ShortlistButton candidateId={c.id} />
+                  <div className="flex flex-col gap-2 pointer-events-auto">
+                    <ShortlistButton candidateId={c.id} initialIsShortlisted={shortlistedIds.has(c.id)} />
                   </div>
                 </div>
 
@@ -116,12 +119,14 @@ export default function CandidateSearchPage() {
                   </div>
                 )}
               </div>
-              
-              <div className="relative z-10 mt-6 pt-5 border-t flex items-center justify-between">
+
+              <div className="relative z-10 mt-6 pt-5 border-t flex items-center justify-between pointer-events-none">
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
                   <Sparkles className="h-3 w-3" /> AI Ready
                 </span>
-                <MessageButton recipientId={c.user_id} name={c.user_name || 'Candidate'} />
+                <div className="pointer-events-auto">
+                  <MessageButton recipientId={c.user_id} name={c.user_name || 'Candidate'} />
+                </div>
               </div>
             </div>
           ))}

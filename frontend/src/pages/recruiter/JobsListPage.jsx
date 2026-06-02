@@ -40,7 +40,7 @@ export default function JobsListPage() {
             Manage your active roles, track applications, and view AI-matched candidates.
           </p>
         </div>
-        <Link 
+        <Link
           to="/recruiter/jobs/new"
           className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-primary/90 transition-all"
         >
@@ -57,8 +57,8 @@ export default function JobsListPage() {
           <p className="mt-2 max-w-sm text-muted-foreground">
             Create your first job posting to start discovering top talent and receiving applications.
           </p>
-          <Link 
-            to="/recruiter/jobs/new" 
+          <Link
+            to="/recruiter/jobs/new"
             className="mt-8 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-white shadow-md hover:bg-primary/90 transition-all"
           >
             Create Job Post
@@ -69,8 +69,8 @@ export default function JobsListPage() {
           {jobList.map((job) => (
             <div key={job.id} className="group relative flex flex-col justify-between rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-xl hover:border-primary/40 hover:-translate-y-1">
               <Link to={`/recruiter/jobs/${job.id}`} className="absolute inset-0 z-0" aria-label={`View ${job.title}`} />
-              
-              <div className="relative z-10">
+
+              <div className="relative z-10 pointer-events-none">
                 <div className="flex items-start justify-between">
                   <div className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wider ${STATUS_COLORS[job.status] || ''}`}>
                     {job.status}
@@ -85,23 +85,23 @@ export default function JobsListPage() {
                   <div>
                     <h3 className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">{job.title}</h3>
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-slate-600">
-                    <span className="flex items-center gap-1.5 capitalize">
-                      <Briefcase className="h-3.5 w-3.5 text-slate-400" /> {job.employment_type?.replace('_', ' ')}
-                    </span>
-                    {(job.city || job.country) && (
-                      <span className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5 text-slate-400" /> {job.city || job.country}
+                      <span className="flex items-center gap-1.5 capitalize">
+                        <Briefcase className="h-3.5 w-3.5 text-slate-400" /> {job.employment_type?.replace('_', ' ')}
                       </span>
-                    )}
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5 text-slate-400" /> {formatDate(job.created_at)}
-                    </span>
-                  </div>
+                      {(job.city || job.country) && (
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5 text-slate-400" /> {job.city || job.country}
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-slate-400" /> {formatDate(job.created_at)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              <div className="relative z-10 mt-6 pt-5 border-t flex items-center justify-between">
+
+              <div className="relative z-10 mt-6 pt-5 border-t flex items-center justify-between pointer-events-none">
                 <div className="flex items-center gap-6">
                   <div className="flex flex-col">
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Candidates</span>
@@ -110,7 +110,7 @@ export default function JobsListPage() {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center text-sm font-semibold text-primary">
                   View details <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </div>

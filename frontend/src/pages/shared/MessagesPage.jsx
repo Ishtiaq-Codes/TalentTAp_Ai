@@ -33,7 +33,7 @@ export default function MessagesPage() {
       setMessages([...messages, data])
       setInput('')
       refetch()
-    } catch {}
+    } catch { }
   }
 
   const convoList = Array.isArray(conversations) ? conversations : []

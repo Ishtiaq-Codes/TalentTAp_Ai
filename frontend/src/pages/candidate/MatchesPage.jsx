@@ -1,14 +1,33 @@
+import { useState, useEffect } from 'react'
 import { useFetch } from '@/hooks/useFetch'
 import { matchingAPI } from '@/api/matching'
 import EmptyState from '@/components/common/EmptyState'
+import { applicationsAPI } from '@/api/applications'
 import MatchScoreBadge from '@/components/common/MatchScoreBadge'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import { Sparkles, MapPin, Briefcase } from 'lucide-react'
 
 export default function MatchesPage() {
   const { data: matches, loading } = useFetch(() => matchingAPI.getCandidateMatches())
+  const { data: myApplications } = useFetch(() => applicationsAPI.list(), [])
 
-  if (loading) return <div className="space-y-4">{[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}</div>
+  const [applying, setApplying] = useState(null)
+  const [applied, setApplied] = useState(new Set())
+
+  useEffect(() => {
+    if (Array.isArray(myApplications)) {
+      setApplied(new Set(myApplications.map(app => app.job)))
+    }
+  }, [myApplications])
+
+  const handleApply = async (jobId) => {
+    setApplying(jobId)
+    try {
+      await applicationsAPI.apply({ job: jobId })
+      setApplied((prev) => new Set([...prev, jobId]))
+    } catch { /* already applied */ }
+    setApplying(null)
+  }
 
   const matchList = Array.isArray(matches) ? matches : []
 
@@ -50,6 +69,15 @@ export default function MatchesPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+              <div className="flex flex-col items-end gap-3 shrink-0 ml-4">
+                  <button
+                    onClick={() => handleApply(match.job)}
+                    disabled={applying === match.job || applied.has(match.job)}
+                    className="w-full sm:w-auto rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50 transition-all"
+                  >
+                    {applied.has(match.job) ? '✓ Applied' : applying === match.job ? 'Applying...' : 'Apply Now'}
+                  </button>
               </div>
             </div>
           ))}

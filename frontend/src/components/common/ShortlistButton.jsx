@@ -9,7 +9,7 @@ export default function ShortlistButton({ candidateId, jobId, initialIsShortlist
   const toggleShortlist = async (e) => {
     e.preventDefault()
     e.stopPropagation()
-    
+
     setLoading(true)
     try {
       if (isShortlisted) {
@@ -18,7 +18,7 @@ export default function ShortlistButton({ candidateId, jobId, initialIsShortlist
       } else {
         const payload = { candidate: candidateId, notes: '' }
         if (jobId) payload.job = jobId
-        
+
         await applicationsAPI.addToShortlist(payload)
         setIsShortlisted(true)
       }
@@ -39,11 +39,10 @@ export default function ShortlistButton({ candidateId, jobId, initialIsShortlist
     <button
       onClick={toggleShortlist}
       disabled={loading}
-      className={`group relative inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
-        isShortlisted 
-          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' 
+      className={`group relative inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${isShortlisted
+          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
           : 'border border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary hover:shadow-sm'
-      } ${className}`}
+        } ${className}`}
     >
       {loading ? (
         <Loader2 className="h-3.5 w-3.5 animate-spin" />

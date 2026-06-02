@@ -26,7 +26,7 @@ export default function JobDetailPage() {
     try {
       await matchingAPI.runForJob(id)
       refetchMatches()
-    } catch {}
+    } catch { }
     setRunningMatch(false)
   }
 
@@ -44,9 +44,8 @@ export default function JobDetailPage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-2xl font-bold truncate">{job.title}</h1>
-            <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium capitalize ${
-              job.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'
-            }`}>{job.status}</span>
+            <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium capitalize ${job.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'
+              }`}>{job.status}</span>
           </div>
           <p className="text-muted-foreground truncate">{job.company_name} · {job.employment_type?.replace('_', ' ')} · {job.is_remote} · {job.city || job.country}</p>
         </div>
