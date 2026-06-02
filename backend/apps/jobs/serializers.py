@@ -51,6 +51,7 @@ class JobSerializer(serializers.ModelSerializer):
 
 class JobListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for job lists."""
+    has_applied = serializers.SerializerMethodField()
     company_name = serializers.CharField(source='company.name', read_only=True)
     company_logo = serializers.ImageField(source='company.logo', read_only=True)
     skills = JobSkillSerializer(many=True, read_only=True)
@@ -61,5 +62,15 @@ class JobListSerializer(serializers.ModelSerializer):
             'id', 'title', 'slug', 'company_name', 'company_logo',
             'employment_type', 'location', 'country', 'city', 'is_remote',
             'salary_min', 'salary_max', 'salary_currency',
-            'status', 'is_featured', 'skills', 'created_at',
+            'status', 'is_featured', 'skills', 'created_at', 'has_applied',
         ]
+
+    def get_has_applied(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated and request.user.role == 'candidate':
+            from apps.candidates.models import CandidateProfile
+            from apps.applications.models import Application
+            profile = CandidateProfile.objects.filter(user=request.user).first()
+            if profile:
+                return Application.objects.filter(candidate=profile, job=obj).exists()
+        return False

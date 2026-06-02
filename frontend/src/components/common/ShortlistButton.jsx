@@ -12,24 +12,14 @@ export default function ShortlistButton({ candidateId, jobId, initialIsShortlist
 
     setLoading(true)
     try {
-      if (isShortlisted) {
-        // Typically we'd need the specific shortlist ID to delete, but for UX simulation:
-        setIsShortlisted(false)
-      } else {
-        const payload = { candidate: candidateId, notes: '' }
-        if (jobId) payload.job = jobId
+      const payload = { candidate: candidateId }
+      if (jobId) payload.job = jobId
 
-        await applicationsAPI.addToShortlist(payload)
-        setIsShortlisted(true)
-      }
+      const response = await applicationsAPI.toggleShortlist(payload)
+      setIsShortlisted(response.is_shortlisted)
     } catch (err) {
       console.error('Shortlist error:', err)
-      // If it's already shortlisted, just update state instead of showing an error
-      if (err.response?.status === 400 && JSON.stringify(err.response?.data).includes('already')) {
-        setIsShortlisted(true)
-      } else {
-        alert(err.response?.data?.detail || err.response?.data?.candidate?.[0] || 'Error shortlisting candidate')
-      }
+      alert(err.response?.data?.detail || 'Error toggling shortlist')
     } finally {
       setLoading(false)
     }

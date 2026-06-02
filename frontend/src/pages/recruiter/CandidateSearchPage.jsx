@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { useDebounce } from '@/hooks/useDebounce'
 import { candidatesAPI } from '@/api/candidates'
-import { applicationsAPI } from '@/api/applications'
 import EmptyState from '@/components/common/EmptyState'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import ShortlistButton from '@/components/common/ShortlistButton'
@@ -19,10 +18,8 @@ export default function CandidateSearchPage() {
     () => candidatesAPI.search({ search: debounced, ...filters }),
     [debounced, filters],
   )
-  const { data: shortlists } = useFetch(() => applicationsAPI.getShortlists(), [])
 
   const list = Array.isArray(candidates) ? candidates : []
-  const shortlistedIds = new Set(Array.isArray(shortlists) ? shortlists.map(s => s.candidate) : [])
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -81,7 +78,7 @@ export default function CandidateSearchPage() {
                     <ProfileAvatar name={c.user_name} src={c.avatar} size="lg" className="h-full w-full" />
                   </div>
                   <div className="flex flex-col gap-2 pointer-events-auto">
-                    <ShortlistButton candidateId={c.id} initialIsShortlisted={shortlistedIds.has(c.id)} />
+                    <ShortlistButton candidateId={c.id} initialIsShortlisted={c.is_shortlisted} />
                   </div>
                 </div>
 

@@ -43,6 +43,7 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
 
 class CandidateSearchSerializer(serializers.ModelSerializer):
     """Lightweight serializer for search results."""
+    is_shortlisted = serializers.SerializerMethodField()
     user_id = serializers.UUIDField(source='user.id', read_only=True)
     user_name = serializers.CharField(source='user.full_name', read_only=True)
     avatar = serializers.ImageField(source='user.avatar', read_only=True)
@@ -53,5 +54,19 @@ class CandidateSearchSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user_id', 'user_name', 'avatar', 'headline', 'country', 'city',
             'years_of_experience', 'employment_status', 'availability',
-            'employment_type_preferred', 'is_open_to_work', 'skills',
+            'employment_type_preferred', 'is_open_to_work', 'skills', 'is_shortlisted',
         ]
+
+    def get_is_shortlisted(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated and request.user.role in ('recruiter', 'company_admin'):
+            from apps.companies.models import RecruiterProfile
+            from apps.applications.models import Shortlist
+            profile = RecruiterProfile.objects.filter(user=request.user).first()
+            if not profile and request.user.role == 'company_admin':
+                company = getattr(request.user, 'owned_companies', None)
+                if company and company.exists():
+                    profile = RecruiterProfile.objects.filter(company=company.first()).first()
+            if profile:
+                return Shortlist.objects.filter(recruiter=profile, candidate=obj).exists()
+        return False

@@ -7,4 +7,5 @@ export const applicationsAPI = {
   getShortlists: () => client.get('/applications/shortlists/'),
   addToShortlist: (data) => client.post('/applications/shortlists/', data),
   removeFromShortlist: (id) => client.delete(`/applications/shortlists/${id}/`),
+  toggleShortlist: (data) => client.post('/applications/shortlists/toggle/', data),
 }

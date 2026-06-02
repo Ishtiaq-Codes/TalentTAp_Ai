@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useFetch } from '@/hooks/useFetch'
 import { useDebounce } from '@/hooks/useDebounce'
 import { jobsAPI } from '@/api/jobs'
@@ -18,17 +18,8 @@ export default function JobsPage() {
     () => jobsAPI.list({ search: debounced, status: 'active', ...filters }),
     [debounced, filters],
   )
-  const { data: myApplications } = useFetch(() => applicationsAPI.list(), [])
-
   const [applying, setApplying] = useState(null)
   const [applied, setApplied] = useState(new Set())
-
-  // Populate applied set when applications load
-  useEffect(() => {
-    if (Array.isArray(myApplications)) {
-      setApplied(new Set(myApplications.map(app => app.job)))
-    }
-  }, [myApplications])
 
   const handleApply = async (jobId) => {
     setApplying(jobId)
@@ -102,10 +93,10 @@ export default function JobsPage() {
                 <div className="flex flex-col items-end gap-3 shrink-0">
                   <button
                     onClick={() => handleApply(job.id)}
-                    disabled={applying === job.id || applied.has(job.id)}
+                    disabled={applying === job.id || applied.has(job.id) || job.has_applied}
                     className="w-full sm:w-auto rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50 transition-all"
                   >
-                    {applied.has(job.id) ? '✓ Applied' : applying === job.id ? 'Applying...' : 'Apply Now'}
+                    {applied.has(job.id) || job.has_applied ? '✓ Applied' : applying === job.id ? 'Applying...' : 'Apply Now'}
                   </button>
                   <p className="text-xs text-slate-500 font-medium">Posted {formatDate(job.created_at)}</p>
                 </div>

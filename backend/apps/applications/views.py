@@ -107,3 +107,35 @@ class ShortlistDeleteView(generics.DestroyAPIView):
         if profile:
             return Shortlist.objects.filter(recruiter=profile)
         return Shortlist.objects.none()
+
+
+class ShortlistToggleView(APIView):
+    """Toggle a candidate in the shortlist by candidate ID."""
+    permission_classes = [IsAuthenticated, IsRecruiter]
+
+    def post(self, request):
+        user = request.user
+        profile = RecruiterProfile.objects.filter(user=user).first()
+        if not profile and user.role == 'company_admin':
+            company = getattr(user, 'owned_companies', None)
+            if company and company.exists():
+                profile, _ = RecruiterProfile.objects.get_or_create(
+                    user=user, company=company.first(), defaults={'title': 'Company Admin'}
+                )
+        if not profile:
+            return Response({'detail': 'Recruiter profile required.'}, status=status.HTTP_403_FORBIDDEN)
+            
+        candidate_id = request.data.get('candidate')
+        if not candidate_id:
+            return Response({'detail': 'Candidate ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        job_id = request.data.get('job', None)
+        
+        # Check if exists
+        existing = Shortlist.objects.filter(recruiter=profile, candidate_id=candidate_id, job_id=job_id).first()
+        if existing:
+            existing.delete()
+            return Response({'status': 'removed', 'is_shortlisted': False})
+        else:
+            Shortlist.objects.create(recruiter=profile, candidate_id=candidate_id, job_id=job_id)
+            return Response({'status': 'added', 'is_shortlisted': True})
