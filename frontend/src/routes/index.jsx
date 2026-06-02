@@ -8,6 +8,17 @@ const LandingPage = lazy(() => import('@/pages/landing/LandingPage'))
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'))
 const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage'))
+const AcceptInvitePage = lazy(() => import('@/pages/public/AcceptInvitePage'))
+
+// Public Pages
+const AboutPage = lazy(() => import('@/pages/public/AboutPage'))
+const FeaturesPage = lazy(() => import('@/pages/public/FeaturesPage'))
+const PricingPage = lazy(() => import('@/pages/public/PricingPage'))
+const FAQPage = lazy(() => import('@/pages/public/FAQPage'))
+const ContactPage = lazy(() => import('@/pages/public/ContactPage'))
+const PrivacyPage = lazy(() => import('@/pages/public/PrivacyPage'))
+const TermsPage = lazy(() => import('@/pages/public/TermsPage'))
+const TalentProfilePage = lazy(() => import('@/pages/public/TalentProfilePage'))
 
 // Candidate
 const CandidateDashboard = lazy(() => import('@/pages/candidate/DashboardPage'))
@@ -22,6 +33,7 @@ const JobsListPage = lazy(() => import('@/pages/recruiter/JobsListPage'))
 const CreateJobPage = lazy(() => import('@/pages/recruiter/CreateJobPage'))
 const JobDetailPage = lazy(() => import('@/pages/recruiter/JobDetailPage'))
 const CandidateSearchPage = lazy(() => import('@/pages/recruiter/CandidateSearchPage'))
+const CandidateDetailPage = lazy(() => import('@/pages/recruiter/CandidateDetailPage'))
 const ShortlistsPage = lazy(() => import('@/pages/recruiter/ShortlistsPage'))
 
 // Company
@@ -80,9 +92,18 @@ export default function AppRouter() {
         <Routes>
           {/* Public routes — redirect to dashboard if logged in */}
           <Route path="/" element={<RedirectIfAuth><LandingPage /></RedirectIfAuth>} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/talent/:id" element={<TalentProfilePage />} />
           <Route path="/login" element={<RedirectIfAuth><LoginPage /></RedirectIfAuth>} />
           <Route path="/register" element={<RedirectIfAuth><RegisterPage /></RedirectIfAuth>} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/invite/:token" element={<RedirectIfAuth><AcceptInvitePage /></RedirectIfAuth>} />
 
           {/* Protected routes with AppShell layout */}
           <Route element={<RequireAuth><AppShell /></RequireAuth>}>
@@ -100,6 +121,7 @@ export default function AppRouter() {
             <Route path="/recruiter/jobs/new" element={<CreateJobPage />} />
             <Route path="/recruiter/jobs/:id" element={<JobDetailPage />} />
             <Route path="/recruiter/candidates" element={<CandidateSearchPage />} />
+            <Route path="/recruiter/candidates/:id" element={<CandidateDetailPage />} />
             <Route path="/recruiter/shortlists" element={<ShortlistsPage />} />
             <Route path="/recruiter/messages" element={<MessagesPage />} />
 

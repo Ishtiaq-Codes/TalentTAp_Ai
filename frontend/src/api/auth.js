@@ -8,4 +8,5 @@ export const authAPI = {
   updateMe: (data) => client.patch('/auth/me/', data),
   changePassword: (data) => client.post('/auth/change-password/', data),
   forgotPassword: (email) => client.post('/auth/forgot-password/', { email }),
+  acceptInvite: (token, password) => client.post('/auth/accept-invite/', { token, password }),
 }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import Logo from '@/components/common/Logo'
+import { ArrowRight, Mail, Lock, User, Briefcase, Target, AlertCircle } from 'lucide-react'
 
 export default function RegisterPage() {
   const { register } = useAuth()
@@ -36,90 +37,172 @@ export default function RegisterPage() {
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:justify-between bg-gradient-to-br from-primary to-primary/80 p-12 text-primary-foreground">
-        <Logo />
-        <div>
-          <h1 className="text-4xl font-bold">Join TalentTap AI</h1>
-          <p className="mt-4 text-lg opacity-80">
-            Create your account and start connecting with the best talent or opportunities.
-          </p>
+    <div className="flex min-h-screen bg-background">
+      {/* Left panel — branding */}
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-slate-900 p-12 lg:flex">
+        {/* Background blobs */}
+        <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-blue-500/20 blur-3xl" />
+
+        <div className="relative z-10">
+          <Logo collapsed={false} />
         </div>
-        <p className="text-sm opacity-60">© 2025 TalentTap AI</p>
+
+        <div className="relative z-10 space-y-6">
+          <h1 className="text-4xl font-bold tracking-tight text-white xl:text-5xl">
+            Join the future of <br />
+            <span className="text-primary">hiring today.</span>
+          </h1>
+          <p className="max-w-md text-lg text-slate-400">
+            Create your account to start getting discovered by top companies, or finding the perfect candidates.
+          </p>
+          
+          <div className="mt-8 space-y-4">
+            <div className="flex items-center gap-3 text-slate-300">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">✓</div>
+              <p>Free forever for candidates</p>
+            </div>
+            <div className="flex items-center gap-3 text-slate-300">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">✓</div>
+              <p>AI-powered accurate matching</p>
+            </div>
+            <div className="flex items-center gap-3 text-slate-300">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">✓</div>
+              <p>No endless applications</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 text-sm text-slate-500">
+          © {new Date().getFullYear()} TalentTap AI. All rights reserved.
+        </div>
       </div>
 
       {/* Right panel — form */}
       <div className="flex flex-1 items-center justify-center p-8">
-        <div className="w-full max-w-md">
-          <div className="lg:hidden mb-8"><Logo /></div>
-          <h2 className="text-2xl font-bold">Create Account</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Get started in under a minute</p>
+        <div className="w-full max-w-md animate-fade-in-up">
+          <div className="mb-8 lg:hidden">
+            <Logo />
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold tracking-tight">Create Account</h2>
+            <p className="mt-2 text-muted-foreground">Get started in under a minute.</p>
+          </div>
 
           {error && (
-            <div className="mt-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+            <div className="mb-6 flex items-center gap-3 rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              {error}
+            </div>
           )}
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Role selection */}
-            <div className="flex gap-2">
-              {['candidate', 'company_admin'].map((role) => (
+            <div className="space-y-3">
+              <label className="text-sm font-medium">I am a...</label>
+              <div className="grid grid-cols-2 gap-3">
                 <button
-                  key={role}
                   type="button"
-                  onClick={() => setForm({ ...form, role })}
-                  className={`flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors ${
-                    form.role === role ? 'border-primary bg-primary/10 text-primary' : 'hover:bg-muted'
+                  onClick={() => setForm({ ...form, role: 'candidate' })}
+                  className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
+                    form.role === 'candidate' 
+                      ? 'border-primary bg-primary/5 text-primary shadow-sm' 
+                      : 'border-border bg-white text-muted-foreground hover:bg-slate-50'
                   }`}
                 >
-                  {role === 'candidate' ? '🎯 Candidate' : '🏢 Company'}
+                  <Target className={`h-6 w-6 ${form.role === 'candidate' ? 'text-primary' : 'text-slate-400'}`} />
+                  <span className="text-sm font-semibold text-foreground">Candidate</span>
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, role: 'company_admin' })}
+                  className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
+                    form.role === 'company_admin' 
+                      ? 'border-primary bg-primary/5 text-primary shadow-sm' 
+                      : 'border-border bg-white text-muted-foreground hover:bg-slate-50'
+                  }`}
+                >
+                  <Briefcase className={`h-6 w-6 ${form.role === 'company_admin' ? 'text-primary' : 'text-slate-400'}`} />
+                  <span className="text-sm font-semibold text-foreground">Company</span>
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div className="space-y-1.5">
                 <label className="text-sm font-medium" htmlFor="reg-fname">First Name</label>
-                <input id="reg-fname" required value={form.first_name} onChange={update('first_name')}
-                  className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <input id="reg-fname" required value={form.first_name} onChange={update('first_name')}
+                    className="block w-full rounded-xl border bg-white py-3 pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                    placeholder="John" />
+                </div>
               </div>
-              <div>
+              <div className="space-y-1.5">
                 <label className="text-sm font-medium" htmlFor="reg-lname">Last Name</label>
                 <input id="reg-lname" required value={form.last_name} onChange={update('last_name')}
-                  className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                  className="block w-full rounded-xl border bg-white py-3 px-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                  placeholder="Doe" />
               </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium" htmlFor="reg-email">Email</label>
-              <input id="reg-email" type="email" required value={form.email} onChange={update('email')}
-                className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                placeholder="you@example.com" />
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium" htmlFor="reg-email">Email Address</label>
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                  <Mail className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <input id="reg-email" type="email" required value={form.email} onChange={update('email')}
+                  className="block w-full rounded-xl border bg-white py-3 pl-11 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                  placeholder="you@example.com" />
+              </div>
             </div>
 
-            <div>
+            <div className="space-y-1.5">
               <label className="text-sm font-medium" htmlFor="reg-pw">Password</label>
-              <input id="reg-pw" type="password" required minLength={8} value={form.password} onChange={update('password')}
-                className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                placeholder="••••••••" />
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                  <Lock className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <input id="reg-pw" type="password" required minLength={8} value={form.password} onChange={update('password')}
+                  className="block w-full rounded-xl border bg-white py-3 pl-11 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                  placeholder="••••••••" />
+              </div>
             </div>
 
-            <div>
+            <div className="space-y-1.5">
               <label className="text-sm font-medium" htmlFor="reg-pw2">Confirm Password</label>
-              <input id="reg-pw2" type="password" required value={form.password_confirm} onChange={update('password_confirm')}
-                className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                placeholder="••••••••" />
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                  <Lock className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <input id="reg-pw2" type="password" required value={form.password_confirm} onChange={update('password_confirm')}
+                  className="block w-full rounded-xl border bg-white py-3 pl-11 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                  placeholder="••••••••" />
+              </div>
             </div>
 
             <button type="submit" disabled={loading}
-              className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors">
-              {loading ? 'Creating...' : 'Create Account'}
+              className="group mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 disabled:opacity-50 transition-all">
+              {loading ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              ) : (
+                <>
+                  Create Account
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </>
+              )}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+          <p className="mt-8 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link to="/login" className="font-medium text-primary hover:underline">Sign In</Link>
+            <Link to="/login" className="font-semibold text-primary hover:underline">
+              Sign In
+            </Link>
           </p>
         </div>
       </div>

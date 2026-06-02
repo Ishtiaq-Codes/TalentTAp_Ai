@@ -11,7 +11,7 @@ export default function CompanyProfilePage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
-  if (profile && !form) setForm({ ...profile.company })
+  if (profile && !form) setForm({ ...profile })
   if (loading) return <div className="space-y-4">{[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}</div>
   if (!form) return <div className="p-8 text-center text-muted-foreground">Company profile not found. Please create one.</div>
 
@@ -21,23 +21,21 @@ export default function CompanyProfilePage() {
     setSaving(true)
     setMessage('')
     try {
-      await companiesAPI.updateProfile({ company: form })
-      setMessage('Company profile saved!')
+      if (form.id) {
+        await companiesAPI.updateProfile(form)
+        setMessage('Company profile updated!')
+      } else {
+        await companiesAPI.createCompany(form)
+        setMessage('Company profile created!')
+      }
       refetch()
     } catch (err) {
-      setMessage('Error saving profile')
+      console.error(err)
+      setMessage(err.response?.data?.detail || 'Error saving profile')
     } finally {
       setSaving(false)
     }
   }
-
-  const Input = ({ label, field, placeholder = '' }) => (
-    <div>
-      <label className="text-sm font-medium">{label}</label>
-      <input value={form[field] || ''} onChange={update(field)} placeholder={placeholder}
-        className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
-    </div>
-  )
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -56,17 +54,25 @@ export default function CompanyProfilePage() {
 
       <section className="rounded-xl border bg-card p-6 space-y-4">
         <h2 className="text-lg font-semibold">Basic Details</h2>
-        <Input label="Company Name" field="name" />
+        <div>
+          <label className="text-sm font-medium">Company Name</label>
+          <input value={form.name || ''} onChange={update('name')}
+            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+        </div>
         <div>
           <label className="text-sm font-medium">Description</label>
           <textarea value={form.description || ''} onChange={update('description')} rows={4}
             className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Industry" field="industry" placeholder="e.g. Technology" />
+          <div>
+            <label className="text-sm font-medium">Industry</label>
+            <input value={form.industry || ''} onChange={update('industry')} placeholder="e.g. Technology"
+              className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+          </div>
           <div>
             <label className="text-sm font-medium">Company Size</label>
-            <select value={form.size || ''} onChange={update('size')}
+            <select value={form.company_size || ''} onChange={update('company_size')}
               className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
               <option value="">Select size...</option>
               {COMPANY_SIZE.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -77,9 +83,21 @@ export default function CompanyProfilePage() {
 
       <section className="rounded-xl border bg-card p-6 space-y-4">
         <h2 className="text-lg font-semibold">Location & Links</h2>
-        <Input label="Location (City, Country)" field="location" />
-        <Input label="Website URL" field="website_url" placeholder="https://..." />
-        <Input label="LinkedIn URL" field="linkedin_url" placeholder="https://linkedin.com/company/..." />
+        <div>
+          <label className="text-sm font-medium">Location (City, Country)</label>
+          <input value={form.location || ''} onChange={update('location')}
+            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+        </div>
+        <div>
+          <label className="text-sm font-medium">Website URL</label>
+          <input value={form.website || ''} onChange={update('website')} placeholder="https://..."
+            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+        </div>
+        <div>
+          <label className="text-sm font-medium">LinkedIn URL</label>
+          <input value={form.linkedin_url || ''} onChange={update('linkedin_url')} placeholder="https://linkedin.com/company/..."
+            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+        </div>
       </section>
     </div>
   )

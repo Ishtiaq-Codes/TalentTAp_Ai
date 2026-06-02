@@ -8,39 +8,53 @@ import {
 } from 'lucide-react'
 
 const candidateLinks = [
-  { to: '/candidate/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/candidate/profile', icon: User, label: 'Profile' },
-  { to: '/candidate/jobs', icon: Briefcase, label: 'Browse Jobs' },
-  { to: '/candidate/applications', icon: FileText, label: 'Applications' },
-  { to: '/candidate/matches', icon: Sparkles, label: 'Matches' },
-  { to: '/candidate/messages', icon: MessageSquare, label: 'Messages' },
+  { section: 'Dashboard', items: [
+    { to: '/candidate/dashboard', icon: LayoutDashboard, label: 'Overview' },
+    { to: '/candidate/matches', icon: Sparkles, label: 'AI Matches' },
+  ]},
+  { section: 'Job Search', items: [
+    { to: '/candidate/jobs', icon: Briefcase, label: 'Browse Jobs' },
+    { to: '/candidate/applications', icon: FileText, label: 'Applications' },
+    { to: '/candidate/messages', icon: MessageSquare, label: 'Messages' },
+  ]},
+  { section: 'Settings', items: [
+    { to: '/candidate/profile', icon: User, label: 'My Profile' },
+  ]}
 ]
 
 const recruiterLinks = [
-  { to: '/recruiter/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/recruiter/jobs', icon: Briefcase, label: 'Jobs' },
-  { to: '/recruiter/candidates', icon: Search, label: 'Find Candidates' },
-  { to: '/recruiter/shortlists', icon: Heart, label: 'Shortlists' },
-  { to: '/recruiter/messages', icon: MessageSquare, label: 'Messages' },
+  { section: 'Dashboard', items: [
+    { to: '/recruiter/dashboard', icon: LayoutDashboard, label: 'Overview' },
+    { to: '/recruiter/jobs', icon: Briefcase, label: 'Manage Jobs' },
+  ]},
+  { section: 'Talent Discovery', items: [
+    { to: '/recruiter/candidates', icon: Search, label: 'Search Candidates' },
+    { to: '/recruiter/shortlists', icon: Heart, label: 'Shortlists' },
+    { to: '/recruiter/messages', icon: MessageSquare, label: 'Messages' },
+  ]}
 ]
 
 const companyLinks = [
-  { to: '/company/profile', icon: Building2, label: 'Company' },
-  { to: '/company/team', icon: Users, label: 'Team' },
-  { to: '/company/settings', icon: Settings, label: 'Settings' },
+  { section: 'Organization', items: [
+    { to: '/company/profile', icon: Building2, label: 'Company Profile' },
+    { to: '/company/team', icon: Users, label: 'Team Members' },
+    { to: '/company/settings', icon: Settings, label: 'Settings' },
+  ]}
 ]
 
 const adminLinks = [
-  { to: '/admin/dashboard', icon: BarChart3, label: 'Analytics' },
-  { to: '/admin/companies', icon: Building2, label: 'Companies' },
-  { to: '/admin/candidates', icon: Users, label: 'Candidates' },
-  { to: '/admin/jobs', icon: Briefcase, label: 'Jobs' },
+  { section: 'Platform', items: [
+    { to: '/admin/dashboard', icon: BarChart3, label: 'Analytics' },
+    { to: '/admin/companies', icon: Building2, label: 'Companies' },
+    { to: '/admin/candidates', icon: Users, label: 'Candidates' },
+    { to: '/admin/jobs', icon: Briefcase, label: 'Jobs' },
+  ]}
 ]
 
 export default function Sidebar() {
   const { user } = useAuth()
 
-  const getLinks = () => {
+  const getNavSections = () => {
     switch (user?.role) {
       case 'candidate': return candidateLinks
       case 'recruiter': return recruiterLinks
@@ -50,28 +64,66 @@ export default function Sidebar() {
     }
   }
 
+  const sections = getNavSections()
+
   return (
-    <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r lg:bg-card">
-      <div className="flex h-16 items-center border-b px-6">
+    <aside className="hidden lg:flex w-[260px] flex-col border-r bg-white">
+      {/* Logo Area */}
+      <div className="flex h-16 items-center px-6 border-b">
         <Logo />
       </div>
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {getLinks().map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) => cn(
-              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-              isActive
-                ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-            )}
-          >
-            <Icon className="h-5 w-5" />
-            {label}
-          </NavLink>
+
+      {/* Navigation Links */}
+      <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-8">
+        {sections.map((section, idx) => (
+          <div key={idx}>
+            <h4 className="mb-3 px-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+              {section.section}
+            </h4>
+            <div className="space-y-1">
+              {section.items.map(({ to, icon: Icon, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) => cn(
+                    'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                    isActive
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+                  )}
+                >
+                  {({ isActive }) => (
+                    <>
+                      <div className={cn(
+                        'flex h-6 w-6 items-center justify-center rounded-lg transition-colors',
+                        isActive ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-slate-400 group-hover:text-primary'
+                      )}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      {label}
+                      {/* Active indicator dot */}
+                      {isActive && <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
+
+      {/* User Quick Profile Area */}
+      <div className="border-t p-4">
+        <div className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-slate-50">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-blue-200 text-xs font-bold text-primary">
+            {user?.first_name?.[0]}{user?.last_name?.[0]}
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <p className="truncate text-sm font-semibold">{user?.first_name} {user?.last_name}</p>
+            <p className="truncate text-xs text-muted-foreground capitalize">{user?.role?.replace('_', ' ')}</p>
+          </div>
+        </div>
+      </div>
     </aside>
   )
 }

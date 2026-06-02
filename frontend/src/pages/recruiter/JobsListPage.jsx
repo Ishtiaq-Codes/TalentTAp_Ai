@@ -4,75 +4,115 @@ import EmptyState from '@/components/common/EmptyState'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import { formatDate } from '@/lib/utils'
 import { Link } from 'react-router-dom'
-import { Briefcase, Plus, Eye, Edit, Users } from 'lucide-react'
+import { Briefcase, Plus, Eye, MapPin, Clock, Users, ArrowRight } from 'lucide-react'
 
 const STATUS_COLORS = {
-  active: 'bg-emerald-100 text-emerald-700',
-  draft: 'bg-gray-100 text-gray-700',
-  paused: 'bg-amber-100 text-amber-700',
-  closed: 'bg-red-100 text-red-700',
-  archived: 'bg-gray-100 text-gray-500',
+  active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  draft: 'bg-slate-50 text-slate-700 border-slate-200',
+  paused: 'bg-amber-50 text-amber-700 border-amber-200',
+  closed: 'bg-red-50 text-red-700 border-red-200',
+  archived: 'bg-slate-100 text-slate-500 border-slate-200',
 }
 
 export default function JobsListPage() {
   const { data: jobs, loading } = useFetch(() => jobsAPI.list())
 
-  if (loading) return <div className="space-y-4">{[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}</div>
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+      </div>
+    )
+  }
 
   const jobList = Array.isArray(jobs) ? jobs : []
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Your Jobs</h1>
-          <p className="text-muted-foreground">Manage and track your job postings.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Job Postings</h1>
+          <p className="mt-2 text-muted-foreground max-w-xl">
+            Manage your active roles, track applications, and view AI-matched candidates.
+          </p>
         </div>
-        <Link to="/recruiter/jobs/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          <Plus className="h-4 w-4" /> Post Job
+        <Link 
+          to="/recruiter/jobs/new"
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-primary/90 transition-all"
+        >
+          <Plus className="h-4 w-4" /> Post New Job
         </Link>
       </div>
 
       {jobList.length === 0 ? (
-        <EmptyState icon={Briefcase} title="No jobs posted" description="Create your first job posting to start finding candidates."
-          action={<Link to="/recruiter/jobs/new" className="rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground">Post Your First Job</Link>} />
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed bg-white p-16 text-center shadow-sm">
+          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Briefcase className="h-8 w-8" />
+          </div>
+          <h3 className="text-xl font-bold">No jobs posted yet</h3>
+          <p className="mt-2 max-w-sm text-muted-foreground">
+            Create your first job posting to start discovering top talent and receiving applications.
+          </p>
+          <Link 
+            to="/recruiter/jobs/new" 
+            className="mt-8 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-white shadow-md hover:bg-primary/90 transition-all"
+          >
+            Create Job Post
+          </Link>
+        </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border bg-card">
-          <table className="w-full">
-            <thead className="border-b bg-muted/50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Job</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase hidden sm:table-cell">Type</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase hidden md:table-cell">Location</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase hidden lg:table-cell">Posted</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {jobList.map((job) => (
-                <tr key={job.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-sm">{job.title}</p>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground hidden sm:table-cell capitalize">{job.employment_type?.replace('_', ' ')}</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground hidden md:table-cell">{job.city || job.country || '—'}</td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${STATUS_COLORS[job.status] || ''}`}>
-                      {job.status}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {jobList.map((job) => (
+            <div key={job.id} className="group relative flex flex-col justify-between rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-xl hover:border-primary/40 hover:-translate-y-1">
+              <Link to={`/recruiter/jobs/${job.id}`} className="absolute inset-0 z-0" aria-label={`View ${job.title}`} />
+              
+              <div className="relative z-10">
+                <div className="flex items-start justify-between">
+                  <div className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wider ${STATUS_COLORS[job.status] || ''}`}>
+                    {job.status}
+                  </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                    <Eye className="h-4 w-4" />
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <h3 className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">{job.title}</h3>
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-slate-600">
+                    <span className="flex items-center gap-1.5 capitalize">
+                      <Briefcase className="h-3.5 w-3.5 text-slate-400" /> {job.employment_type?.replace('_', ' ')}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground hidden lg:table-cell">{formatDate(job.created_at)}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      <Link to={`/recruiter/jobs/${job.id}`} className="rounded p-1.5 hover:bg-muted" title="View"><Eye className="h-4 w-4" /></Link>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    {(job.city || job.country) && (
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 text-slate-400" /> {job.city || job.country}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 text-slate-400" /> {formatDate(job.created_at)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="relative z-10 mt-6 pt-5 border-t flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Candidates</span>
+                    <span className="text-lg font-bold flex items-center gap-1 mt-0.5">
+                      <Users className="h-4 w-4 text-primary" /> {job.application_count || 0}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center text-sm font-semibold text-primary">
+                  View details <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
