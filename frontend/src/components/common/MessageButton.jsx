@@ -3,7 +3,7 @@ import { messagingAPI } from '@/api/messaging'
 import { useNavigate } from 'react-router-dom'
 import { Mail, X } from 'lucide-react'
 
-export default function MessageButton({ recipientId, name, className = '' }) {
+export default function MessageButton({ recipientId, name }) {
   const [isOpen, setIsOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
@@ -30,11 +30,12 @@ export default function MessageButton({ recipientId, name, className = '' }) {
     }
   }
 
+
   return (
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium border text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors ${className}`}
+        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium border text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
         title="Send Message"
       >
         <Mail className="h-3.5 w-3.5" /> Message

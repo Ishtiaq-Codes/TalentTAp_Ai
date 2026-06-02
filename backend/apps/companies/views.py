@@ -25,6 +25,37 @@ class CompanyProfileView(generics.RetrieveUpdateAPIView):
         return company
 
 
+class CompanyImagesUploadView(generics.UpdateAPIView):
+    """Upload company logo or banner."""
+    serializer_class = CompanySerializer
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
+    from rest_framework.parsers import MultiPartParser, FormParser
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get_object(self):
+        company = Company.objects.filter(created_by=self.request.user).first()
+        if not company:
+            from django.http import Http404
+            raise Http404("Company not found.")
+        return company
+
+    def patch(self, request, *args, **kwargs):
+        company = self.get_object()
+        logo = request.FILES.get('logo')
+        banner_image = request.FILES.get('banner_image')
+        
+        if not logo and not banner_image:
+            return Response({'detail': 'No files provided.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if logo:
+            company.logo = logo
+        if banner_image:
+            company.banner_image = banner_image
+            
+        company.save()
+        return Response(CompanySerializer(company).data)
+
+
 class CompanyCreateView(generics.CreateAPIView):
     """Create a company (company_admin only)."""
     serializer_class = CompanySerializer

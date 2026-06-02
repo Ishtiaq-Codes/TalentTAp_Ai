@@ -53,6 +53,7 @@ class CandidateProfile(models.Model):
     github_url = models.URLField(blank=True)
     portfolio_url = models.URLField(blank=True)
     resume = models.FileField(upload_to='resumes/', blank=True, null=True)
+    banner_image = models.ImageField(upload_to='candidate_banners/', blank=True, null=True)
     is_open_to_work = models.BooleanField(default=True, db_index=True)
     profile_completion = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { Bell, LogOut, Menu, Search, Settings, User } from 'lucide-react'
+import ProfileAvatar from '@/components/common/ProfileAvatar'
 
 export default function Topbar({ onToggleMobile }) {
   const { user, logout } = useAuth()
@@ -77,9 +78,7 @@ export default function Topbar({ onToggleMobile }) {
             onClick={() => setShowMenu(!showMenu)}
             className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-slate-100 transition-colors"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-blue-200 text-xs font-bold text-primary">
-              {user?.first_name?.[0]}{user?.last_name?.[0]}
-            </div>
+            <ProfileAvatar name={`${user?.first_name} ${user?.last_name}`} src={user?.avatar} size="sm" />
             <div className="hidden text-left sm:block">
               <p className="text-sm font-semibold leading-none">{user?.first_name}</p>
             </div>

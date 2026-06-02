@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Briefcase, Users, FileText, TrendingUp, Plus, ArrowRight, Activity, Clock, CheckCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SkeletonCard from '@/components/common/SkeletonCard'
+import ProfileAvatar from '@/components/common/ProfileAvatar'
 
 function DashboardStat({ icon: Icon, label, value, trend, trendLabel }) {
   return (
@@ -83,14 +84,17 @@ export default function RecruiterDashboard() {
             {jobList.length > 0 ? jobList.filter(j => j.status === 'active').slice(0, 4).map((job) => (
               <Link key={job.id} to={`/recruiter/jobs/${job.id}`} className="group rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-primary/30">
                 <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{job.title}</h3>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                      <span className="font-medium text-slate-700">{job.employment_type?.replace('_', ' ')}</span>
-                      <span className="h-1 w-1 rounded-full bg-slate-300" />
-                      <span>{job.is_remote}</span>
-                      <span className="h-1 w-1 rounded-full bg-slate-300" />
-                      <span>{job.city || job.country}</span>
+                  <div className="flex gap-4">
+                    <ProfileAvatar src={job.company_logo} name={job.company_name || 'Company'} size="md" className="rounded-xl shadow-sm shrink-0" />
+                    <div>
+                      <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{job.title}</h3>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                        <span className="font-medium text-slate-700">{job.employment_type?.replace('_', ' ')}</span>
+                        <span className="h-1 w-1 rounded-full bg-slate-300" />
+                        <span>{job.is_remote}</span>
+                        <span className="h-1 w-1 rounded-full bg-slate-300" />
+                        <span>{job.city || job.country}</span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">

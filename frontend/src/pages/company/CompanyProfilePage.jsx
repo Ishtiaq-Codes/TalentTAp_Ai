@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { useFetch } from '@/hooks/useFetch'
 import { companiesAPI } from '@/api/companies'
 import SkeletonCard from '@/components/common/SkeletonCard'
-import { Save } from 'lucide-react'
+import { Save, Upload, Camera } from 'lucide-react'
 import { COMPANY_SIZE } from '@/lib/constants'
+import { getImageUrl } from '@/lib/utils'
+import ProfileAvatar from '@/components/common/ProfileAvatar'
 
 export default function CompanyProfilePage() {
   const { data: profile, loading, refetch } = useFetch(() => companiesAPI.getProfile())
@@ -37,6 +39,30 @@ export default function CompanyProfilePage() {
     }
   }
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    try {
+      await companiesAPI.uploadImages(file, null)
+      setMessage('Logo uploaded successfully!')
+      refetch()
+    } catch {
+      setMessage('Error uploading logo')
+    }
+  }
+
+  const handleBannerUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    try {
+      await companiesAPI.uploadImages(null, file)
+      setMessage('Banner uploaded successfully!')
+      refetch()
+    } catch {
+      setMessage('Error uploading banner')
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
@@ -51,6 +77,41 @@ export default function CompanyProfilePage() {
       </div>
 
       {message && <div className="rounded-lg bg-primary/10 p-3 text-sm text-primary">{message}</div>}
+
+      {/* Header Banner & Logo */}
+      <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+        <div className="h-32 bg-slate-100 relative group">
+          {profile?.banner_image ? (
+            <img src={getImageUrl(profile.banner_image)} alt="Banner" className="h-full w-full object-cover" />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-500/20" />
+          )}
+          <label className="absolute bottom-2 right-2 cursor-pointer rounded-lg bg-black/50 p-2 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100 backdrop-blur-sm">
+            <Camera className="h-4 w-4" />
+            <input type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
+          </label>
+        </div>
+        
+        <div className="px-6 pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div className="flex items-end gap-4">
+              <div className="-mt-12 relative z-10 group flex h-24 w-24 items-center justify-center rounded-xl border-4 border-white bg-white shadow-md overflow-hidden shrink-0">
+                <ProfileAvatar name={profile?.name || 'Company'} src={profile?.logo} size="xl" className="h-full w-full rounded-none" />
+                <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100 backdrop-blur-sm">
+                  <Camera className="h-6 w-6" />
+                  <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                </label>
+              </div>
+              <div className="pb-1">
+                <h2 className="text-2xl font-bold">{profile?.name || 'Company Name'}</h2>
+                <p className="text-sm text-muted-foreground">{profile?.industry || 'Industry'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
 
       <section className="rounded-xl border bg-card p-6 space-y-4">
         <h2 className="text-lg font-semibold">Basic Details</h2>

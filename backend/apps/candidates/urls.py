@@ -8,6 +8,7 @@ urlpatterns = [
     # Profile
     path('profile/', views.CandidateProfileView.as_view(), name='profile'),
     path('resume/', views.CandidateResumeUploadView.as_view(), name='resume-upload'),
+    path('banner/', views.CandidateBannerUploadView.as_view(), name='banner-upload'),
 
     # Skills
     path('skills/', views.CandidateSkillListCreateView.as_view(), name='skill-list-create'),

@@ -10,7 +10,7 @@ class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
         fields = [
-            'id', 'name', 'slug', 'logo', 'description', 'industry',
+            'id', 'name', 'slug', 'logo', 'banner_image', 'description', 'industry',
             'company_size', 'website', 'linkedin_url', 'location',
             'country', 'city', 'is_verified', 'created_at',
         ]

@@ -6,6 +6,7 @@ app_name = 'companies'
 
 urlpatterns = [
     path('profile/', views.CompanyProfileView.as_view(), name='profile'),
+    path('profile/images/', views.CompanyImagesUploadView.as_view(), name='images-upload'),
     path('create/', views.CompanyCreateView.as_view(), name='create'),
     path('recruiters/', views.RecruiterListView.as_view(), name='recruiter-list'),
     path('recruiters/invite/', views.InviteRecruiterView.as_view(), name='recruiter-invite'),

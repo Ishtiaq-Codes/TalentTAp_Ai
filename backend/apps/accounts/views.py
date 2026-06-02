@@ -60,6 +60,23 @@ class ChangePasswordView(APIView):
         return Response({'detail': 'Password updated.'})
 
 
+class UserAvatarUploadView(APIView):
+    """Upload user avatar."""
+    permission_classes = [IsAuthenticated]
+    from rest_framework.parsers import MultiPartParser, FormParser
+    parser_classes = [MultiPartParser, FormParser]
+
+    def patch(self, request, *args, **kwargs):
+        avatar = request.FILES.get('avatar')
+        if not avatar:
+            return Response({'detail': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = request.user
+        user.avatar = avatar
+        user.save()
+        return Response(UserSerializer(user).data)
+
+
 class ForgotPasswordView(APIView):
     """Request a password reset email."""
     permission_classes = [AllowAny]

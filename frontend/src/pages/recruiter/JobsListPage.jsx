@@ -4,6 +4,7 @@ import EmptyState from '@/components/common/EmptyState'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import { formatDate } from '@/lib/utils'
 import { Link } from 'react-router-dom'
+import ProfileAvatar from '@/components/common/ProfileAvatar'
 import { Briefcase, Plus, Eye, MapPin, Clock, Users, ArrowRight } from 'lucide-react'
 
 const STATUS_COLORS = {
@@ -79,9 +80,11 @@ export default function JobsListPage() {
                   </div>
                 </div>
 
-                <div className="mt-4">
-                  <h3 className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">{job.title}</h3>
-                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-slate-600">
+                <div className="mt-4 flex gap-4">
+                  <ProfileAvatar src={job.company_logo} name={job.company_name} size="md" className="rounded-xl border border-slate-100 shadow-sm shrink-0" />
+                  <div>
+                    <h3 className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">{job.title}</h3>
+                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-slate-600">
                     <span className="flex items-center gap-1.5 capitalize">
                       <Briefcase className="h-3.5 w-3.5 text-slate-400" /> {job.employment_type?.replace('_', ' ')}
                     </span>
@@ -93,6 +96,7 @@ export default function JobsListPage() {
                     <span className="flex items-center gap-1.5">
                       <Clock className="h-3.5 w-3.5 text-slate-400" /> {formatDate(job.created_at)}
                     </span>
+                  </div>
                   </div>
                 </div>
               </div>

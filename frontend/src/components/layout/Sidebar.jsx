@@ -6,6 +6,7 @@ import {
   LayoutDashboard, User, Briefcase, Search, FileText, Heart,
   MessageSquare, Building2, Users, Settings, BarChart3, Sparkles,
 } from 'lucide-react'
+import ProfileAvatar from '@/components/common/ProfileAvatar'
 
 const candidateLinks = [
   { section: 'Dashboard', items: [
@@ -115,9 +116,7 @@ export default function Sidebar() {
       {/* User Quick Profile Area */}
       <div className="border-t p-4">
         <div className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-slate-50">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-blue-200 text-xs font-bold text-primary">
-            {user?.first_name?.[0]}{user?.last_name?.[0]}
-          </div>
+          <ProfileAvatar name={`${user?.first_name} ${user?.last_name}`} src={user?.avatar} size="md" />
           <div className="flex-1 overflow-hidden">
             <p className="truncate text-sm font-semibold">{user?.first_name} {user?.last_name}</p>
             <p className="truncate text-xs text-muted-foreground capitalize">{user?.role?.replace('_', ' ')}</p>

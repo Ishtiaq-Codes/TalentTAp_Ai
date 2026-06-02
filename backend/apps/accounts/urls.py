@@ -10,6 +10,7 @@ urlpatterns = [
     path('token/refresh/', views.TokenRefresh.as_view(), name='token-refresh'),
     path('me/', views.MeView.as_view(), name='me'),
     path('change-password/', views.ChangePasswordView.as_view(), name='change-password'),
+    path('avatar/', views.UserAvatarUploadView.as_view(), name='avatar-upload'),
     path('forgot-password/', views.ForgotPasswordView.as_view(), name='forgot-password'),
     path('accept-invite/', views.AcceptInviteView.as_view(), name='accept-invite'),
 ]

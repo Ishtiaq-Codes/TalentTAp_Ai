@@ -49,6 +49,27 @@ class CandidateResumeUploadView(generics.UpdateAPIView):
         return Response(CandidateProfileSerializer(profile).data)
 
 
+class CandidateBannerUploadView(generics.UpdateAPIView):
+    """Upload banner image."""
+    serializer_class = CandidateProfileSerializer
+    permission_classes = [IsAuthenticated, IsCandidate]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get_object(self):
+        profile, _ = CandidateProfile.objects.get_or_create(user=self.request.user)
+        return profile
+
+    def patch(self, request, *args, **kwargs):
+        profile = self.get_object()
+        banner_image = request.FILES.get('banner_image')
+        if not banner_image:
+            return Response({'detail': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        profile.banner_image = banner_image
+        profile.save()
+        return Response(CandidateProfileSerializer(profile).data)
+
+
 # ---------------------------------------------------------------------------
 # Skills
 # ---------------------------------------------------------------------------

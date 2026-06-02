@@ -36,3 +36,9 @@ export function getMatchColor(score) {
   if (score >= 60) return 'text-amber-600'
   return 'text-red-500'
 }
+
+export function getImageUrl(path) {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  return `http://localhost:8000${path.startsWith('/') ? '' : '/'}${path}`;
+}

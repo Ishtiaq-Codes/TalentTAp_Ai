@@ -38,15 +38,18 @@ export default function JobDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <div className="flex items-center gap-3">
-        <Link to="/recruiter/jobs" className="rounded-lg p-2 hover:bg-muted"><ArrowLeft className="h-5 w-5" /></Link>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold">{job.title}</h1>
-          <p className="text-muted-foreground">{job.employment_type?.replace('_', ' ')} · {job.is_remote} · {job.city || job.country}</p>
+      <div className="flex items-center gap-4">
+        <Link to="/recruiter/jobs" className="rounded-lg p-2 hover:bg-muted self-start mt-1 shrink-0"><ArrowLeft className="h-5 w-5" /></Link>
+        <ProfileAvatar src={job.company_logo} name={job.company_name} size="xl" className="rounded-2xl border border-slate-100 shadow-sm shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-2xl font-bold truncate">{job.title}</h1>
+            <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium capitalize ${
+              job.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'
+            }`}>{job.status}</span>
+          </div>
+          <p className="text-muted-foreground truncate">{job.company_name} · {job.employment_type?.replace('_', ' ')} · {job.is_remote} · {job.city || job.country}</p>
         </div>
-        <span className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${
-          job.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'
-        }`}>{job.status}</span>
       </div>
 
       {/* Job description */}

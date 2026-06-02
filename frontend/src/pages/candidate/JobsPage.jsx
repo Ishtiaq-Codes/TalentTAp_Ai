@@ -7,6 +7,7 @@ import EmptyState from '@/components/common/EmptyState'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import { EMPLOYMENT_TYPE, REMOTE_STATUS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
+import ProfileAvatar from '@/components/common/ProfileAvatar'
 import { Search, MapPin, Briefcase, DollarSign, Clock } from 'lucide-react'
 
 export default function JobsPage() {
@@ -67,10 +68,12 @@ export default function JobsPage() {
           {jobList.map((job) => (
             <div key={job.id} className="rounded-xl border bg-card p-6 transition-shadow hover:shadow-md">
               <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold">{job.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{job.company_name}</p>
-                  <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted-foreground">
+                <div className="flex gap-4">
+                  <ProfileAvatar src={job.company_logo} name={job.company_name} size="lg" className="rounded-xl border border-slate-100 shadow-sm" />
+                  <div>
+                    <h3 className="text-lg font-semibold">{job.title}</h3>
+                    <p className="mt-1 text-sm font-medium text-primary">{job.company_name}</p>
+                    <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted-foreground">
                     <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {job.city || job.country || 'Remote'}</span>
                     <span className="inline-flex items-center gap-1"><Briefcase className="h-3.5 w-3.5" /> {job.employment_type?.replace('_', ' ')}</span>
                     <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {job.is_remote}</span>

@@ -35,7 +35,7 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
             'years_of_experience', 'employment_status', 'availability',
             'employment_type_preferred', 'salary_min', 'salary_max',
             'salary_currency', 'linkedin_url', 'github_url', 'portfolio_url',
-            'resume', 'is_open_to_work', 'profile_completion',
+            'resume', 'banner_image', 'is_open_to_work', 'profile_completion',
             'skills', 'experiences', 'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'user', 'profile_completion', 'created_at', 'updated_at']

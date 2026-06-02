@@ -20,6 +20,7 @@ class Company(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, max_length=220)
     logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
+    banner_image = models.ImageField(upload_to='company_banners/', blank=True, null=True)
     description = models.TextField(blank=True)
     industry = models.CharField(max_length=100, blank=True)
     company_size = models.CharField(max_length=20, choices=Size.choices, blank=True)

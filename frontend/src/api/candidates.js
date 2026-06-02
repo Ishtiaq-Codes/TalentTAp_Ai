@@ -2,13 +2,22 @@ import client from './client'
 
 export const candidatesAPI = {
   getProfile: () => client.get('/candidates/profile/'),
-  updateProfile: (data) => client.put('/candidates/profile/', data),
+  updateProfile: (data) => {
+    const payload = { ...data }
+    delete payload.avatar
+    delete payload.banner_image
+    delete payload.resume
+    return client.put('/candidates/profile/', payload)
+  },
   uploadResume: (file) => {
     const form = new FormData()
     form.append('resume', file)
-    return client.patch('/candidates/resume/', form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    return client.patch('/candidates/resume/', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+  },
+  uploadBanner: (file) => {
+    const form = new FormData()
+    form.append('banner_image', file)
+    return client.patch('/candidates/banner/', form, { headers: { 'Content-Type': 'multipart/form-data' } })
   },
   getSkills: () => client.get('/candidates/skills/'),
   addSkill: (data) => client.post('/candidates/skills/', data),

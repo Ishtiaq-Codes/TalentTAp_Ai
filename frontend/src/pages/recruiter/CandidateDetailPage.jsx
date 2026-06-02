@@ -5,6 +5,8 @@ import { MapPin, Briefcase, Calendar, User, ArrowLeft, FileText } from 'lucide-r
 import SkeletonCard from '@/components/common/SkeletonCard'
 import MessageButton from '@/components/common/MessageButton'
 import ShortlistButton from '@/components/common/ShortlistButton'
+import ProfileAvatar from '@/components/common/ProfileAvatar'
+import { getImageUrl } from '@/lib/utils'
 
 export default function CandidateDetailPage() {
   const { id } = useParams()
@@ -37,19 +39,21 @@ export default function CandidateDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Header Card */}
           <div className="overflow-hidden rounded-3xl border bg-white shadow-sm">
-            <div className="h-32 bg-gradient-to-r from-primary/20 to-blue-500/20" />
+            <div className="h-32 bg-slate-100 relative">
+              {profile.banner_image ? (
+                <img src={getImageUrl(profile.banner_image)} alt="Banner" className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full bg-gradient-to-r from-primary/20 to-blue-500/20" />
+              )}
+            </div>
             <div className="px-8 pb-8">
               <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-                <div className="-mt-12 flex items-end gap-6">
-                  <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-white shadow-md overflow-hidden shrink-0">
-                    {profile.user?.avatar ? (
-                      <img src={profile.user.avatar} alt="Avatar" className="h-full w-full object-cover" />
-                    ) : (
-                      <User className="h-10 w-10 text-slate-300" />
-                    )}
+                <div className="flex flex-col sm:flex-row sm:items-end gap-6">
+                  <div className="-mt-12 relative z-10 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-white shadow-md overflow-hidden shrink-0">
+                    <ProfileAvatar name={profile.user_name} src={profile.avatar} size="xl" className="h-full w-full" />
                   </div>
-                  <div className="mb-2">
-                    <h1 className="text-2xl font-bold">{profile.user?.first_name} {profile.user?.last_name}</h1>
+                  <div className="pb-1">
+                    <h1 className="text-2xl font-bold">{profile.user_name}</h1>
                     <p className="text-muted-foreground">{profile.headline || 'Professional'}</p>
                   </div>
                 </div>
@@ -62,12 +66,28 @@ export default function CandidateDetailPage() {
                 {profile.employment_status && (
                   <div className="flex items-center gap-1.5"><Briefcase className="h-4 w-4" /> {profile.employment_status.replace('_', ' ')}</div>
                 )}
+                {profile.employment_type_preferred && (
+                  <div className="flex items-center gap-1.5"><Briefcase className="h-4 w-4" /> Prefers {profile.employment_type_preferred.replace('_', ' ')}</div>
+                )}
                 {profile.availability && (
                   <div className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> {profile.availability.replace('_', ' ')}</div>
+                )}
+                {profile.salary_min && profile.salary_max && (
+                  <div className="flex items-center gap-1.5 font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                    {profile.salary_currency} {profile.salary_min.toLocaleString()} - {profile.salary_max.toLocaleString()}
+                  </div>
                 )}
               </div>
             </div>
           </div>
+
+          {/* About Section */}
+          {profile.about && (
+            <div className="rounded-3xl border bg-white p-8 shadow-sm">
+              <h2 className="text-lg font-bold mb-4">About</h2>
+              <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{profile.about}</p>
+            </div>
+          )}
 
           {/* Experience */}
           <div className="rounded-3xl border bg-white p-8 shadow-sm">
@@ -93,7 +113,7 @@ export default function CandidateDetailPage() {
         <div className="space-y-6">
           {/* Actions */}
           <div className="rounded-3xl border bg-white p-6 shadow-sm space-y-3">
-            <MessageButton recipientId={profile.user?.id} name={profile.user?.first_name} className="w-full justify-center py-3 text-sm border-primary text-primary" />
+            <MessageButton recipientId={profile.user} name={profile.user_name} className="w-full justify-center py-3 text-sm border-primary text-primary" />
             <ShortlistButton candidateId={profile.id} className="w-full justify-center py-3 text-sm" />
             {profile.resume && (
               <a href={profile.resume} target="_blank" rel="noreferrer" className="flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold text-primary hover:bg-slate-50 transition-all">
@@ -108,8 +128,14 @@ export default function CandidateDetailPage() {
             <div className="space-y-3 text-sm">
               <div>
                 <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Email</p>
-                <p className="font-medium">{profile.user?.email}</p>
+                <p className="font-medium">{profile.user_email}</p>
               </div>
+              {profile.phone && (
+                <div>
+                  <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Phone</p>
+                  <p className="font-medium">{profile.phone}</p>
+                </div>
+              )}
               {profile.github_url && (
                 <div>
                   <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">GitHub</p>

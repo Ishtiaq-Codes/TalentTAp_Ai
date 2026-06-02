@@ -2,6 +2,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { candidatesAPI } from '@/api/candidates'
 import { useAuth } from '@/contexts/AuthContext'
+import { getImageUrl } from '@/lib/utils'
+import ProfileAvatar from '@/components/common/ProfileAvatar'
 import PublicNavbar from '@/components/layout/PublicNavbar'
 import Footer from '@/components/layout/Footer'
 import { MapPin, Briefcase, Calendar, Lock, ArrowRight, User } from 'lucide-react'
@@ -58,19 +60,21 @@ export default function TalentProfilePage() {
           <div className="space-y-8">
             {/* Public Header */}
             <div className="overflow-hidden rounded-3xl border bg-white shadow-sm">
-              <div className="h-32 bg-gradient-to-r from-primary/20 to-blue-500/20" />
+              <div className="h-32 bg-slate-100 relative">
+                {profile?.banner_image ? (
+                  <img src={getImageUrl(profile.banner_image)} alt="Banner" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full bg-gradient-to-r from-primary/20 to-blue-500/20" />
+                )}
+              </div>
               <div className="px-8 pb-8">
                 <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-                  <div className="-mt-16 flex items-end gap-6">
-                    <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
-                      {profile?.user?.avatar ? (
-                        <img src={profile.user.avatar} alt="Avatar" className="h-full w-full object-cover" />
-                      ) : (
-                        <User className="h-12 w-12 text-slate-300" />
-                      )}
+                  <div className="flex flex-col sm:flex-row sm:items-end gap-6">
+                    <div className="-mt-16 relative z-10 flex h-32 w-32 items-center justify-center rounded-full border-4 border-white bg-white shadow-md overflow-hidden shrink-0">
+                      <ProfileAvatar name={profile?.user_name} src={profile?.avatar} size="xl" className="h-full w-full" />
                     </div>
-                    <div className="mb-2">
-                      <h1 className="text-3xl font-bold">{profile?.user?.first_name} {profile?.user?.last_name}</h1>
+                    <div className="pb-1">
+                      <h1 className="text-3xl font-bold">{profile?.user_name}</h1>
                       <p className="text-lg text-muted-foreground">{profile?.headline || 'Professional'}</p>
                     </div>
                   </div>

@@ -7,7 +7,8 @@ import EmptyState from '@/components/common/EmptyState'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import ShortlistButton from '@/components/common/ShortlistButton'
 import MessageButton from '@/components/common/MessageButton'
-import { Search, MapPin, Award, Clock, User, Sparkles } from 'lucide-react'
+import ProfileAvatar from '@/components/common/ProfileAvatar'
+import { Search, MapPin, Award, Clock, Sparkles } from 'lucide-react'
 
 export default function CandidateSearchPage() {
   const [search, setSearch] = useState('')
@@ -69,16 +70,12 @@ export default function CandidateSearchPage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((c) => (
             <div key={c.id} className="group relative flex flex-col justify-between rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-xl hover:border-primary/40 hover:-translate-y-1">
-              <Link to={`/recruiter/candidates/${c.id}`} className="absolute inset-0 z-0" aria-label={`View ${c.user__first_name}'s profile`} />
+              <Link to={`/recruiter/candidates/${c.id}`} className="absolute inset-0 z-0" aria-label={`View ${c.user_name}'s profile`} />
               
               <div className="relative z-10">
                 <div className="flex items-start justify-between">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-slate-100 bg-slate-50 overflow-hidden shadow-sm">
-                    {c.avatar ? (
-                      <img src={c.avatar} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <User className="h-8 w-8 text-slate-300" />
-                    )}
+                    <ProfileAvatar name={c.user_name} src={c.avatar} size="lg" className="h-full w-full" />
                   </div>
                   <div className="flex flex-col gap-2">
                     <ShortlistButton candidateId={c.id} />
@@ -87,7 +84,7 @@ export default function CandidateSearchPage() {
 
                 <div className="mt-4">
                   <h3 className="text-lg font-bold group-hover:text-primary transition-colors">
-                    {c.user__first_name || c.first_name} {c.user__last_name || c.last_name}
+                    {c.user_name || 'Candidate'}
                   </h3>
                   <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{c.headline}</p>
                 </div>
@@ -124,7 +121,7 @@ export default function CandidateSearchPage() {
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
                   <Sparkles className="h-3 w-3" /> AI Ready
                 </span>
-                <MessageButton recipientId={c.user_id} name={`${c.user__first_name || c.first_name}`} />
+                <MessageButton recipientId={c.user_id} name={c.user_name || 'Candidate'} />
               </div>
             </div>
           ))}

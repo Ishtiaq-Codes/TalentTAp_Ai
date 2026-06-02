@@ -1,8 +1,11 @@
 import { useState } from 'react'
-import { Save, Bell, Shield, CreditCard, CheckCircle, Loader2 } from 'lucide-react'
+import { Save, Bell, Shield, CreditCard, CheckCircle, Loader2, User, Upload } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { authAPI } from '@/api/auth'
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState('notifications')
+  const { user: authUser, fetchUser } = useAuth()
+  const [activeTab, setActiveTab] = useState('profile')
   
   const [prefs, setPrefs] = useState({ newApps: true, aiMatch: true, messages: true })
   const [saving, setSaving] = useState(false)
@@ -40,10 +43,24 @@ export default function SettingsPage() {
   }
 
   const tabs = [
+    { id: 'profile', label: 'Profile', icon: User },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'billing', label: 'Billing', icon: CreditCard },
   ]
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    try {
+      await authAPI.uploadAvatar(file)
+      // Update context so header shows new avatar
+      await fetchUser()
+      alert('Avatar uploaded successfully!')
+    } catch {
+      alert('Error uploading avatar')
+    }
+  }
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 animate-fade-in">
@@ -77,6 +94,54 @@ export default function SettingsPage() {
 
         {/* Content */}
         <main className="flex-1">
+          {activeTab === 'profile' && (
+            <div className="animate-fade-in-up rounded-2xl border bg-white shadow-sm overflow-hidden">
+              <div className="border-b bg-slate-50/50 px-6 py-5">
+                <h2 className="text-lg font-bold">Personal Profile</h2>
+                <p className="text-sm text-muted-foreground mt-1">Manage your personal information and avatar.</p>
+              </div>
+              
+              <div className="p-6 space-y-8">
+                <div className="space-y-4">
+                  <label className="text-sm font-semibold text-slate-900">Profile Picture</label>
+                  <div className="flex items-center gap-6">
+                    <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-slate-100 shadow-sm shrink-0">
+                      {authUser?.avatar ? (
+                        <img src={authUser.avatar} alt="Avatar" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-primary/10 text-xl font-bold text-primary">
+                          {authUser?.first_name?.[0]}{authUser?.last_name?.[0]}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border-2 border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700 hover:border-primary hover:text-primary transition-colors">
+                        <Upload className="h-4 w-4" /> Upload New Photo
+                        <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                      </label>
+                      <p className="mt-2 text-xs text-muted-foreground">Recommended: Square image, at least 400x400px.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t pt-8 grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <label className="text-sm font-semibold text-slate-900">First Name</label>
+                    <input type="text" disabled value={authUser?.first_name || ''} className="mt-2 block w-full rounded-lg border bg-slate-50 px-4 py-2.5 text-sm text-slate-500" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-slate-900">Last Name</label>
+                    <input type="text" disabled value={authUser?.last_name || ''} className="mt-2 block w-full rounded-lg border bg-slate-50 px-4 py-2.5 text-sm text-slate-500" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-sm font-semibold text-slate-900">Email Address</label>
+                    <input type="email" disabled value={authUser?.email || ''} className="mt-2 block w-full rounded-lg border bg-slate-50 px-4 py-2.5 text-sm text-slate-500" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'notifications' && (
             <div className="animate-fade-in-up rounded-2xl border bg-white shadow-sm overflow-hidden">
               <div className="border-b bg-slate-50/50 px-6 py-5">

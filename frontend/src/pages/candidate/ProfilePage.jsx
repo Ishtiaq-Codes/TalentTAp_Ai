@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useFetch } from '@/hooks/useFetch'
 import { candidatesAPI } from '@/api/candidates'
+import { authAPI } from '@/api/auth'
 import { useAuth } from '@/contexts/AuthContext'
 import SkeletonCard from '@/components/common/SkeletonCard'
+import { getImageUrl } from '@/lib/utils'
 import { EMPLOYMENT_STATUS, AVAILABILITY, EMPLOYMENT_TYPE } from '@/lib/constants'
 import { Save, Plus, X, Upload } from 'lucide-react'
 
@@ -25,12 +27,14 @@ const InputField = ({ label, field, type = 'text', placeholder = '', form, updat
 )
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, fetchUser } = useAuth()
   const { data: profile, loading, refetch } = useFetch(() => candidatesAPI.getProfile())
   const [form, setForm] = useState(null)
   const [saving, setSaving] = useState(false)
   const [skillInput, setSkillInput] = useState('')
   const [message, setMessage] = useState('')
+  const [showExpForm, setShowExpForm] = useState(false)
+  const [expForm, setExpForm] = useState({ company_name: '', title: '', start_date: '', end_date: '', is_current: false, description: '' })
 
   // Initialize form when profile loads
   if (profile && !form) setForm({ ...profile })
@@ -69,6 +73,23 @@ export default function ProfilePage() {
     refetch()
   }
 
+  const handleAddExperience = async (e) => {
+    e.preventDefault()
+    try {
+      await candidatesAPI.addExperience(expForm)
+      setExpForm({ company_name: '', title: '', start_date: '', end_date: '', is_current: false, description: '' })
+      setShowExpForm(false)
+      refetch()
+    } catch {
+      setMessage('Error adding experience')
+    }
+  }
+
+  const handleDeleteExperience = async (id) => {
+    await candidatesAPI.deleteExperience(id)
+    refetch()
+  }
+
   const handleResumeUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -78,6 +99,31 @@ export default function ProfilePage() {
       refetch()
     } catch {
       setMessage('Error uploading resume')
+    }
+  }
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    try {
+      await authAPI.uploadAvatar(file)
+      setMessage('Avatar uploaded successfully!')
+      refetch()
+      await fetchUser()
+    } catch {
+      setMessage('Error uploading avatar')
+    }
+  }
+
+  const handleBannerUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    try {
+      await candidatesAPI.uploadBanner(file)
+      setMessage('Banner uploaded successfully!')
+      refetch()
+    } catch {
+      setMessage('Error uploading banner')
     }
   }
 
@@ -93,9 +139,49 @@ export default function ProfilePage() {
 
       {message && <div className="rounded-lg bg-primary/10 p-3 text-sm text-primary">{message}</div>}
 
+      {/* Images */}
+      <section className="rounded-xl border bg-card p-6 space-y-4">
+        <h2 className="text-lg font-semibold">Profile Images</h2>
+        <p className="text-sm text-muted-foreground">Recommended: 1:1 ratio (e.g., 400x400px) for avatars, 3:1 ratio (e.g., 1200x400px) for banners.</p>
+        
+        <div className="grid sm:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Profile Avatar</label>
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 overflow-hidden rounded-full border bg-slate-100 shrink-0">
+                {profile?.avatar ? <img src={getImageUrl(profile.avatar)} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center bg-primary/10 text-xl font-bold text-primary">{profile?.user_name?.[0] || '?'}</div>}
+              </div>
+              <label className="cursor-pointer rounded-lg border px-4 py-2 text-sm font-medium hover:bg-slate-50 transition-colors">
+                <Upload className="mr-2 inline-block h-4 w-4" /> Upload Avatar
+                <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+              </label>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Profile Banner</label>
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-32 overflow-hidden rounded-lg border bg-slate-100 shrink-0">
+                {profile?.banner_image ? <img src={getImageUrl(profile.banner_image)} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-gradient-to-r from-primary/20 to-blue-500/20" />}
+              </div>
+              <label className="cursor-pointer rounded-lg border px-4 py-2 text-sm font-medium hover:bg-slate-50 transition-colors">
+                <Upload className="mr-2 inline-block h-4 w-4" /> Upload Banner
+                <input type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Basic Info */}
       <section className="rounded-xl border bg-card p-6 space-y-4">
         <h2 className="text-lg font-semibold">Basic Information</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium">Email (Account)</label>
+            <input type="text" disabled value={user?.email || profile?.user_email || ''} className="mt-1 block w-full rounded-lg border bg-slate-100 px-4 py-2.5 text-sm text-slate-500 focus:outline-none" />
+          </div>
+          <InputField label="Phone" field="phone" form={form} update={update} />
+        </div>
         <InputField label="Headline" field="headline" placeholder="e.g. Full-Stack Developer" form={form} update={update} />
         <div>
           <label className="text-sm font-medium">About</label>
@@ -106,7 +192,6 @@ export default function ProfilePage() {
           <InputField label="Country" field="country" form={form} update={update} />
           <InputField label="City" field="city" form={form} update={update} />
         </div>
-        <InputField label="Phone" field="phone" form={form} update={update} />
       </section>
 
       {/* Professional Info */}
@@ -144,6 +229,71 @@ export default function ProfilePage() {
             <Plus className="h-4 w-4" />
           </button>
         </div>
+      </section>
+
+      {/* Experience */}
+      <section className="rounded-xl border bg-card p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Work Experience</h2>
+          <button onClick={() => setShowExpForm(!showExpForm)} className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium border hover:bg-slate-50 transition-colors">
+            <Plus className="h-4 w-4" /> Add
+          </button>
+        </div>
+
+        {showExpForm && (
+          <form onSubmit={handleAddExperience} className="rounded-lg border bg-slate-50/50 p-4 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Job Title</label>
+                <input required value={expForm.title} onChange={e => setExpForm({...expForm, title: e.target.value})} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Company</label>
+                <input required value={expForm.company_name} onChange={e => setExpForm({...expForm, company_name: e.target.value})} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Start Date</label>
+                <input type="date" required value={expForm.start_date} onChange={e => setExpForm({...expForm, start_date: e.target.value})} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">End Date</label>
+                <input type="date" disabled={expForm.is_current} value={expForm.end_date} onChange={e => setExpForm({...expForm, end_date: e.target.value})} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none disabled:bg-slate-100" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="current" checked={expForm.is_current} onChange={e => setExpForm({...expForm, is_current: e.target.checked, end_date: ''})} className="rounded border-slate-300" />
+              <label htmlFor="current" className="text-sm font-medium cursor-pointer">I currently work here</label>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Description</label>
+              <textarea value={expForm.description} onChange={e => setExpForm({...expForm, description: e.target.value})} rows={3} className="mt-1 block w-full rounded-lg border bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none" />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setShowExpForm(false)} className="rounded-lg px-4 py-2 text-sm font-medium hover:bg-slate-200">Cancel</button>
+              <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">Save Experience</button>
+            </div>
+          </form>
+        )}
+
+        {profile?.experiences?.length > 0 ? (
+          <div className="space-y-4">
+            {profile.experiences.map((exp) => (
+              <div key={exp.id} className="relative rounded-lg border p-4 hover:shadow-sm transition-shadow">
+                <button onClick={() => handleDeleteExperience(exp.id)} className="absolute right-4 top-4 text-slate-400 hover:text-red-500">
+                  <X className="h-4 w-4" />
+                </button>
+                <h3 className="font-bold text-slate-900">{exp.title}</h3>
+                <p className="font-medium text-primary text-sm">{exp.company_name}</p>
+                <p className="text-xs text-muted-foreground mt-1 mb-2">{exp.start_date} — {exp.is_current ? 'Present' : exp.end_date}</p>
+                <p className="text-sm text-slate-600 leading-relaxed">{exp.description}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground py-2">No experience added yet.</p>
+        )}
       </section>
 
       {/* Links */}
