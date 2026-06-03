@@ -71,27 +71,35 @@ export default function CandidateDashboard() {
         </div>
       </div>
 
-      {/* Profile completion alert */}
-      {completion < 80 && (
-        <div className="flex flex-col gap-4 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-5 sm:flex-row sm:items-center sm:justify-between shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="relative flex h-14 w-14 items-center justify-center">
-              <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 36 36">
-                <path className="stroke-amber-200" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" strokeWidth="3" />
-                <path className="stroke-amber-500 transition-all duration-1000" strokeDasharray={`${completion}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" strokeWidth="3" />
-              </svg>
-              <span className="text-xs font-bold text-amber-700">{completion}%</span>
+      {/* Profile strength alert */}
+      {completion < 80 && (() => {
+        const tiers = [
+          { min: 0, label: 'Starter Profile', desc: 'Build your profile to get discovered by top companies.', border: 'border-red-200', bg: 'from-red-50 to-orange-50', stroke: 'stroke-red-500', strokeBg: 'stroke-red-200', text: 'text-red-700', btnBg: 'bg-red-500 hover:bg-red-600' },
+          { min: 31, label: 'Growing Profile', desc: 'Great start! Add more details to boost visibility.', border: 'border-amber-200', bg: 'from-amber-50 to-orange-50', stroke: 'stroke-amber-500', strokeBg: 'stroke-amber-200', text: 'text-amber-700', btnBg: 'bg-amber-500 hover:bg-amber-600' },
+          { min: 61, label: 'Strong Profile', desc: 'Almost there! A few more details and you\'re outstanding.', border: 'border-blue-200', bg: 'from-blue-50 to-indigo-50', stroke: 'stroke-blue-500', strokeBg: 'stroke-blue-200', text: 'text-blue-700', btnBg: 'bg-blue-500 hover:bg-blue-600' },
+        ]
+        const tier = [...tiers].reverse().find(t => completion >= t.min) || tiers[0]
+        return (
+          <div className={`flex flex-col gap-4 rounded-2xl border ${tier.border} bg-gradient-to-r ${tier.bg} p-5 sm:flex-row sm:items-center sm:justify-between shadow-sm`}>
+            <div className="flex items-center gap-4">
+              <div className="relative flex h-14 w-14 items-center justify-center shrink-0">
+                <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 36 36">
+                  <path className={tier.strokeBg} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" strokeWidth="3" />
+                  <path className={`${tier.stroke} transition-all duration-1000`} strokeDasharray={`${completion}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" strokeWidth="3" />
+                </svg>
+                <span className={`text-xs font-bold ${tier.text}`}>{completion}%</span>
+              </div>
+              <div>
+                <p className={`font-semibold ${tier.text}`}>{tier.label}</p>
+                <p className={`text-sm ${tier.text} opacity-80 mt-0.5`}>{tier.desc}</p>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold text-amber-900">Your profile is incomplete</p>
-              <p className="text-sm text-amber-700 mt-0.5">Candidates with a complete profile get 3x more interview requests.</p>
-            </div>
+            <Link to="/candidate/profile" className={`shrink-0 rounded-full ${tier.btnBg} px-5 py-2.5 text-sm font-semibold text-white transition-colors shadow-sm`}>
+              Complete Profile
+            </Link>
           </div>
-          <Link to="/candidate/profile" className="shrink-0 rounded-full bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors shadow-sm">
-            Complete Profile
-          </Link>
-        </div>
-      )}
+        )
+      })()}
 
       {/* Stats */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

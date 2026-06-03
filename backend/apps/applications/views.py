@@ -131,10 +131,11 @@ class ShortlistToggleView(APIView):
             
         job_id = request.data.get('job', None)
         
-        # Check if exists
-        existing = Shortlist.objects.filter(recruiter=profile, candidate_id=candidate_id, job_id=job_id).first()
+        # Check if exists (ignore job_id so we can unsave from anywhere)
+        existing = Shortlist.objects.filter(recruiter=profile, candidate_id=candidate_id).first()
         if existing:
-            existing.delete()
+            # Delete all shortlists for this candidate by this recruiter to avoid duplicates
+            Shortlist.objects.filter(recruiter=profile, candidate_id=candidate_id).delete()
             return Response({'status': 'removed', 'is_shortlisted': False})
         else:
             Shortlist.objects.create(recruiter=profile, candidate_id=candidate_id, job_id=job_id)

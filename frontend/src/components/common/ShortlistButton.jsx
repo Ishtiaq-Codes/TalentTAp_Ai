@@ -1,10 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { applicationsAPI } from '@/api/applications'
 import { Bookmark, BookmarkCheck, Loader2 } from 'lucide-react'
 
 export default function ShortlistButton({ candidateId, jobId, initialIsShortlisted = false, className = '' }) {
   const [isShortlisted, setIsShortlisted] = useState(initialIsShortlisted)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setIsShortlisted(initialIsShortlisted)
+  }, [initialIsShortlisted])
+
 
   const toggleShortlist = async (e) => {
     e.preventDefault()
@@ -16,7 +21,7 @@ export default function ShortlistButton({ candidateId, jobId, initialIsShortlist
       if (jobId) payload.job = jobId
 
       const response = await applicationsAPI.toggleShortlist(payload)
-      setIsShortlisted(response.is_shortlisted)
+      setIsShortlisted(response.data?.is_shortlisted ?? response.is_shortlisted)
     } catch (err) {
       console.error('Shortlist error:', err)
       alert(err.response?.data?.detail || 'Error toggling shortlist')

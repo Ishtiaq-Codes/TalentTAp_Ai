@@ -18,6 +18,7 @@ export default function JobDetailPage() {
   const { data: job, loading } = useFetch(() => jobsAPI.get(id), [id])
   const { data: matches, loading: matchLoading, refetch: refetchMatches } = useFetch(() => matchingAPI.getJobResults(id), [id])
   const { data: applications } = useFetch(() => applicationsAPI.list({ job: id }), [id])
+  const { data: shortlists } = useFetch(() => applicationsAPI.getShortlists())
   const [runningMatch, setRunningMatch] = useState(false)
   const [tab, setTab] = useState('matches')
 
@@ -34,7 +35,10 @@ export default function JobDetailPage() {
   if (!job) return <p>Job not found</p>
 
   const matchList = Array.isArray(matches) ? matches : []
-  const appList = Array.isArray(applications) ? applications : []
+  const appList = Array.isArray(applications) 
+    ? Array.from(new Map(applications.map(app => [app.candidate, app])).values()) 
+    : []
+  const shortlistsArray = Array.isArray(shortlists) ? shortlists : []
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -102,7 +106,11 @@ export default function JobDetailPage() {
                   </div>
                   <div className="flex gap-2">
                     <MessageButton recipientId={match.candidate_user_id} name={match.candidate_name} />
-                    <ShortlistButton candidateId={match.candidate_id} jobId={job.id} />
+                    <ShortlistButton 
+                      candidateId={match.candidate_id} 
+                      jobId={job.id} 
+                      initialIsShortlisted={shortlistsArray.some(s => s.candidate === match.candidate_id)}
+                    />
                   </div>
                 </div>
                 <div className="mt-2 grid grid-cols-5 gap-2">
@@ -139,7 +147,11 @@ export default function JobDetailPage() {
               </div>
               <div className="flex items-center gap-3">
                 <MessageButton recipientId={app.candidate_user_id} name={app.candidate_name} />
-                <ShortlistButton candidateId={app.candidate} jobId={job.id} />
+                <ShortlistButton 
+                  candidateId={app.candidate} 
+                  jobId={job.id} 
+                  initialIsShortlisted={shortlistsArray.some(s => s.candidate === app.candidate)}
+                />
                 <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 capitalize">{app.status}</span>
               </div>
             </div>
