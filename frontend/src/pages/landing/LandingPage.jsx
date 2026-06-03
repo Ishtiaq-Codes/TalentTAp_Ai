@@ -91,25 +91,25 @@ const recruiterBenefits = [
 
 const testimonials = [
   {
-    name: 'Sarah Chen',
+    name: 'Samuel Chen',
     role: 'Engineering Lead',
     company: 'TechVault Inc',
     quote: 'TalentTap cut our time-to-hire by 60%. The AI matching is scary accurate — we found our senior engineer in 3 days.',
-    avatar: 'SC',
+    pic: 'https://randomuser.me/api/portraits/men/32.jpg',
   },
   {
     name: 'David Martinez',
     role: 'Full-Stack Developer',
     company: 'Hired via TalentTap',
     quote: 'I created my profile on a Sunday and had 4 interview requests by Wednesday. Game changer for passive job seekers.',
-    avatar: 'DM',
+    pic: 'https://randomuser.me/api/portraits/men/45.jpg',
   },
   {
-    name: 'Emily Roberts',
+    name: 'Ethan Roberts',
     role: 'VP of People',
     company: 'DataFlow Labs',
     quote: 'The quality of candidates is outstanding. Every shortlist feels hand-picked, but it\'s the AI doing the heavy lifting.',
-    avatar: 'ER',
+    pic: 'https://randomuser.me/api/portraits/men/60.jpg',
   },
 ]
 
@@ -279,9 +279,9 @@ export default function LandingPage() {
                   </div>
                   <div className="p-2 sm:p-3 space-y-2 bg-slate-50">
                     {[
-                      { name: 'Eleanor Pena', role: 'Product Designer', score: 92, pic: 'https://randomuser.me/api/portraits/women/44.jpg' },
-                      { name: 'Arlene McCoy', role: 'Frontend Lead', score: 87, pic: 'https://randomuser.me/api/portraits/women/68.jpg' },
-                      { name: 'Jerome Bell', role: 'QA Engineer', score: 78, pic: 'https://randomuser.me/api/portraits/men/32.jpg' }
+                      {name: 'Elias Pena', role: 'Product Designer', score: 92, pic: 'https://randomuser.me/api/portraits/men/22.jpg'},
+                      {name: 'Arlen McCoy', role: 'Frontend Lead', score: 87, pic: 'https://randomuser.me/api/portraits/men/68.jpg'},
+                      {name: 'Jerome Bell', role: 'QA Engineer', score: 78, pic: 'https://randomuser.me/api/portraits/men/33.jpg'}
                     ].map((c, i) => (
                       <div key={i} className="flex items-center gap-3 sm:gap-4 rounded-lg bg-white p-2.5 sm:p-3 shadow-sm border border-slate-100">
                         <img src={c.pic} alt={c.name} className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover border border-slate-200" />
@@ -453,11 +453,9 @@ export default function LandingPage() {
             <div className="flex justify-center">
               <div className="w-full max-w-sm rounded-2xl border bg-gradient-to-br from-emerald-50 to-blue-50 p-6">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/30 to-emerald-200 flex items-center justify-center font-bold text-lg text-primary">
-                    JD
-                  </div>
+                  <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="John Doe" className="h-14 w-14 rounded-full object-cover border-2 border-white shadow-sm" />
                   <div>
-                    <div className="font-bold text-slate-900">Jane Doe</div>
+                    <div className="font-bold text-slate-900">John Doe</div>
                     <div className="text-sm font-medium text-slate-600">Senior React Engineer</div>
                   </div>
                 </div>
@@ -499,14 +497,12 @@ export default function LandingPage() {
                   </div>
                 </div>
                 {[
-                  { name: 'Alice Johnson', score: 95, skill: 'Full-Stack' },
-                  { name: 'Bob Williams', score: 88, skill: 'Backend' },
-                  { name: 'Carol Davis', score: 82, skill: 'Frontend' },
+                  { name: 'Alex Johnson', score: 95, skill: 'Full-Stack', pic: 'https://randomuser.me/api/portraits/men/85.jpg' },
+                  { name: 'Bob Williams', score: 88, skill: 'Backend', pic: 'https://randomuser.me/api/portraits/men/11.jpg' },
+                  { name: 'Charlie Davis', score: 82, skill: 'Frontend', pic: 'https://randomuser.me/api/portraits/men/29.jpg' },
                 ].map((c, i) => (
                   <div key={i} className="flex items-center gap-3 rounded-lg bg-white p-3 mb-2 shadow-sm">
-                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary/20 to-blue-200 flex items-center justify-center text-[10px] font-bold text-primary">
-                      {c.name.split(' ').map(n => n[0]).join('')}
-                    </div>
+                    <img src={c.pic} alt={c.name} className="h-9 w-9 rounded-full object-cover border border-slate-200" />
                     <div className="flex-1">
                       <p className="text-xs font-medium">{c.name}</p>
                       <p className="text-[10px] text-muted-foreground">{c.skill}</p>
@@ -554,10 +550,13 @@ export default function LandingPage() {
           <div className={`mx-auto mt-12 max-w-3xl transition-all duration-1000 ${showcaseReveal.visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
             <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xl text-left">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900">David Smith</h3>
-                  <p className="text-sm text-slate-500 font-medium">Applied for Senior Backend Engineer</p>
-                </div>
+                 <div className="flex items-center gap-4">
+                   <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="David Smith" className="h-12 w-12 rounded-full object-cover border border-slate-200" />
+                   <div>
+                     <h3 className="text-xl font-bold text-slate-900">David Smith</h3>
+                     <p className="text-sm text-slate-500 font-medium">Applied for Senior Backend Engineer</p>
+                   </div>
+                 </div>
                 <div className="flex flex-col sm:items-end">
                   <span className="text-sm font-semibold text-slate-500 mb-1">Overall Match</span>
                   <span className="text-3xl font-bold text-emerald-600 bg-emerald-50 px-4 py-1 rounded-lg inline-block w-fit">94%</span>
@@ -596,14 +595,12 @@ export default function LandingPage() {
             <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Loved by teams and talent</h2>
           </div>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {testimonials.map(({ name, role, company, quote, avatar }) => (
+            {testimonials.map(({ name, role, company, quote, pic }) => (
               <div key={name} className="rounded-2xl border bg-white p-6 transition-all hover:shadow-lg">
                 <Quote className="h-8 w-8 text-primary/20 mb-4" />
                 <p className="text-sm leading-relaxed text-muted-foreground italic">"{quote}"</p>
                 <div className="mt-6 flex items-center gap-3 border-t pt-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-blue-200 text-xs font-bold text-primary">
-                    {avatar}
-                  </div>
+                  <img src={pic} alt={name} className="h-10 w-10 rounded-full object-cover border border-slate-200" />
                   <div>
                     <p className="text-sm font-semibold">{name}</p>
                     <p className="text-xs text-muted-foreground">{role} at {company}</p>
