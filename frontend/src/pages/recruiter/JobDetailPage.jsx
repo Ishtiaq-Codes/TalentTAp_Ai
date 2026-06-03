@@ -10,7 +10,7 @@ import SkeletonCard from '@/components/common/SkeletonCard'
 import ShortlistButton from '@/components/common/ShortlistButton'
 import MessageButton from '@/components/common/MessageButton'
 import { formatDate } from '@/lib/utils'
-import { ArrowLeft, Sparkles, Users, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Sparkles, Users, RefreshCw, ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function JobDetailPage() {
@@ -100,11 +100,20 @@ export default function JobDetailPage() {
               <MatchScoreBadge score={match.overall_score} />
               <div className="flex-1">
                 <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-semibold">{match.candidate_name}</p>
-                    <p className="text-sm text-muted-foreground">{match.candidate_headline}</p>
-                  </div>
+                  <Link to={`/recruiter/candidates/${match.candidate_id}`} className="flex items-center gap-3 group">
+                    <ProfileAvatar src={match.candidate_avatar} name={match.candidate_name} size="md" />
+                    <div>
+                      <p className="font-semibold group-hover:text-primary transition-colors">{match.candidate_name}</p>
+                      <p className="text-sm text-muted-foreground">{match.candidate_headline}</p>
+                    </div>
+                  </Link>
                   <div className="flex gap-2">
+                    <Link
+                      to={`/recruiter/candidates/${match.candidate_id}`}
+                      className="flex items-center justify-center gap-1.5 rounded-lg border px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4" /> Profile
+                    </Link>
                     <MessageButton recipientId={match.candidate_user_id} name={match.candidate_name} />
                     <ShortlistButton 
                       candidateId={match.candidate_id} 
@@ -138,21 +147,27 @@ export default function JobDetailPage() {
             <p className="py-8 text-center text-sm text-muted-foreground">No applications yet.</p>
           ) : appList.map((app) => (
             <div key={app.id} className="flex items-center justify-between rounded-xl border bg-card p-5">
-              <div className="flex items-center gap-3">
-                <ProfileAvatar name={app.candidate_name} size="sm" />
+              <Link to={`/recruiter/candidates/${app.candidate}`} className="flex items-center gap-3 group">
+                <ProfileAvatar src={app.candidate_avatar} name={app.candidate_name} size="md" />
                 <div>
-                  <p className="font-medium text-sm">{app.candidate_name}</p>
+                  <p className="font-medium text-sm group-hover:text-primary transition-colors">{app.candidate_name}</p>
                   <p className="text-xs text-muted-foreground">Applied {formatDate(app.created_at)}</p>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
+              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  to={`/recruiter/candidates/${app.candidate}`}
+                  className="flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors h-10"
+                >
+                  <ExternalLink className="h-4 w-4" /> Profile
+                </Link>
                 <MessageButton recipientId={app.candidate_user_id} name={app.candidate_name} />
                 <ShortlistButton 
                   candidateId={app.candidate} 
                   jobId={job.id} 
                   initialIsShortlisted={shortlistsArray.some(s => s.candidate === app.candidate)}
                 />
-                <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 capitalize">{app.status}</span>
+                <span className="ml-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 capitalize">{app.status}</span>
               </div>
             </div>
           ))}

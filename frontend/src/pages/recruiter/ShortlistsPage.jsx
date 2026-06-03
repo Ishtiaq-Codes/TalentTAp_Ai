@@ -88,7 +88,7 @@ export default function ShortlistsPage() {
                     <td className="px-4 py-3">
                       <Link to={`/recruiter/candidates/${item.candidate}`} className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 overflow-hidden shrink-0">
-                          <ProfileAvatar name={item.candidate_name} size="md" className="h-full w-full" />
+                          <ProfileAvatar name={item.candidate_name} src={item.candidate_avatar} size="md" className="h-full w-full" />
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors truncate">{item.candidate_name}</p>
@@ -143,7 +143,7 @@ export default function ShortlistsPage() {
               <div className="relative z-10 pointer-events-none">
                 <div className="flex items-start justify-between">
                   <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 overflow-hidden shadow-sm shrink-0">
-                    <ProfileAvatar name={item.candidate_name} size="lg" className="h-full w-full" />
+                    <ProfileAvatar name={item.candidate_name} src={item.candidate_avatar} size="lg" className="h-full w-full" />
                   </div>
                   <button
                     onClick={(e) => { e.preventDefault(); removeShortlist(item.id); }}
