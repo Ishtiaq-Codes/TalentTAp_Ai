@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { Save, Bell, Shield, CreditCard, CheckCircle, Loader2, User, Upload } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { authAPI } from '@/api/auth'
+import { useToast } from '@/contexts/ToastContext'
 
 export default function SettingsPage() {
   const { user: authUser, fetchUser } = useAuth()
   const [activeTab, setActiveTab] = useState('profile')
+  const { info, success, error } = useToast()
 
   const [prefs, setPrefs] = useState({ newApps: true, aiMatch: true, messages: true })
   const [saving, setSaving] = useState(false)
@@ -38,7 +40,7 @@ export default function SettingsPage() {
     setUiState(s => ({ ...s, portalLoading: true }))
     setTimeout(() => {
       setUiState(s => ({ ...s, portalLoading: false }))
-      alert('Billing portal integration is part of the upcoming Phase 5.')
+      info('Billing portal integration is part of the upcoming Phase 5.')
     }, 800)
   }
 
@@ -56,9 +58,9 @@ export default function SettingsPage() {
       await authAPI.uploadAvatar(file)
       // Update context so header shows new avatar
       await fetchUser()
-      alert('Avatar uploaded successfully!')
+      success('Avatar uploaded successfully!')
     } catch {
-      alert('Error uploading avatar')
+      error('Error uploading avatar')
     }
   }
 

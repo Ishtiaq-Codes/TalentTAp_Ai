@@ -52,7 +52,7 @@ class CandidateSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = CandidateProfile
         fields = [
-            'id', 'user_id', 'user_name', 'avatar', 'headline', 'country', 'city',
+            'id', 'user_id', 'user_name', 'avatar', 'banner_image', 'headline', 'country', 'city',
             'years_of_experience', 'employment_status', 'availability',
             'employment_type_preferred', 'is_open_to_work', 'skills', 'is_shortlisted',
         ]

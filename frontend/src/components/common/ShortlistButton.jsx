@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { applicationsAPI } from '@/api/applications'
 import { Bookmark, BookmarkCheck, Loader2 } from 'lucide-react'
+import { useToast } from '@/contexts/ToastContext'
 
 export default function ShortlistButton({ candidateId, jobId, initialIsShortlisted = false, className = '' }) {
   const [isShortlisted, setIsShortlisted] = useState(initialIsShortlisted)
   const [loading, setLoading] = useState(false)
+  const { error } = useToast()
 
   useEffect(() => {
     setIsShortlisted(initialIsShortlisted)
@@ -24,7 +26,7 @@ export default function ShortlistButton({ candidateId, jobId, initialIsShortlist
       setIsShortlisted(response.data?.is_shortlisted ?? response.is_shortlisted)
     } catch (err) {
       console.error('Shortlist error:', err)
-      alert(err.response?.data?.detail || 'Error toggling shortlist')
+      error(err.response?.data?.detail || 'Error toggling shortlist')
     } finally {
       setLoading(false)
     }

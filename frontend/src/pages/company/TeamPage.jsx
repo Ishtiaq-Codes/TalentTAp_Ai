@@ -3,6 +3,8 @@ import { useFetch } from '@/hooks/useFetch'
 import { companiesAPI } from '@/api/companies'
 import { Users, UserPlus, Trash2, Mail, ShieldAlert, CheckCircle, ShieldCheck } from 'lucide-react'
 import SkeletonCard from '@/components/common/SkeletonCard'
+import ConfirmModal from '@/components/common/ConfirmModal'
+import { useToast } from '@/contexts/ToastContext'
 
 export default function TeamPage() {
   const { data: team, loading: loadingTeam, refetch: refetchTeam } = useFetch(() => companiesAPI.getRecruiters())
@@ -12,6 +14,10 @@ export default function TeamPage() {
   const [form, setForm] = useState({ first_name: '', last_name: '', email: '', title: '' })
   const [showInvite, setShowInvite] = useState(false)
   const [inviteSuccess, setInviteSuccess] = useState(false)
+  const { error } = useToast()
+  
+  const [confirmRemove, setConfirmRemove] = useState({ isOpen: false, id: null })
+  const [confirmRevoke, setConfirmRevoke] = useState({ isOpen: false, id: null })
 
   const refetchAll = () => {
     refetchTeam()
@@ -31,30 +37,38 @@ export default function TeamPage() {
         setShowInvite(false)
       }, 2000)
     } catch (err) {
-      alert(err.response?.data?.email?.[0] || err.response?.data?.detail || 'Error inviting member')
+      error(err.response?.data?.email?.[0] || err.response?.data?.detail || 'Error inviting member')
     } finally {
       setInviting(false)
     }
   }
 
-  const handleRemove = async (id) => {
-    if (confirm('Are you sure you want to remove this member from your organization? They will lose access to all jobs and candidates immediately.')) {
+  const handleRemove = (id) => {
+    setConfirmRemove({ isOpen: true, id })
+  }
+
+  const handleConfirmRemove = async () => {
+    if (confirmRemove.id) {
       try {
-        await companiesAPI.removeRecruiter(id)
+        await companiesAPI.removeRecruiter(confirmRemove.id)
         refetchAll()
       } catch (err) {
-        alert('Error removing member')
+        error('Error removing member')
       }
     }
   }
 
-  const handleRevoke = async (id) => {
-    if (confirm('Are you sure you want to revoke this invitation? The link will be permanently disabled.')) {
+  const handleRevoke = (id) => {
+    setConfirmRevoke({ isOpen: true, id })
+  }
+
+  const handleConfirmRevoke = async () => {
+    if (confirmRevoke.id) {
       try {
-        await companiesAPI.revokeInvite(id)
+        await companiesAPI.revokeInvite(confirmRevoke.id)
         refetchAll()
       } catch (err) {
-        alert('Error revoking invitation')
+        error('Error revoking invitation')
       }
     }
   }
@@ -240,6 +254,27 @@ export default function TeamPage() {
           <p className="mt-1 opacity-90">All recruiters invited to this company share access to the company's candidate pool, job postings, and shortlists. Do not invite individuals unless you trust them with this access.</p>
         </div>
       </div>
+
+      {/* Modals */}
+      <ConfirmModal
+        isOpen={confirmRemove.isOpen}
+        onClose={() => setConfirmRemove({ isOpen: false, id: null })}
+        onConfirm={handleConfirmRemove}
+        title="Remove Member"
+        message="Are you sure you want to remove this member from your organization? They will lose access to all jobs and candidates immediately."
+        confirmText="Remove"
+        isDestructive={true}
+      />
+      
+      <ConfirmModal
+        isOpen={confirmRevoke.isOpen}
+        onClose={() => setConfirmRevoke({ isOpen: false, id: null })}
+        onConfirm={handleConfirmRevoke}
+        title="Revoke Invitation"
+        message="Are you sure you want to revoke this invitation? The link will be permanently disabled."
+        confirmText="Revoke"
+        isDestructive={true}
+      />
     </div>
   )
 }

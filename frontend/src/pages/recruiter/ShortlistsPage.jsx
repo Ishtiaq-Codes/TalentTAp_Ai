@@ -4,16 +4,22 @@ import { applicationsAPI } from '@/api/applications'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import MessageButton from '@/components/common/MessageButton'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
+import ConfirmModal from '@/components/common/ConfirmModal'
 import { Bookmark, Trash2, ArrowRight, User, List, LayoutGrid, ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function ShortlistsPage() {
   const { data: shortlists, loading, refetch } = useFetch(() => applicationsAPI.getShortlists())
   const [viewMode, setViewMode] = useState('list')
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, shortlistId: null })
 
-  const removeShortlist = async (id) => {
-    if (confirm('Remove this candidate from shortlists?')) {
-      await applicationsAPI.removeFromShortlist(id)
+  const removeShortlist = (id) => {
+    setConfirmModal({ isOpen: true, shortlistId: id })
+  }
+
+  const handleConfirmRemove = async () => {
+    if (confirmModal.shortlistId) {
+      await applicationsAPI.removeFromShortlist(confirmModal.shortlistId)
       refetch()
     }
   }
@@ -178,6 +184,16 @@ export default function ShortlistsPage() {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, shortlistId: null })}
+        onConfirm={handleConfirmRemove}
+        title="Remove Candidate"
+        message="Are you sure you want to remove this candidate from your saved list?"
+        confirmText="Remove"
+        isDestructive={true}
+      />
     </div>
   )
 }

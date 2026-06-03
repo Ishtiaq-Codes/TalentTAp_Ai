@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { messagingAPI } from '@/api/messaging'
 import { useNavigate } from 'react-router-dom'
 import { Mail, X } from 'lucide-react'
+import { useToast } from '@/contexts/ToastContext'
 
 export default function MessageButton({ recipientId, name }) {
   const [isOpen, setIsOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
   const navigate = useNavigate()
+  const { success, error } = useToast()
 
   // If no recipientId is provided, we can't send a message.
   if (!recipientId) return null
@@ -20,11 +22,11 @@ export default function MessageButton({ recipientId, name }) {
       await messagingAPI.startConversation({ recipient_id: recipientId, message: message.trim() })
       setIsOpen(false)
       setMessage('')
-      alert('Message sent successfully!')
+      success('Message sent successfully!')
       // Optionally navigate to messages page to view conversation
       // navigate('/recruiter/messages')
     } catch (err) {
-      alert(err.response?.data?.detail || 'Error sending message')
+      error(err.response?.data?.detail || 'Error sending message')
     } finally {
       setSending(false)
     }
