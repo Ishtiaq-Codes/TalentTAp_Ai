@@ -65,7 +65,7 @@ function ProfileStrength({ completion }) {
 export default function CandidateDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { data: profile, loading, error } = useFetch(() => candidatesAPI.getPublicProfile(id))
+  const { data: profile, loading, error } = useFetch(() => candidatesAPI.getPublicProfile(id), [id])
   const { data: shortlists } = useFetch(() => applicationsAPI.getShortlists())
   const shortlistsArray = Array.isArray(shortlists) ? shortlists : []
 

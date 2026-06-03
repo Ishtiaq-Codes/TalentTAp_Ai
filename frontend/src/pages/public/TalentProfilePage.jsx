@@ -43,7 +43,7 @@ export default function TalentProfilePage() {
   const navigate = useNavigate()
   
   // Try to fetch. If unauthenticated, it will fail and we catch it.
-  const { data: profile, loading, error } = useFetch(() => candidatesAPI.getPublicProfile(id))
+  const { data: profile, loading, error } = useFetch(() => candidatesAPI.getPublicProfile(id), [id])
 
   // If user is logged in as recruiter, redirect to the internal recruiter view
   if (user?.role === 'recruiter' || user?.role === 'company_admin') {

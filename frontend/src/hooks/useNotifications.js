@@ -12,7 +12,7 @@ export function useNotifications() {
     if (!user) return
     try {
       const res = await notificationsAPI.getUnreadCount()
-      setUnreadCount(res.data.count || 0)
+      setUnreadCount(res.data.unread_count || 0)
     } catch (err) {
       console.error('Failed to fetch unread count', err)
     }
