@@ -202,7 +202,7 @@ export default function LandingPage() {
         </div>
 
         <div ref={heroReveal.ref} className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-32">
-          <div className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto max-w-3xl text-center">
             {/* Badge */}
             <div className={`mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary transition-all duration-700 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <Sparkles className="h-4 w-4" />
@@ -212,6 +212,7 @@ export default function LandingPage() {
             {/* Headline */}
             <h1 className={`text-5xl font-bold leading-tight tracking-tight sm:text-6xl lg:text-7xl transition-all duration-700 delay-100 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Stop Applying.{' '}
+              <br className="hidden sm:block" />
               <span className="bg-gradient-to-r from-primary via-blue-600 to-blue-800 bg-clip-text text-transparent">
                 Start Getting Discovered.
               </span>
@@ -227,14 +228,14 @@ export default function LandingPage() {
             <div className={`mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row transition-all duration-700 delay-300 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <Link
                 to="/register"
-                className="group inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 transition-all"
+                className="group inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 transition-all w-full sm:w-auto justify-center"
               >
                 Start Hiring
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
                 to="/register"
-                className="group inline-flex items-center gap-2 rounded-full border-2 border-slate-200 bg-white px-8 py-3.5 text-sm font-semibold text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all"
+                className="group inline-flex items-center gap-2 rounded-full border-2 border-slate-200 bg-white px-8 py-3.5 text-sm font-semibold text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all w-full sm:w-auto justify-center"
               >
                 I'm a Candidate
                 <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
@@ -243,40 +244,57 @@ export default function LandingPage() {
           </div>
 
           {/* Hero visual — mock dashboard */}
-          <div className={`mx-auto mt-16 max-w-5xl transition-all duration-1000 delay-500 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className={`mx-auto mt-12 max-w-4xl transition-all duration-1000 delay-500 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="rounded-2xl border border-slate-200/60 bg-white p-2 shadow-2xl shadow-slate-200/50">
-              <div className="rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 p-6 sm:p-8">
+              <div className="rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 p-5 sm:p-6">
                 {/* Mock dashboard header */}
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between mb-5">
                   <div>
-                    <div className="h-3 w-32 rounded-full bg-slate-300"></div>
-                    <div className="mt-2 h-2 w-48 rounded-full bg-slate-200"></div>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900">Recruiting Overview</h3>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-1">Welcome back to TalentTap AI</p>
                   </div>
-                  <div className="h-8 w-24 rounded-full bg-primary/20"></div>
+                  <div className="hidden sm:flex items-center gap-2 bg-white rounded-lg border border-slate-200 px-3 py-1.5 shadow-sm">
+                    <Search className="h-4 w-4 text-slate-400" />
+                    <span className="text-sm text-slate-400">Search candidates...</span>
+                  </div>
                 </div>
                 {/* Mock stat cards */}
-                <div className="grid grid-cols-4 gap-3 mb-6">
-                  {['bg-blue-50', 'bg-emerald-50', 'bg-amber-50', 'bg-purple-50'].map((bg, i) => (
-                    <div key={i} className={`${bg} rounded-xl p-4`}>
-                      <div className="h-2 w-8 rounded-full bg-slate-300 mb-2"></div>
-                      <div className="h-5 w-12 rounded bg-slate-400/30"></div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                  {[
+                    { bg: 'bg-blue-50', title: 'Active Jobs', val: '24' },
+                    { bg: 'bg-emerald-50', title: 'Candidates', val: '115' },
+                    { bg: 'bg-amber-50', title: 'Interviews', val: '18' },
+                    { bg: 'bg-purple-50', title: 'Offers', val: '4' },
+                  ].map((stat, i) => (
+                    <div key={i} className={`${stat.bg} rounded-xl p-3 sm:p-4 border border-slate-100 shadow-sm`}>
+                      <div className="text-xs text-slate-600 font-medium mb-1">{stat.title}</div>
+                      <div className="text-xl sm:text-2xl font-bold text-slate-900">{stat.val}</div>
                     </div>
                   ))}
                 </div>
                 {/* Mock candidate rows */}
-                <div className="space-y-2">
-                  {[92, 87, 78].map((score, i) => (
-                    <div key={i} className="flex items-center gap-4 rounded-lg bg-white p-3 shadow-sm">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-blue-200"></div>
-                      <div className="flex-1">
-                        <div className="h-2.5 w-28 rounded-full bg-slate-300"></div>
-                        <div className="mt-1.5 h-2 w-40 rounded-full bg-slate-200"></div>
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="px-4 py-2 sm:py-3 border-b border-slate-100 bg-slate-50/50">
+                    <span className="text-sm font-semibold text-slate-900">Recent AI Matches</span>
+                  </div>
+                  <div className="p-2 sm:p-3 space-y-2 bg-slate-50">
+                    {[
+                      { name: 'Eleanor Pena', role: 'Product Designer', score: 92, pic: 'https://randomuser.me/api/portraits/women/44.jpg' },
+                      { name: 'Arlene McCoy', role: 'Frontend Lead', score: 87, pic: 'https://randomuser.me/api/portraits/women/68.jpg' },
+                      { name: 'Jerome Bell', role: 'QA Engineer', score: 78, pic: 'https://randomuser.me/api/portraits/men/32.jpg' }
+                    ].map((c, i) => (
+                      <div key={i} className="flex items-center gap-3 sm:gap-4 rounded-lg bg-white p-2.5 sm:p-3 shadow-sm border border-slate-100">
+                        <img src={c.pic} alt={c.name} className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover border border-slate-200" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs sm:text-sm font-semibold text-slate-900 truncate">{c.name}</div>
+                          <div className="text-[10px] sm:text-xs text-slate-500 font-medium truncate">{c.role}</div>
+                        </div>
+                        <div className={`rounded-full px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-bold whitespace-nowrap ${c.score >= 90 ? 'bg-emerald-100 text-emerald-700' : c.score >= 80 ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {c.score}% match
+                        </div>
                       </div>
-                      <div className={`rounded-full px-3 py-1 text-xs font-bold ${score >= 90 ? 'bg-emerald-100 text-emerald-700' : score >= 80 ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
-                        {score}% match
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -294,7 +312,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── 3. PROBLEM SECTION ── */}
-      <section className="py-20 sm:py-28">
+      <section className="py-12 sm:py-20">
         <div ref={problemReveal.ref} className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className={`grid items-center gap-12 lg:grid-cols-2 transition-all duration-700 ${problemReveal.visible ? 'opacity-100' : 'opacity-0'}`}>
             <div>
@@ -349,7 +367,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── 4. HOW IT WORKS ── */}
-      <section className="bg-white py-20 sm:py-28">
+      <section className="bg-white py-12 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center">
             <span className="text-sm font-semibold uppercase tracking-wider text-primary">How It Works</span>
@@ -383,7 +401,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── 5. FEATURES ── */}
-      <section className="py-20 sm:py-28">
+      <section className="py-12 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center">
             <span className="text-sm font-semibold uppercase tracking-wider text-primary">Features</span>
@@ -405,7 +423,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── 6. FOR CANDIDATES ── */}
-      <section className="bg-white py-20 sm:py-28">
+      <section className="bg-white py-12 sm:py-20">
         <div ref={candidateReveal.ref} className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className={`grid items-center gap-12 lg:grid-cols-2 transition-all duration-700 ${candidateReveal.visible ? 'opacity-100' : 'opacity-0'}`}>
             <div>
@@ -434,11 +452,13 @@ export default function LandingPage() {
             </div>
             <div className="flex justify-center">
               <div className="w-full max-w-sm rounded-2xl border bg-gradient-to-br from-emerald-50 to-blue-50 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/30 to-emerald-200"></div>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/30 to-emerald-200 flex items-center justify-center font-bold text-lg text-primary">
+                    JD
+                  </div>
                   <div>
-                    <div className="h-3 w-24 rounded-full bg-slate-300"></div>
-                    <div className="mt-1.5 h-2 w-32 rounded-full bg-slate-200"></div>
+                    <div className="font-bold text-slate-900">Jane Doe</div>
+                    <div className="text-sm font-medium text-slate-600">Senior React Engineer</div>
                   </div>
                 </div>
                 <div className="space-y-3 mt-4">
@@ -467,14 +487,16 @@ export default function LandingPage() {
       </section>
 
       {/* ── 7. FOR RECRUITERS ── */}
-      <section className="py-20 sm:py-28">
+      <section className="py-12 sm:py-20">
         <div ref={recruiterReveal.ref} className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className={`grid items-center gap-12 lg:grid-cols-2 transition-all duration-700 ${recruiterReveal.visible ? 'opacity-100' : 'opacity-0'}`}>
             <div className="order-2 lg:order-1 flex justify-center">
-              <div className="w-full max-w-sm rounded-2xl border bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
+              <div className="w-full max-w-sm rounded-2xl border bg-gradient-to-br from-blue-50 to-indigo-50 p-6 shadow-lg">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="h-3 w-28 rounded-full bg-slate-300"></div>
-                  <div className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">LIVE</div>
+                  <div className="font-semibold text-slate-900 text-sm">Top AI Matches</div>
+                  <div className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary flex items-center gap-1">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></div> LIVE
+                  </div>
                 </div>
                 {[
                   { name: 'Alice Johnson', score: 95, skill: 'Full-Stack' },
@@ -522,49 +544,44 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 8. PLATFORM SHOWCASE ── */}
-      <section ref={showcaseReveal.ref} className="bg-white py-20 sm:py-28">
+      <section ref={showcaseReveal.ref} className="bg-slate-50 py-12 sm:py-20 border-y border-slate-200/60">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center">
-          <span className="text-sm font-semibold uppercase tracking-wider text-primary">Platform Preview</span>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Built for modern hiring teams</h2>
+          <span className="text-sm font-semibold uppercase tracking-wider text-primary">Match Intelligence</span>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">See why you match</h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            A clean, powerful interface that puts everything you need at your fingertips.
+            Our AI doesn't just give you a score. It breaks down exactly why a candidate is the perfect fit.
           </p>
-          <div className={`mx-auto mt-12 max-w-5xl transition-all duration-1000 ${showcaseReveal.visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-            <div className="rounded-2xl border-2 border-slate-200/60 bg-gradient-to-b from-slate-50 to-white p-3 shadow-xl">
-              <div className="rounded-xl bg-slate-100 p-8">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-1 space-y-3">
-                    {[1,2,3,4,5].map(i => (
-                      <div key={i} className={`rounded-lg p-3 ${i === 1 ? 'bg-primary/10 border border-primary/20' : 'bg-white'}`}>
-                        <div className="h-2 w-16 rounded-full bg-slate-300"></div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="col-span-2 rounded-xl bg-white p-6 shadow-sm">
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="h-3 w-32 rounded-full bg-slate-300"></div>
-                      <div className="h-8 w-20 rounded-full bg-primary/20"></div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3 mb-4">
-                      {['bg-blue-50', 'bg-emerald-50', 'bg-violet-50'].map((bg, i) => (
-                        <div key={i} className={`${bg} rounded-lg p-3`}>
-                          <div className="h-2 w-8 rounded-full bg-slate-300 mb-1.5"></div>
-                          <div className="h-4 w-10 rounded bg-slate-400/20"></div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="space-y-2">
-                      {[1,2,3].map(i => (
-                        <div key={i} className="flex items-center gap-3 rounded-lg border p-3">
-                          <div className="h-8 w-8 rounded-full bg-slate-200"></div>
-                          <div className="flex-1"><div className="h-2 w-20 rounded-full bg-slate-300"></div></div>
-                          <div className="h-5 w-12 rounded-full bg-emerald-100"></div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+          <div className={`mx-auto mt-12 max-w-3xl transition-all duration-1000 ${showcaseReveal.visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xl text-left">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">David Smith</h3>
+                  <p className="text-sm text-slate-500 font-medium">Applied for Senior Backend Engineer</p>
                 </div>
+                <div className="flex flex-col sm:items-end">
+                  <span className="text-sm font-semibold text-slate-500 mb-1">Overall Match</span>
+                  <span className="text-3xl font-bold text-emerald-600 bg-emerald-50 px-4 py-1 rounded-lg inline-block w-fit">94%</span>
+                </div>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { label: 'Skills Match', score: 98, note: 'Matches all required skills (Python, Django, AWS)' },
+                  { label: 'Experience Level', score: 95, note: '6 years experience (Role requires 5+)' },
+                  { label: 'Location Fit', score: 100, note: 'Open to Remote (Role is Remote)' },
+                ].map((item, i) => (
+                  <div key={i} className="flex flex-col gap-2 p-4 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-slate-700">{item.label}</span>
+                      <span className="font-bold text-slate-900">{item.score}%</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
+                      <div className="w-full sm:flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full" style={{ width: `${item.score}%` }}></div>
+                      </div>
+                      <span className="text-xs text-slate-500 sm:min-w-[250px] leading-relaxed">{item.note}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -572,7 +589,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── 9. TESTIMONIALS ── */}
-      <section className="py-20 sm:py-28">
+      <section className="py-12 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center">
             <span className="text-sm font-semibold uppercase tracking-wider text-primary">Testimonials</span>
@@ -599,7 +616,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── 10. FAQ ── */}
-      <section className="bg-white py-20 sm:py-28">
+      <section className="bg-white py-12 sm:py-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <div className="text-center">
             <span className="text-sm font-semibold uppercase tracking-wider text-primary">FAQ</span>
@@ -614,7 +631,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── 11. CTA ── */}
-      <section className="py-20 sm:py-28">
+      <section className="py-12 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-8 py-16 text-center sm:px-16 sm:py-20">
             {/* Background decoration */}
@@ -631,13 +648,13 @@ export default function LandingPage() {
               <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <Link
                   to="/register"
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 shadow-lg hover:bg-slate-100 transition-all"
+                  className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 shadow-lg hover:bg-slate-100 transition-all"
                 >
                   Get Started Free <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-600 px-8 py-3.5 text-sm font-semibold text-white hover:bg-white/10 transition-all"
+                  className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full border border-slate-600 px-8 py-3.5 text-sm font-semibold text-white hover:bg-white/10 transition-all"
                 >
                   Request a Demo
                 </Link>

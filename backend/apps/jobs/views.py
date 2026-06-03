@@ -11,6 +11,8 @@ from .models import Job
 from .serializers import JobSerializer, JobListSerializer
 
 
+from django.db.models import Count
+
 class JobListCreateView(generics.ListCreateAPIView):
     """List or create jobs."""
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -30,7 +32,7 @@ class JobListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        qs = Job.objects.select_related('company', 'recruiter__user').prefetch_related('skills')
+        qs = Job.objects.select_related('company', 'recruiter__user').prefetch_related('skills').annotate(applicants_count=Count('applications'))
 
         # Candidates see only active jobs
         if user.role == 'candidate':
@@ -66,7 +68,9 @@ class JobDetailView(generics.RetrieveUpdateAPIView):
     """Get or update a job."""
     serializer_class = JobSerializer
     permission_classes = [IsAuthenticated]
-    queryset = Job.objects.select_related('company', 'recruiter__user').prefetch_related('skills')
+
+    def get_queryset(self):
+        return Job.objects.select_related('company', 'recruiter__user').prefetch_related('skills').annotate(applicants_count=Count('applications'))
 
 
 class JobStatusView(APIView):
@@ -75,7 +79,7 @@ class JobStatusView(APIView):
 
     def patch(self, request, pk):
         try:
-            job = Job.objects.get(pk=pk)
+            job = Job.objects.annotate(applicants_count=Count('applications')).get(pk=pk)
         except Job.DoesNotExist:
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -97,4 +101,4 @@ class PublicJobListView(generics.ListAPIView):
     search_fields = ['title', 'skills__name', 'company__name']
 
     def get_queryset(self):
-        return Job.objects.filter(status='active').select_related('company').prefetch_related('skills')
+        return Job.objects.filter(status='active').select_related('company').prefetch_related('skills').annotate(applicants_count=Count('applications'))

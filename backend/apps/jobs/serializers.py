@@ -15,17 +15,18 @@ class JobSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(source='company.name', read_only=True)
     company_logo = serializers.ImageField(source='company.logo', read_only=True)
     recruiter_name = serializers.CharField(source='recruiter.user.full_name', read_only=True)
+    applicants_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Job
         fields = [
             'id', 'company', 'company_name', 'company_logo',
-            'recruiter', 'recruiter_name', 'title', 'slug', 'description',
+            'recruiter', 'recruiter_name', 'title', 'department', 'slug', 'description',
             'experience_min', 'experience_max', 'employment_type',
             'location', 'country', 'city', 'is_remote',
             'salary_min', 'salary_max', 'salary_currency',
             'status', 'application_deadline', 'is_featured',
-            'skills', 'created_at', 'updated_at',
+            'skills', 'applicants_count', 'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'slug', 'company', 'recruiter', 'created_at', 'updated_at']
 
@@ -55,14 +56,15 @@ class JobListSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(source='company.name', read_only=True)
     company_logo = serializers.ImageField(source='company.logo', read_only=True)
     skills = JobSkillSerializer(many=True, read_only=True)
+    applicants_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Job
         fields = [
-            'id', 'title', 'slug', 'company_name', 'company_logo',
+            'id', 'title', 'department', 'slug', 'company_name', 'company_logo',
             'employment_type', 'location', 'country', 'city', 'is_remote',
             'salary_min', 'salary_max', 'salary_currency',
-            'status', 'is_featured', 'skills', 'created_at', 'has_applied',
+            'status', 'is_featured', 'skills', 'applicants_count', 'created_at', 'has_applied',
         ]
 
     def get_has_applied(self, obj):

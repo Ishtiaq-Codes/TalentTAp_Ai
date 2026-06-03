@@ -1,11 +1,13 @@
+import { useState } from 'react'
 import { useFetch } from '@/hooks/useFetch'
 import { jobsAPI } from '@/api/jobs'
 import { applicationsAPI } from '@/api/applications'
 import { useAuth } from '@/contexts/AuthContext'
-import { Briefcase, Users, FileText, TrendingUp, Plus, ArrowRight, Activity, Clock, CheckCircle } from 'lucide-react'
+import { Briefcase, Users, FileText, TrendingUp, Plus, ArrowRight, Activity, Clock, CheckCircle, ChevronLeft, ChevronRight, Eye } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
+import { formatDate } from '@/lib/utils'
 
 function DashboardStat({ icon: Icon, label, value, trend, trendLabel }) {
   return (
@@ -29,12 +31,97 @@ function DashboardStat({ icon: Icon, label, value, trend, trendLabel }) {
   )
 }
 
+function StatusBadge({ status }) {
+  const styles = {
+    applied: 'bg-blue-50 text-blue-700 ring-blue-600/20',
+    reviewing: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+    shortlisted: 'bg-purple-50 text-purple-700 ring-purple-600/20',
+    interview: 'bg-indigo-50 text-indigo-700 ring-indigo-600/20',
+    offered: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+    rejected: 'bg-red-50 text-red-700 ring-red-600/20',
+    withdrawn: 'bg-slate-50 text-slate-700 ring-slate-600/20',
+    active: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+    draft: 'bg-slate-50 text-slate-700 ring-slate-600/20',
+    closed: 'bg-red-50 text-red-700 ring-red-600/20',
+    paused: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+  }
+  const style = styles[status] || 'bg-slate-50 text-slate-700 ring-slate-600/20'
+  return (
+    <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset capitalize ${style}`}>
+      {status}
+    </span>
+  )
+}
+
+function StatusSelect({ appId, initialStatus, onStatusChange }) {
+  const [status, setStatus] = useState(initialStatus)
+  const [loading, setLoading] = useState(false)
+
+  const styles = {
+    applied: 'bg-blue-50 text-blue-700 ring-blue-600/20',
+    reviewing: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+    shortlisted: 'bg-purple-50 text-purple-700 ring-purple-600/20',
+    interview: 'bg-indigo-50 text-indigo-700 ring-indigo-600/20',
+    offered: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+    rejected: 'bg-red-50 text-red-700 ring-red-600/20',
+    withdrawn: 'bg-slate-50 text-slate-700 ring-slate-600/20',
+  }
+  
+  const style = styles[status] || 'bg-slate-50 text-slate-700 ring-slate-600/20'
+  
+  const handleChange = async (e) => {
+    const newStatus = e.target.value
+    setLoading(true)
+    try {
+      await applicationsAPI.updateStatus(appId, newStatus)
+      setStatus(newStatus)
+      if (onStatusChange) onStatusChange()
+    } catch (error) {
+      console.error('Failed to update status', error)
+      setStatus(initialStatus)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="relative inline-flex items-center">
+      <select
+        value={status}
+        onChange={handleChange}
+        disabled={loading}
+        className={`appearance-none rounded-md px-3 py-1 pr-8 text-xs font-medium ring-1 ring-inset capitalize cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary ${style} ${loading ? 'opacity-50' : ''}`}
+      >
+        <option value="applied">Applied</option>
+        <option value="reviewing">Reviewing</option>
+        <option value="shortlisted">Shortlisted</option>
+        <option value="interview">Interview</option>
+        <option value="offered">Offered</option>
+        <option value="rejected">Rejected</option>
+      </select>
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+        <svg className={`h-3 w-3 ${styles[status]?.split(' ')[1]}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+      </div>
+    </div>
+  )
+}
+
 export default function RecruiterDashboard() {
   const { user } = useAuth()
-  const { data: jobs, loading } = useFetch(() => jobsAPI.list())
-  const { data: applications } = useFetch(() => applicationsAPI.list())
+  
+  const [jobsPage, setJobsPage] = useState(1)
+  const [appsPage, setAppsPage] = useState(1)
 
-  if (loading) {
+  const { data: jobs, meta: jobsMeta, loading: jobsLoading } = useFetch(() => jobsAPI.list({ page: jobsPage }), [jobsPage])
+  const { data: applications, meta: appsMeta, loading: appsLoading } = useFetch(() => applicationsAPI.list({ page: appsPage }), [appsPage])
+
+  const jobList = Array.isArray(jobs) ? jobs : []
+  const appList = Array.isArray(applications) ? applications : []
+  
+  const totalJobsCount = jobsMeta?.count || jobList.length
+  const totalAppsCount = appsMeta?.count || appList.length
+
+  if (jobsLoading && jobsPage === 1) {
     return (
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -44,141 +131,198 @@ export default function RecruiterDashboard() {
     )
   }
 
-  const jobList = Array.isArray(jobs) ? jobs : []
-  const appList = Array.isArray(applications) ? applications : []
-  const activeJobs = jobList.filter(j => j.status === 'active').length
-  const newApps = appList.filter(a => a.status === 'applied').length
-
   return (
     <div className="space-y-8 pb-8 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Overview</h1>
-          <p className="mt-2 text-muted-foreground">Here's what's happening in your hiring pipeline today.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+          <p className="mt-2 text-sm text-slate-500">Welcome back, {user?.first_name}. Here's what's happening in your hiring pipeline.</p>
         </div>
         <Link to="/recruiter/jobs/new"
-          className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 transition-all">
+          className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all">
           <Plus className="mr-2 h-4 w-4" /> Post New Job
         </Link>
       </div>
 
       {/* KPI Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <DashboardStat icon={Briefcase} label="Total Jobs Posted" value={jobList.length} trend="+1" trendLabel="from last month" />
-        <DashboardStat icon={TrendingUp} label="Active Listings" value={activeJobs} />
-        <DashboardStat icon={FileText} label="Total Applications" value={appList.length} trend="+12" trendLabel="new this week" />
-        <DashboardStat icon={Users} label="Candidates to Review" value={newApps} />
+        <DashboardStat icon={Briefcase} label="Total Jobs" value={totalJobsCount} trend="+1" trendLabel="this month" />
+        <DashboardStat icon={FileText} label="Total Applications" value={totalAppsCount} trend="+12" trendLabel="new this week" />
+        <DashboardStat icon={Users} label="Candidates to Review" value={appList.filter(a => a.status === 'applied').length} />
+        <DashboardStat icon={TrendingUp} label="Interviews Scheduled" value={appList.filter(a => a.status === 'interview').length} />
       </div>
 
-      {/* Main Content Split */}
-      <div className="grid gap-8 lg:grid-cols-3">
-        {/* Active Jobs Pipeline */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold tracking-tight">Active Jobs Pipeline</h2>
-            <Link to="/recruiter/jobs" className="text-sm font-semibold text-primary hover:underline">View all jobs</Link>
-          </div>
-
-          <div className="grid gap-4">
-            {jobList.length > 0 ? jobList.filter(j => j.status === 'active').slice(0, 4).map((job) => (
-              <Link key={job.id} to={`/recruiter/jobs/${job.id}`} className="group rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-primary/30">
-                <div className="flex items-start justify-between">
-                  <div className="flex gap-4">
-                    <ProfileAvatar src={job.company_logo} name={job.company_name || 'Company'} size="md" className="rounded-xl shadow-sm shrink-0" />
-                    <div>
-                      <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{job.title}</h3>
-                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                        <span className="font-medium text-slate-700">{job.employment_type?.replace('_', ' ')}</span>
-                        <span className="h-1 w-1 rounded-full bg-slate-300" />
-                        <span>{job.is_remote}</span>
-                        <span className="h-1 w-1 rounded-full bg-slate-300" />
-                        <span>{job.city || job.country}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">
-                    <ArrowRight className="h-5 w-5" />
-                  </div>
-                </div>
-
-                <div className="mt-6 flex items-center justify-between border-t pt-4">
-                  <div className="flex items-center gap-6">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Applications</p>
-                      <p className="font-semibold">{appList.filter(a => a.job === job.id).length || 0}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">AI Matches</p>
-                      <p className="font-semibold text-primary">New</p>
-                    </div>
-                  </div>
-                  <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
-                    Active
-                  </span>
-                </div>
-              </Link>
-            )) : (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed p-12 text-center bg-slate-50">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200/50 mb-4">
-                  <Briefcase className="h-6 w-6 text-slate-400" />
-                </div>
-                <h3 className="text-lg font-semibold">No active jobs</h3>
-                <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-                  Post a job to start receiving AI-matched candidate recommendations instantly.
+      <div className="grid gap-8 lg:grid-cols-1 xl:grid-cols-3">
+        {/* Main Tables Area (Takes up 2/3 width on massive screens) */}
+        <div className="xl:col-span-2 space-y-8">
+          
+          {/* Recent Candidates Table */}
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="border-b border-slate-200 bg-slate-50/50 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-slate-900">Recent Candidates</h2>
+              <Link to="/recruiter/candidates" className="text-sm font-medium text-primary hover:text-primary/80">View all</Link>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-white">
+                  <tr>
+                    <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Candidate</th>
+                    <th scope="col" className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Applied For</th>
+                    <th scope="col" className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
+                    <th scope="col" className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" className="relative py-3.5 pl-3 pr-6"><span className="sr-only">Action</span></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 bg-white">
+                  {appList.length === 0 ? (
+                    <tr><td colSpan="5" className="py-8 text-center text-sm text-slate-500">No candidates found</td></tr>
+                  ) : appList.map((app) => (
+                    <tr key={app.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="whitespace-nowrap py-4 pl-6 pr-3">
+                        <div className="flex items-center gap-3">
+                          <ProfileAvatar src={app.candidate_avatar} name={app.candidate_name} size="sm" className="h-9 w-9 rounded-full border border-slate-200" />
+                          <div>
+                            <div className="font-medium text-slate-900">{app.candidate_name}</div>
+                            <div className="text-xs text-slate-500 w-48 truncate">{app.candidate_headline || 'Candidate'}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-600 font-medium">
+                        {app.job_title}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
+                        {formatDate(app.created_at)}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm">
+                        <StatusSelect appId={app.id} initialStatus={app.status} />
+                      </td>
+                      <td className="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
+                        <Link to={`/recruiter/candidates/${app.candidate}`} className="text-primary hover:text-primary/80 inline-flex items-center gap-1">
+                          <Eye className="h-4 w-4" /> View
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {/* Pagination Controls */}
+            {appsMeta && appsMeta.count > 0 && (
+              <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-3">
+                <p className="text-xs text-slate-500">
+                  Showing <span className="font-medium">{(appsPage - 1) * 20 + 1}</span> to <span className="font-medium">{Math.min(appsPage * 20, appsMeta.count)}</span> of <span className="font-medium">{appsMeta.count}</span>
                 </p>
-                <Link to="/recruiter/jobs/new" className="mt-6 rounded-full bg-white px-6 py-2 text-sm font-semibold border shadow-sm hover:bg-slate-50 transition-colors">
-                  Post a Job
-                </Link>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setAppsPage(p => Math.max(1, p - 1))} disabled={!appsMeta.previous} className="rounded-md border p-1 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"><ChevronLeft className="h-4 w-4"/></button>
+                  <button onClick={() => setAppsPage(p => p + 1)} disabled={!appsMeta.next} className="rounded-md border p-1 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"><ChevronRight className="h-4 w-4"/></button>
+                </div>
               </div>
             )}
           </div>
+
+          {/* Job Postings Table */}
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="border-b border-slate-200 bg-slate-50/50 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-slate-900">Active Job Postings</h2>
+              <Link to="/recruiter/jobs" className="text-sm font-medium text-primary hover:text-primary/80">View all</Link>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-white">
+                  <tr>
+                    <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
+                    <th scope="col" className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Department</th>
+                    <th scope="col" className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Location</th>
+                    <th scope="col" className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Applicants</th>
+                    <th scope="col" className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" className="relative py-3.5 pl-3 pr-6"><span className="sr-only">Action</span></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 bg-white">
+                  {jobList.length === 0 ? (
+                    <tr><td colSpan="6" className="py-8 text-center text-sm text-slate-500">No jobs posted yet</td></tr>
+                  ) : jobList.map((job) => (
+                    <tr key={job.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="whitespace-nowrap py-4 pl-6 pr-3 font-medium text-slate-900 text-sm">
+                        {job.title}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
+                        {job.department || 'General'}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
+                        {job.is_remote === 'remote' ? 'Remote' : (job.city || job.country || 'Not specified')}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm">
+                        <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+                          {job.applicants_count || 0}
+                        </span>
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm">
+                        <StatusBadge status={job.status} />
+                      </td>
+                      <td className="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
+                        <Link to={`/recruiter/jobs/${job.id}`} className="text-primary hover:text-primary/80 inline-flex items-center gap-1">
+                          <Eye className="h-4 w-4" /> View
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {/* Pagination Controls */}
+            {jobsMeta && jobsMeta.count > 0 && (
+              <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-3">
+                <p className="text-xs text-slate-500">
+                  Showing <span className="font-medium">{(jobsPage - 1) * 20 + 1}</span> to <span className="font-medium">{Math.min(jobsPage * 20, jobsMeta.count)}</span> of <span className="font-medium">{jobsMeta.count}</span>
+                </p>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setJobsPage(p => Math.max(1, p - 1))} disabled={!jobsMeta.previous} className="rounded-md border p-1 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"><ChevronLeft className="h-4 w-4"/></button>
+                  <button onClick={() => setJobsPage(p => p + 1)} disabled={!jobsMeta.next} className="rounded-md border p-1 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"><ChevronRight className="h-4 w-4"/></button>
+                </div>
+              </div>
+            )}
+          </div>
+
         </div>
 
-        {/* Action Center / Tasks */}
+        {/* Action Center / Tasks (Takes 1/3 width) */}
         <div className="space-y-6">
-          <h2 className="text-xl font-bold tracking-tight">Action Center</h2>
-
-          <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
-            <div className="p-5 border-b bg-slate-50/50">
-              <h3 className="font-semibold text-sm">Tasks & Notifications</h3>
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-slate-200 bg-slate-50/50">
+              <h3 className="font-semibold text-slate-900 text-sm">Tasks & Notifications</h3>
             </div>
-            <div className="divide-y p-2">
-
-              {newApps > 0 && (
-                <Link to="/recruiter/jobs" className="flex items-start gap-3 p-3 hover:bg-slate-50 transition-colors rounded-lg">
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
-                    <Clock className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Review new applications</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">You have {newApps} candidates waiting in the "Applied" stage.</p>
-                  </div>
-                </Link>
-              )}
-
+            <div className="divide-y divide-slate-100 p-2">
+              <Link to="/recruiter/jobs" className="flex items-start gap-3 p-3 hover:bg-slate-50 transition-colors rounded-lg">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                  <Clock className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-900">Review new applications</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Candidates are waiting in the "Applied" stage.</p>
+                </div>
+              </Link>
               <Link to="/recruiter/candidates" className="flex items-start gap-3 p-3 hover:bg-slate-50 transition-colors rounded-lg">
                 <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
                   <TrendingUp className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Source new talent</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Your AI model is ready. Discover passive candidates.</p>
+                  <p className="text-sm font-medium text-slate-900">Source new talent</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Your AI model is ready. Discover passive candidates.</p>
                 </div>
               </Link>
-
               {user?.role === 'company_admin' && (
                 <Link to="/company/team" className="flex items-start gap-3 p-3 hover:bg-slate-50 transition-colors rounded-lg">
                   <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
                     <CheckCircle className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Invite team members</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Collaborate on hiring by adding recruiters.</p>
+                    <p className="text-sm font-medium text-slate-900">Invite team members</p>
+                    <p className="text-xs text-slate-500 mt-0.5">Collaborate on hiring by adding recruiters.</p>
                   </div>
                 </Link>
               )}
-
             </div>
           </div>
         </div>

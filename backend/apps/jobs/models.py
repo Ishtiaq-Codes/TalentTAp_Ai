@@ -30,8 +30,10 @@ class Job(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='jobs')
     recruiter = models.ForeignKey(RecruiterProfile, on_delete=models.CASCADE, related_name='jobs')
+    
     title = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True, max_length=250)
+    department = models.CharField(max_length=100, blank=True)
+    slug = models.SlugField(max_length=250, unique=True, blank=True)
     description = models.TextField()
     experience_min = models.IntegerField(default=0)
     experience_max = models.IntegerField(default=1)

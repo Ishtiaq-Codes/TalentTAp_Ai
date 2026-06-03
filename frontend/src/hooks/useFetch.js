@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react'
  */
 export function useFetch(fetchFn, deps = []) {
   const [data, setData] = useState(null)
+  const [meta, setMeta] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -15,7 +16,17 @@ export function useFetch(fetchFn, deps = []) {
     setError(null)
     try {
       const response = await fetchFn()
-      setData(response.data?.results ?? response.data)
+      if (response.data?.results !== undefined) {
+        setData(response.data.results)
+        setMeta({
+          count: response.data.count,
+          next: response.data.next,
+          previous: response.data.previous
+        })
+      } else {
+        setData(response.data)
+        setMeta(null)
+      }
     } catch (err) {
       setError(err.response?.data?.detail || 'Something went wrong')
     } finally {
@@ -25,5 +36,5 @@ export function useFetch(fetchFn, deps = []) {
 
   useEffect(() => { refetch() }, [refetch])
 
-  return { data, loading, error, refetch, setData }
+  return { data, meta, loading, error, refetch, setData }
 }
