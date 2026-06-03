@@ -7,6 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from apps.accounts.permissions import IsCandidate, IsRecruiter
 from .models import CandidateProfile, CandidateSkill, Experience
+from .filters import CandidateFilter
 from .serializers import (
     CandidateProfileSerializer, CandidateSearchSerializer,
     CandidateSkillSerializer, ExperienceSerializer,
@@ -131,7 +132,7 @@ class CandidateSearchView(generics.ListAPIView):
     serializer_class = CandidateSearchSerializer
     permission_classes = [IsAuthenticated, IsRecruiter]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['country', 'city', 'employment_status', 'availability', 'is_open_to_work']
+    filterset_class = CandidateFilter
     search_fields = ['headline', 'skills__name', 'user__first_name', 'user__last_name']
     ordering_fields = ['years_of_experience', 'updated_at']
 

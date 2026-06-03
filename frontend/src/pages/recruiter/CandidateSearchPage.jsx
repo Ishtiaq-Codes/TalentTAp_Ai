@@ -127,6 +127,31 @@ export default function CandidateSearchPage() {
               </div>
             </div>
 
+            {/* Location */}
+            <div className="p-4 border-b">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Location</label>
+              <div className="mt-3 space-y-3">
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <input
+                    value={filters.city || ''}
+                    onChange={(e) => setFilters({ ...filters, city: e.target.value || undefined })}
+                    placeholder="City (e.g. London)"
+                    className="w-full rounded-lg border bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+                <div className="relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <input
+                    value={filters.country || ''}
+                    onChange={(e) => setFilters({ ...filters, country: e.target.value || undefined })}
+                    placeholder="Country (e.g. UK)"
+                    className="w-full rounded-lg border bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Availability */}
             <div className="p-4 border-b">
               <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Availability</label>
