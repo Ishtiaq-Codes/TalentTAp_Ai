@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { Bell, LogOut, Menu, Search, Settings, User } from 'lucide-react'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
+import NotificationDropdown from '@/components/common/NotificationDropdown'
 
 export default function Topbar({ onToggleMobile }) {
   const { user, logout } = useAuth()
@@ -63,14 +64,7 @@ export default function Topbar({ onToggleMobile }) {
 
       <div className="flex items-center gap-3">
         {/* Notifications */}
-        <button
-          onClick={() => navigate(user?.role === 'candidate' ? '/candidate/messages' : '/recruiter/messages')}
-          className="relative rounded-full p-2 text-slate-500 hover:bg-slate-100 transition-colors"
-          aria-label="Notifications"
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1.5 right-1.5 flex h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
-        </button>
+        <NotificationDropdown />
 
         {/* User Dropdown */}
         <div className="relative">
