@@ -46,6 +46,11 @@ class ApplicationListView(generics.ListAPIView):
         qs = Application.objects.select_related(
             'job__company', 'candidate__user',
         )
+        
+        job_id = self.request.query_params.get('job')
+        if job_id:
+            qs = qs.filter(job_id=job_id)
+
         if user.role == 'candidate':
             return qs.filter(candidate__user=user)
         if user.role in ('recruiter', 'company_admin'):
