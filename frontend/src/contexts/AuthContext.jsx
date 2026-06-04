@@ -41,12 +41,24 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const { data } = await authAPI.login({ email, password })
+    if (data.mfa_required) {
+      return { mfa_required: true, mfa_token: data.mfa_token }
+    }
+    
     localStorage.setItem('access_token', data.access)
     localStorage.setItem('refresh_token', data.refresh)
-    // Fetch user profile immediately after login
     const meResponse = await authAPI.getMe()
     setUser(meResponse.data)
-    return meResponse.data // return user so caller can redirect by role
+    return meResponse.data 
+  }
+
+  const loginMFA = async (mfa_token, code) => {
+    const { data } = await authAPI.loginMFA(mfa_token, code)
+    localStorage.setItem('access_token', data.access)
+    localStorage.setItem('refresh_token', data.refresh)
+    const meResponse = await authAPI.getMe()
+    setUser(meResponse.data)
+    return meResponse.data
   }
 
   const register = async (formData) => {
@@ -59,7 +71,7 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
-  const value = { user, loading, login, register, logout, fetchUser }
+  const value = { user, loading, login, loginMFA, register, logout, fetchUser }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

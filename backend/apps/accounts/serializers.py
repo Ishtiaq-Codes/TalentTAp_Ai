@@ -57,5 +57,6 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
+    uidb64 = serializers.CharField()
     token = serializers.CharField()
     password = serializers.CharField(validators=[validate_password])

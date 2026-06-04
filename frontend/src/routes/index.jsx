@@ -8,6 +8,7 @@ const LandingPage = lazy(() => import('@/pages/landing/LandingPage'))
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'))
 const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage'))
+const ResetPasswordPage = lazy(() => import('@/pages/public/ResetPasswordPage'))
 const AcceptInvitePage = lazy(() => import('@/pages/public/AcceptInvitePage'))
 
 // Public Pages
@@ -107,6 +108,7 @@ export default function AppRouter() {
           <Route path="/login" element={<RedirectIfAuth><LoginPage /></RedirectIfAuth>} />
           <Route path="/register" element={<RedirectIfAuth><RegisterPage /></RedirectIfAuth>} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<RedirectIfAuth><ResetPasswordPage /></RedirectIfAuth>} />
           <Route path="/invite/:token" element={<RedirectIfAuth><AcceptInvitePage /></RedirectIfAuth>} />
 
           {/* Protected routes with AppShell layout */}

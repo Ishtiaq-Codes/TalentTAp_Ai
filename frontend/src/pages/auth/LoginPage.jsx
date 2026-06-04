@@ -2,26 +2,39 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth, getDashboardPath } from '@/contexts/AuthContext'
 import Logo from '@/components/common/Logo'
-import { ArrowRight, Mail, Lock, AlertCircle } from 'lucide-react'
+import { ArrowRight, Mail, Lock, AlertCircle, Shield } from 'lucide-react'
 
 export default function LoginPage() {
-  const { user, login } = useAuth()
+  const { user, login, loginMFA } = useAuth()
   const navigate = useNavigate()
 
-  // If already logged in, redirect to dashboard
   if (user) return <Navigate to={getDashboardPath(user.role)} replace />
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  
+  // MFA state
+  const [mfaStep, setMfaStep] = useState(false)
+  const [mfaToken, setMfaToken] = useState('')
+  const [mfaCode, setMfaCode] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      const loggedInUser = await login(form.email, form.password)
-      // Redirect to role-based dashboard
-      navigate(getDashboardPath(loggedInUser.role), { replace: true })
+      if (mfaStep) {
+        const loggedInUser = await loginMFA(mfaToken, mfaCode)
+        navigate(getDashboardPath(loggedInUser.role), { replace: true })
+      } else {
+        const res = await login(form.email, form.password)
+        if (res.mfa_required) {
+          setMfaToken(res.mfa_token)
+          setMfaStep(true)
+        } else {
+          navigate(getDashboardPath(res.role), { replace: true })
+        }
+      }
     } catch (err) {
       setError(err.response?.data?.detail || 'Invalid credentials')
     } finally {
@@ -89,46 +102,69 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium" htmlFor="login-email">Email Address</label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                  <Mail className="h-5 w-5 text-muted-foreground" />
+            {!mfaStep ? (
+              <>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium" htmlFor="login-email">Email Address</label>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                      <Mail className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <input
+                      id="login-email"
+                      type="email"
+                      required
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      className="block w-full rounded-xl border bg-white py-3 pl-11 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                      placeholder="you@example.com"
+                    />
+                  </div>
                 </div>
-                <input
-                  id="login-email"
-                  type="email"
-                  required
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="block w-full rounded-xl border bg-white py-3 pl-11 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
-                  placeholder="you@example.com"
-                />
-              </div>
-            </div>
 
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium" htmlFor="login-password">Password</label>
-                <Link to="/forgot-password" className="text-xs font-medium text-primary hover:underline">
-                  Forgot Password?
-                </Link>
-              </div>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                  <Lock className="h-5 w-5 text-muted-foreground" />
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium" htmlFor="login-password">Password</label>
+                    <Link to="/forgot-password" className="text-xs font-medium text-primary hover:underline">
+                      Forgot Password?
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                      <Lock className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <input
+                      id="login-password"
+                      type="password"
+                      required
+                      value={form.password}
+                      onChange={(e) => setForm({ ...form, password: e.target.value })}
+                      className="block w-full rounded-xl border bg-white py-3 pl-11 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                      placeholder="••••••••"
+                    />
+                  </div>
                 </div>
-                <input
-                  id="login-password"
-                  type="password"
-                  required
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="block w-full rounded-xl border bg-white py-3 pl-11 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
-                  placeholder="••••••••"
-                />
+              </>
+            ) : (
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" htmlFor="login-mfa">Authenticator Code</label>
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                    <Shield className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <input
+                    id="login-mfa"
+                    type="text"
+                    maxLength={6}
+                    required
+                    value={mfaCode}
+                    onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ''))}
+                    className="block w-full rounded-xl border bg-white py-3 pl-11 pr-4 text-sm tracking-widest font-mono focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                    placeholder="000000"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <button
               type="submit"
