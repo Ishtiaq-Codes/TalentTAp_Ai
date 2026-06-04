@@ -379,8 +379,8 @@ class TalentPoolMembersView(_CompanyMixin, APIView):
         pool = self._get_pool(pk)
         if not pool:
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
-        members = pool.members.select_related('candidate__user', 'added_by')
-        return Response(TalentPoolMemberSerializer(members, many=True).data)
+        members = pool.members.select_related('candidate__user', 'added_by').order_by('-added_at')
+        return Response(TalentPoolMemberSerializer(members, many=True, context={'request': request}).data)
 
     def post(self, request, pk):
         pool = self._get_pool(pk)

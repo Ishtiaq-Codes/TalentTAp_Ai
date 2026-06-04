@@ -99,14 +99,19 @@ class TalentPoolMemberSerializer(serializers.ModelSerializer):
 class TalentPoolSerializer(serializers.ModelSerializer):
     member_count = serializers.SerializerMethodField()
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
+    member_candidate_ids = serializers.SerializerMethodField()
 
     class Meta:
         model = TalentPool
-        fields = ['id', 'name', 'description', 'member_count', 'created_by_name', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'description', 'member_count', 'member_candidate_ids', 'created_by_name', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def get_member_count(self, obj):
         return obj.members.count()
+
+    def get_member_candidate_ids(self, obj):
+        # Return a list of candidate UUID strings
+        return [str(c_id) for c_id in obj.members.values_list('candidate_id', flat=True)]
 
 
 class TalentPoolWriteSerializer(serializers.ModelSerializer):

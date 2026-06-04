@@ -42,6 +42,7 @@ const recruiterLinks = [
       { to: '/recruiter/candidates', icon: Search, label: 'Search Candidates' },
       { to: '/recruiter/shortlists', icon: Heart, label: 'Shortlists' },
       { to: '/recruiter/messages', icon: MessageSquare, label: 'Messages' },
+      { to: '/company/pools', icon: Sparkles, label: 'Talent Pools' },
     ]
   }
 ]

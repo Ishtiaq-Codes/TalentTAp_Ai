@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { companiesAPI } from '@/api/companies'
 import { useAuth } from '@/contexts/AuthContext'
@@ -6,7 +7,7 @@ import { useToast } from '@/contexts/ToastContext'
 import ConfirmModal from '@/components/common/ConfirmModal'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
-import { Sparkles, Plus, Users, ChevronRight, ArrowLeft, Trash2, X, Loader2 } from 'lucide-react'
+import { Sparkles, Plus, Users, ChevronRight, ArrowLeft, Trash2, X, Loader2, ExternalLink } from 'lucide-react'
 
 /* ─── Pool Card ─── */
 function PoolCard({ pool, onSelect, onDelete, isAdmin }) {
@@ -130,21 +131,33 @@ function PoolMembersView({ pool, onBack }) {
                     {member.candidate_city && ` · ${member.candidate_city}`}
                     {member.candidate_country && `, ${member.candidate_country}`}
                   </p>
+                  {member.notes && (
+                    <p className="mt-1.5 text-sm italic text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 line-clamp-2">"{member.notes}"</p>
+                  )}
                 </div>
-                <div className="shrink-0 flex items-center gap-3">
-                  <p className="text-xs text-slate-300 hidden sm:block">
+                <div className="shrink-0 flex flex-col items-end gap-2">
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to={`/recruiter/candidates/${member.candidate_id}`}
+                      className="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
+                    >
+                      View Profile
+                    </Link>
+                    <button
+                      onClick={() => setConfirmRemove({ candidate_id: member.candidate_id, name: member.candidate_name })}
+                      disabled={removing === member.candidate_id}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                      title="Remove from Pool"
+                    >
+                      {removing === member.candidate_id
+                        ? <Loader2 className="h-4 w-4 animate-spin" />
+                        : <X className="h-4 w-4" />
+                      }
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-slate-300 hidden sm:block">
                     Added by {member.added_by_name} · {new Date(member.added_at).toLocaleDateString()}
                   </p>
-                  <button
-                    onClick={() => setConfirmRemove({ candidate_id: member.candidate_id, name: member.candidate_name })}
-                    disabled={removing === member.candidate_id}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-slate-300 hover:bg-red-50 hover:text-red-500 transition-colors"
-                  >
-                    {removing === member.candidate_id
-                      ? <Loader2 className="h-4 w-4 animate-spin" />
-                      : <X className="h-4 w-4" />
-                    }
-                  </button>
                 </div>
               </div>
             ))}

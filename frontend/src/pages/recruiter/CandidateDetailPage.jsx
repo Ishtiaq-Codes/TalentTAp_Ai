@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { candidatesAPI } from '@/api/candidates'
 import { applicationsAPI } from '@/api/applications'
+import { companiesAPI } from '@/api/companies'
 import {
   MapPin, Briefcase, Calendar, User, ArrowLeft, FileText,
   Clock, Award, Globe, ExternalLink, Sparkles,
@@ -11,6 +13,7 @@ import SkeletonCard from '@/components/common/SkeletonCard'
 import MessageButton from '@/components/common/MessageButton'
 import ShortlistButton from '@/components/common/ShortlistButton'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
+import AddToPoolModal from '@/components/companies/AddToPoolModal'
 import { getImageUrl } from '@/lib/utils'
 
 /* ─── Proficiency bar ─── */
@@ -65,9 +68,15 @@ function ProfileStrength({ completion }) {
 export default function CandidateDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [isPoolModalOpen, setIsPoolModalOpen] = useState(false)
+  const [localIsInPool, setLocalIsInPool] = useState(false)
   const { data: profile, loading, error } = useFetch(() => candidatesAPI.getPublicProfile(id), [id])
   const { data: shortlists } = useFetch(() => applicationsAPI.getShortlists())
+  const { data: pools } = useFetch(() => companiesAPI.getPools())
   const shortlistsArray = Array.isArray(shortlists) ? shortlists : []
+  const poolsArray = Array.isArray(pools) ? pools : []
+  
+  const isInAnyPool = localIsInPool || (profile ? poolsArray.some(p => p.member_candidate_ids?.includes(profile.id)) : false)
 
   if (loading) return <div className="space-y-6"><SkeletonCard /><SkeletonCard /></div>
 
@@ -124,6 +133,21 @@ export default function CandidateDetailPage() {
                     initialIsShortlisted={shortlistsArray.some(s => s.candidate === profile.id)}
                     className="text-sm" 
                   />
+                  {isInAnyPool ? (
+                    <button 
+                      disabled
+                      className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium bg-violet-50 text-violet-700 border-violet-200"
+                    >
+                      <Sparkles className="h-4 w-4" /> In Pool
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => setIsPoolModalOpen(true)}
+                      className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all"
+                    >
+                      <Sparkles className="h-4 w-4 text-violet-500" /> Add to Pool
+                    </button>
+                  )}
                   {profile.resume && (
                     <a href={profile.resume} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all">
                       <FileText className="h-4 w-4" /> Resume
@@ -314,6 +338,16 @@ export default function CandidateDetailPage() {
           )}
         </div>
       </div>
+
+      {isPoolModalOpen && (
+        <AddToPoolModal 
+          isOpen={isPoolModalOpen} 
+          onClose={() => setIsPoolModalOpen(false)} 
+          candidateId={profile.id} 
+          candidateName={profile.user_name} 
+          onSuccess={() => setLocalIsInPool(true)}
+        />
+      )}
     </div>
   )
 }
