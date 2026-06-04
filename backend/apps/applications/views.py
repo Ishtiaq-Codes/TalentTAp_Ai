@@ -22,7 +22,18 @@ class ApplicationCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         profile = CandidateProfile.objects.get(user=self.request.user)
-        serializer.save(candidate=profile)
+        app = serializer.save(candidate=profile)
+        
+        # Notify the recruiter
+        from apps.notifications.services import notify
+        from apps.notifications.models import Notification
+        notify(
+            user=app.job.recruiter.user,
+            notification_type=Notification.Type.APPLICATION,
+            title="New Application",
+            message=f"{profile.user.full_name} applied for {app.job.title}.",
+            action_url=f"/recruiter/candidates/{profile.id}"
+        )
 
 
 class ApplicationListView(generics.ListAPIView):
@@ -58,6 +69,34 @@ class ApplicationStatusUpdateView(APIView):
         serializer.is_valid(raise_exception=True)
         application.status = serializer.validated_data['status']
         application.save(update_fields=['status', 'updated_at'])
+        
+        # Notify the candidate
+        if application.status in ['interview', 'offered', 'rejected']:
+            from apps.notifications.services import notify
+            from apps.notifications.models import Notification
+            notify(
+                user=application.candidate.user,
+                notification_type=Notification.Type.APPLICATION,
+                title="Application Update",
+                message=f"Your application for {application.job.title} has been moved to {application.get_status_display()}.",
+                action_url="/candidate/applications"
+            )
+            
+        # Notify company admin
+        company_admin = application.job.company.created_by if application.job.company else None
+        user = request.user
+        if company_admin and company_admin != user:
+            from apps.notifications.services import notify
+            from apps.notifications.models import Notification
+            notify(
+                user=company_admin,
+                notification_type=Notification.Type.SYSTEM,
+                title="Team Update: Application Status",
+                message=f"[{user.full_name}] moved {application.candidate.user.full_name} to {application.get_status_display()} for {application.job.title}.",
+                action_url=f"/recruiter/jobs/{application.job.id}",
+                is_rollup=True
+            )
+            
         return Response(ApplicationSerializer(application).data)
 
 
@@ -139,4 +178,19 @@ class ShortlistToggleView(APIView):
             return Response({'status': 'removed', 'is_shortlisted': False})
         else:
             Shortlist.objects.create(recruiter=profile, candidate_id=candidate_id, job_id=job_id)
+            
+            # Notify admin directly (bypassing normal rollup since this is specifically for admin)
+            from apps.notifications.services import notify
+            from apps.notifications.models import Notification
+            company_admin = profile.company.created_by if profile.company else None
+            if company_admin and company_admin != user:
+                notify(
+                    user=company_admin,
+                    notification_type=Notification.Type.SYSTEM,
+                    title="Candidate Shortlisted",
+                    message=f"[{user.full_name}] shortlisted a new candidate.",
+                    action_url="/company/team",
+                    is_rollup=True
+                )
+                
             return Response({'status': 'added', 'is_shortlisted': True})

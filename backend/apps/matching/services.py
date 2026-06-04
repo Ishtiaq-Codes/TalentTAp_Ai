@@ -26,13 +26,21 @@ def run_matching_for_job(job):
         
         # Trigger notification if score is high and it's a new or significantly updated match
         if score.overall_score >= 75:
-            Notification.objects.get_or_create(
+            exists = Notification.objects.filter(
                 user=job.recruiter.user,
                 type=Notification.Type.MATCH,
-                title=f'New High Match: {score.overall_score}%',
-                message=f'Candidate {candidate.user.full_name} matched for your {job.title} post.',
-                defaults={'action_url': f'/recruiter/candidates/{candidate.id}'}
-            )
+                message=f'Candidate {candidate.user.full_name} matched for your {job.title} post.'
+            ).exists()
+            
+            if not exists:
+                from apps.notifications.services import notify
+                notify(
+                    user=job.recruiter.user,
+                    notification_type=Notification.Type.MATCH,
+                    title=f'New High Match: {score.overall_score}%',
+                    message=f'Candidate {candidate.user.full_name} matched for your {job.title} post.',
+                    action_url=f'/recruiter/candidates/{candidate.id}'
+                )
 
         results.append(score)
 

@@ -53,7 +53,21 @@ class JobListCreateView(generics.ListCreateAPIView):
         user = self.request.user
         profile = RecruiterProfile.objects.filter(user=user).first()
         if profile:
-            serializer.save(company=profile.company, recruiter=profile)
+            job = serializer.save(company=profile.company, recruiter=profile)
+            
+            # Notify company admin
+            company_admin = profile.company.created_by
+            if company_admin and company_admin != user:
+                from apps.notifications.services import notify
+                from apps.notifications.models import Notification
+                notify(
+                    user=company_admin,
+                    notification_type=Notification.Type.SYSTEM,
+                    title="Team Update: New Job Posted",
+                    message=f"[{user.full_name}] posted a new job: {job.title}",
+                    action_url=f"/recruiter/jobs/{job.id}",
+                    is_rollup=True
+                )
         else:
             from apps.companies.models import Company
             company = Company.objects.filter(created_by=user).first()

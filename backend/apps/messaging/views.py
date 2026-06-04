@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 
 from .models import Conversation, ConversationParticipant, Message
 from .serializers import ConversationListSerializer, MessageSerializer, StartConversationSerializer
+from apps.notifications.services import notify
 from apps.notifications.models import Notification
 
 User = get_user_model()
@@ -61,9 +62,9 @@ class StartConversationView(APIView):
 
         # Notify the recipient
         action_url = f"/candidate/messages" if recipient.role == 'candidate' else f"/recruiter/messages"
-        Notification.objects.create(
+        notify(
             user=recipient,
-            type=Notification.Type.MESSAGE,
+            notification_type=Notification.Type.MESSAGE,
             title="New Message",
             message=f"{request.user.full_name} sent you a message.",
             action_url=action_url
@@ -112,9 +113,9 @@ class SendMessageView(APIView):
         participants = ConversationParticipant.objects.filter(conversation_id=pk).exclude(user=request.user)
         for p in participants:
             action_url = f"/candidate/messages" if p.user.role == 'candidate' else f"/recruiter/messages"
-            Notification.objects.create(
+            notify(
                 user=p.user,
-                type=Notification.Type.MESSAGE,
+                notification_type=Notification.Type.MESSAGE,
                 title="New Message",
                 message=f"{request.user.full_name} sent you a message.",
                 action_url=action_url
