@@ -24,16 +24,34 @@ class ApplicationCreateView(generics.CreateAPIView):
         profile = CandidateProfile.objects.get(user=self.request.user)
         app = serializer.save(candidate=profile)
         
-        # Notify the recruiter
         from apps.notifications.services import notify
         from apps.notifications.models import Notification
-        notify(
-            user=app.job.recruiter.user,
-            notification_type=Notification.Type.APPLICATION,
-            title="New Application",
-            message=f"{profile.user.full_name} applied for {app.job.title}.",
-            action_url=f"/recruiter/candidates/{profile.id}"
-        )
+        
+        # Notify the recruiter
+        if app.job.recruiter and app.job.recruiter.user.role != 'company_admin':
+            notify(
+                user=app.job.recruiter.user,
+                notification_type=Notification.Type.APPLICATION,
+                title="New Application",
+                message=f"{profile.user.full_name} applied for {app.job.title}.",
+                action_url=f"/recruiter/candidates/{profile.id}"
+            )
+        elif app.job.company:
+            # If posted by admin (or no specific recruiter), notify all active recruiters in the company
+            from apps.companies.models import RecruiterProfile
+            recruiters = RecruiterProfile.objects.filter(
+                company=app.job.company,
+                user__role='recruiter',
+                is_active=True
+            )
+            for recruiter in recruiters:
+                notify(
+                    user=recruiter.user,
+                    notification_type=Notification.Type.APPLICATION,
+                    title="New Application",
+                    message=f"{profile.user.full_name} applied for {app.job.title}.",
+                    action_url=f"/recruiter/candidates/{profile.id}"
+                )
 
 
 class ApplicationListView(generics.ListAPIView):

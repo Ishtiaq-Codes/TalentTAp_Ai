@@ -106,7 +106,7 @@ export default function JobsListPage() {
                   <div className="flex flex-col">
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Candidates</span>
                     <span className="text-lg font-bold flex items-center gap-1 mt-0.5">
-                      <Users className="h-4 w-4 text-primary" /> {job.application_count || 0}
+                      <Users className="h-4 w-4 text-primary" /> {job.applicants_count || 0}
                     </span>
                   </div>
                 </div>
