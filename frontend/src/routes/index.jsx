@@ -40,6 +40,8 @@ const ShortlistsPage = lazy(() => import('@/pages/recruiter/ShortlistsPage'))
 const CompanyProfilePage = lazy(() => import('@/pages/company/CompanyProfilePage'))
 const TeamPage = lazy(() => import('@/pages/company/TeamPage'))
 const SettingsPage = lazy(() => import('@/pages/company/SettingsPage'))
+const CompanyDashboardPage = lazy(() => import('@/pages/company/DashboardPage'))
+const TalentPoolsPage = lazy(() => import('@/pages/company/TalentPoolsPage'))
 
 // Admin
 const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'))
@@ -126,8 +128,10 @@ export default function AppRouter() {
             <Route path="/recruiter/messages" element={<MessagesPage />} />
 
             {/* Company */}
+            <Route path="/company/dashboard" element={<CompanyDashboardPage />} />
             <Route path="/company/profile" element={<CompanyProfilePage />} />
             <Route path="/company/team" element={<TeamPage />} />
+            <Route path="/company/pools" element={<TalentPoolsPage />} />
             <Route path="/company/settings" element={<SettingsPage />} />
 
             {/* Admin */}

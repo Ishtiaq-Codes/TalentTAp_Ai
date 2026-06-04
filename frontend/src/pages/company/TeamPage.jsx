@@ -1,12 +1,105 @@
 import { useState } from 'react'
 import { useFetch } from '@/hooks/useFetch'
 import { companiesAPI } from '@/api/companies'
-import { Users, UserPlus, Trash2, Mail, ShieldAlert, CheckCircle, ShieldCheck } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { Users, UserPlus, Trash2, Mail, ShieldAlert, CheckCircle, ShieldCheck, ShieldX, Briefcase, Heart, MessageSquare, MoreVertical } from 'lucide-react'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import ConfirmModal from '@/components/common/ConfirmModal'
+import ProfileAvatar from '@/components/common/ProfileAvatar'
 import { useToast } from '@/contexts/ToastContext'
 
+/* ─── Recruiter Card ─── */
+function RecruiterCard({ recruiter, onRemove, onToggleStatus, isSelf }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  return (
+    <div className={`flex items-center gap-4 p-5 hover:bg-slate-50/50 transition-colors relative ${!recruiter.is_active ? 'opacity-60' : ''}`}>
+      <div className="relative shrink-0">
+        <ProfileAvatar name={recruiter.user_name} src={recruiter.avatar} size="lg" />
+        <span className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white ${recruiter.is_active ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <h4 className="font-bold text-slate-900 truncate">{recruiter.user_name || 'Team Member'}</h4>
+          {isSelf && (
+            <span className="shrink-0 inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">You</span>
+          )}
+        </div>
+        <p className="text-sm text-muted-foreground truncate">{recruiter.user_email}</p>
+        <p className="text-xs text-slate-400 mt-0.5">{recruiter.title || 'Recruiter'}</p>
+      </div>
+
+      {/* Stats */}
+      <div className="hidden md:flex items-center gap-5 shrink-0">
+        <div className="text-center">
+          <p className="text-sm font-bold text-slate-900">{recruiter.jobs_count ?? 0}</p>
+          <p className="text-[10px] text-slate-400 uppercase tracking-wide flex items-center gap-1"><Briefcase className="h-2.5 w-2.5" /> Jobs</p>
+        </div>
+        <div className="text-center">
+          <p className="text-sm font-bold text-slate-900">{recruiter.shortlists_count ?? 0}</p>
+          <p className="text-[10px] text-slate-400 uppercase tracking-wide flex items-center gap-1"><Heart className="h-2.5 w-2.5" /> Saved</p>
+        </div>
+        <div className="text-center">
+          <p className="text-sm font-bold text-slate-900">{recruiter.messages_count ?? 0}</p>
+          <p className="text-[10px] text-slate-400 uppercase tracking-wide flex items-center gap-1"><MessageSquare className="h-2.5 w-2.5" /> Msgs</p>
+        </div>
+      </div>
+
+      {/* Status Badge */}
+      <div className={`shrink-0 hidden sm:flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border ${
+        recruiter.is_active
+          ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+          : 'bg-slate-100 text-slate-500 border-slate-200'
+      }`}>
+        {recruiter.is_active
+          ? <><ShieldCheck className="h-3 w-3" /> Active</>
+          : <><ShieldX className="h-3 w-3" /> Suspended</>
+        }
+      </div>
+
+      {/* Actions */}
+      {!isSelf && (
+        <div className="relative shrink-0">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 transition-colors"
+          >
+            <MoreVertical className="h-4 w-4" />
+          </button>
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+              <div className="absolute right-0 top-9 z-20 w-44 rounded-xl border bg-white shadow-xl py-1 animate-fade-in-up">
+                <button
+                  onClick={() => { onToggleStatus(recruiter); setMenuOpen(false) }}
+                  className={`flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium ${
+                    recruiter.is_active
+                      ? 'text-amber-600 hover:bg-amber-50'
+                      : 'text-emerald-600 hover:bg-emerald-50'
+                  }`}
+                >
+                  {recruiter.is_active ? <ShieldX className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+                  {recruiter.is_active ? 'Suspend' : 'Reactivate'}
+                </button>
+                <div className="border-t my-1" />
+                <button
+                  onClick={() => { onRemove(recruiter); setMenuOpen(false) }}
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                >
+                  <Trash2 className="h-4 w-4" /> Remove
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function TeamPage() {
+  const { user: currentUser } = useAuth()
   const { data: team, loading: loadingTeam, refetch: refetchTeam } = useFetch(() => companiesAPI.getRecruiters())
   const { data: pendingData, loading: loadingPending, refetch: refetchPending } = useFetch(() => companiesAPI.getPendingInvites())
 
@@ -14,15 +107,13 @@ export default function TeamPage() {
   const [form, setForm] = useState({ first_name: '', last_name: '', email: '', title: '' })
   const [showInvite, setShowInvite] = useState(false)
   const [inviteSuccess, setInviteSuccess] = useState(false)
-  const { error } = useToast()
-  
-  const [confirmRemove, setConfirmRemove] = useState({ isOpen: false, id: null })
-  const [confirmRevoke, setConfirmRevoke] = useState({ isOpen: false, id: null })
+  const { success, error } = useToast()
 
-  const refetchAll = () => {
-    refetchTeam()
-    refetchPending()
-  }
+  const [confirmRemove, setConfirmRemove] = useState({ isOpen: false, recruiter: null })
+  const [confirmRevoke, setConfirmRevoke] = useState({ isOpen: false, id: null })
+  const [confirmStatus, setConfirmStatus] = useState({ isOpen: false, recruiter: null })
+
+  const refetchAll = () => { refetchTeam(); refetchPending() }
 
   const handleInvite = async (e) => {
     e.preventDefault()
@@ -32,10 +123,7 @@ export default function TeamPage() {
       setInviteSuccess(true)
       setForm({ first_name: '', last_name: '', email: '', title: '' })
       refetchAll()
-      setTimeout(() => {
-        setInviteSuccess(false)
-        setShowInvite(false)
-      }, 2000)
+      setTimeout(() => { setInviteSuccess(false); setShowInvite(false) }, 2000)
     } catch (err) {
       error(err.response?.data?.email?.[0] || err.response?.data?.detail || 'Error inviting member')
     } finally {
@@ -43,38 +131,42 @@ export default function TeamPage() {
     }
   }
 
-  const handleRemove = (id) => {
-    setConfirmRemove({ isOpen: true, id })
-  }
-
   const handleConfirmRemove = async () => {
-    if (confirmRemove.id) {
-      try {
-        await companiesAPI.removeRecruiter(confirmRemove.id)
-        refetchAll()
-      } catch (err) {
-        error('Error removing member')
-      }
+    if (!confirmRemove.recruiter) return
+    try {
+      await companiesAPI.removeRecruiter(confirmRemove.recruiter.id)
+      success(`${confirmRemove.recruiter.user_name} removed.`)
+      refetchAll()
+    } catch {
+      error('Error removing member')
     }
   }
 
-  const handleRevoke = (id) => {
-    setConfirmRevoke({ isOpen: true, id })
+  const handleConfirmRevoke = async () => {
+    if (!confirmRevoke.id) return
+    try {
+      await companiesAPI.revokeInvite(confirmRevoke.id)
+      refetchAll()
+    } catch {
+      error('Error revoking invitation')
+    }
   }
 
-  const handleConfirmRevoke = async () => {
-    if (confirmRevoke.id) {
-      try {
-        await companiesAPI.revokeInvite(confirmRevoke.id)
-        refetchAll()
-      } catch (err) {
-        error('Error revoking invitation')
-      }
+  const handleConfirmStatus = async () => {
+    if (!confirmStatus.recruiter) return
+    const recruiter = confirmStatus.recruiter
+    try {
+      await companiesAPI.updateRecruiterStatus(recruiter.id, !recruiter.is_active)
+      success(`${recruiter.user_name} ${recruiter.is_active ? 'suspended' : 'reactivated'}.`)
+      refetchAll()
+    } catch {
+      error('Failed to update recruiter status.')
     }
   }
 
   const recruiters = Array.isArray(team) ? team : []
   const pendingInvites = Array.isArray(pendingData) ? pendingData : (pendingData?.results || [])
+  const activeCount = recruiters.filter(r => r.is_active).length
 
   if (loadingTeam || loadingPending) {
     return (
@@ -92,7 +184,7 @@ export default function TeamPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Team Management</h1>
           <p className="mt-2 text-muted-foreground max-w-xl">
-            Manage who has access to your company's hiring pipeline. Invite recruiters to help you source and evaluate candidates.
+            Manage your hiring team. Invite, suspend, or remove recruiters and monitor their activity.
           </p>
         </div>
         <button
@@ -103,7 +195,21 @@ export default function TeamPage() {
         </button>
       </div>
 
-      {/* Invite Form / Slide-down */}
+      {/* Quick Stats */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: 'Total Members', value: recruiters.length },
+          { label: 'Active', value: activeCount },
+          { label: 'Pending Invites', value: pendingInvites.length },
+        ].map(s => (
+          <div key={s.label} className="rounded-2xl border bg-white p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold text-slate-900">{s.value}</p>
+            <p className="text-xs text-slate-400 mt-1">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Invite Form */}
       {showInvite && (
         <div className="animate-fade-in-up rounded-2xl border bg-white p-6 shadow-md overflow-hidden">
           {inviteSuccess ? (
@@ -125,7 +231,6 @@ export default function TeamPage() {
                   <p className="text-xs text-muted-foreground">They will receive an email to create their recruiter account linked to this company.</p>
                 </div>
               </div>
-
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">First Name</label>
@@ -159,7 +264,7 @@ export default function TeamPage() {
       <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
         <div className="border-b bg-slate-50/80 px-6 py-4 flex items-center gap-2">
           <Users className="h-5 w-5 text-slate-500" />
-          <h3 className="font-semibold text-slate-700">Active Members ({recruiters.length})</h3>
+          <h3 className="font-semibold text-slate-700">Team Members ({recruiters.length})</h3>
         </div>
 
         {recruiters.length === 0 ? (
@@ -167,38 +272,18 @@ export default function TeamPage() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
               <Users className="h-6 w-6 text-slate-300" />
             </div>
-            <p className="text-muted-foreground font-medium">You don't have any other team members yet.</p>
+            <p className="text-muted-foreground font-medium">No team members yet. Invite your first recruiter.</p>
           </div>
         ) : (
           <div className="divide-y">
             {recruiters.map(r => (
-              <div key={r.id} className="flex items-center justify-between p-6 hover:bg-slate-50/50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-blue-200 text-lg font-bold text-primary shadow-sm border border-white">
-                    {r.user_name ? r.user_name[0].toUpperCase() : r.user_email[0].toUpperCase()}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900">{r.user_name || 'Pending User'}</h4>
-                    <div className="flex items-center gap-2 mt-0.5 text-sm text-muted-foreground">
-                      <span>{r.user_email}</span>
-                      <span className="h-1 w-1 rounded-full bg-slate-300" />
-                      <span>{r.title || 'Recruiter'}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">
-                    <ShieldCheck className="h-3 w-3" /> Active
-                  </div>
-                  <button
-                    onClick={() => handleRemove(r.id)}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
-                    title="Remove member"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
+              <RecruiterCard
+                key={r.id}
+                recruiter={r}
+                isSelf={r.user_email === currentUser?.email}
+                onRemove={(recruiter) => setConfirmRemove({ isOpen: true, recruiter })}
+                onToggleStatus={(recruiter) => setConfirmStatus({ isOpen: true, recruiter })}
+              />
             ))}
           </div>
         )}
@@ -211,30 +296,25 @@ export default function TeamPage() {
             <Mail className="h-5 w-5 text-amber-600" />
             <h3 className="font-semibold text-amber-800">Pending Invitations ({pendingInvites.length})</h3>
           </div>
-
           <div className="divide-y">
             {pendingInvites.map(invite => (
-              <div key={invite.id} className="flex items-center justify-between p-6 hover:bg-slate-50/50 transition-colors">
+              <div key={invite.id} className="flex items-center justify-between p-5 hover:bg-slate-50/50 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-lg font-bold text-slate-400 shadow-sm border border-white">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-lg font-bold text-slate-400">
                     {invite.first_name[0].toUpperCase()}
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900">{invite.first_name} {invite.last_name}</h4>
-                    <div className="flex items-center gap-2 mt-0.5 text-sm text-muted-foreground">
-                      <span>{invite.email}</span>
-                      <span className="h-1 w-1 rounded-full bg-slate-300" />
-                      <span>{invite.title || 'Recruiter'}</span>
-                    </div>
+                    <p className="text-sm text-muted-foreground">{invite.email} · {invite.title || 'Recruiter'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 border border-amber-200">
-                    Pending Acceptance
-                  </div>
+                <div className="flex items-center gap-3">
+                  <span className="hidden sm:inline-flex items-center rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                    Pending
+                  </span>
                   <button
-                    onClick={() => handleRevoke(invite.id)}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    onClick={() => setConfirmRevoke({ isOpen: true, id: invite.id })}
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
                     title="Revoke invitation"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -246,26 +326,26 @@ export default function TeamPage() {
         </div>
       )}
 
-      {/* Info Notice */}
+      {/* Security Notice */}
       <div className="flex items-start gap-3 rounded-2xl bg-blue-50 p-5 text-blue-800 border border-blue-100">
         <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
         <div className="text-sm">
-          <p className="font-semibold">Security Note</p>
-          <p className="mt-1 opacity-90">All recruiters invited to this company share access to the company's candidate pool, job postings, and shortlists. Do not invite individuals unless you trust them with this access.</p>
+          <p className="font-semibold">Access Controls</p>
+          <p className="mt-1 opacity-90">Suspended recruiters immediately lose access to all jobs and candidate data. Use suspension for temporary leave and removal for permanent offboarding.</p>
         </div>
       </div>
 
       {/* Modals */}
       <ConfirmModal
         isOpen={confirmRemove.isOpen}
-        onClose={() => setConfirmRemove({ isOpen: false, id: null })}
+        onClose={() => setConfirmRemove({ isOpen: false, recruiter: null })}
         onConfirm={handleConfirmRemove}
         title="Remove Member"
-        message="Are you sure you want to remove this member from your organization? They will lose access to all jobs and candidates immediately."
+        message={`Remove ${confirmRemove.recruiter?.user_name} from your organization? They will lose access to all jobs and candidates immediately.`}
         confirmText="Remove"
         isDestructive={true}
       />
-      
+
       <ConfirmModal
         isOpen={confirmRevoke.isOpen}
         onClose={() => setConfirmRevoke({ isOpen: false, id: null })}
@@ -274,6 +354,20 @@ export default function TeamPage() {
         message="Are you sure you want to revoke this invitation? The link will be permanently disabled."
         confirmText="Revoke"
         isDestructive={true}
+      />
+
+      <ConfirmModal
+        isOpen={confirmStatus.isOpen}
+        onClose={() => setConfirmStatus({ isOpen: false, recruiter: null })}
+        onConfirm={handleConfirmStatus}
+        title={confirmStatus.recruiter?.is_active ? 'Suspend Recruiter' : 'Reactivate Recruiter'}
+        message={
+          confirmStatus.recruiter?.is_active
+            ? `Suspend ${confirmStatus.recruiter?.user_name}? They will immediately lose access to all hiring features.`
+            : `Reactivate ${confirmStatus.recruiter?.user_name}? They will regain full access to the hiring platform.`
+        }
+        confirmText={confirmStatus.recruiter?.is_active ? 'Suspend' : 'Reactivate'}
+        isDestructive={!!confirmStatus.recruiter?.is_active}
       />
     </div>
   )

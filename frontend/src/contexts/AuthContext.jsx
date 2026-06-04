@@ -10,7 +10,7 @@ export function getDashboardPath(role) {
   switch (role) {
     case 'candidate': return '/candidate/dashboard'
     case 'recruiter': return '/recruiter/dashboard'
-    case 'company_admin': return '/recruiter/dashboard'
+    case 'company_admin': return '/company/dashboard'
     case 'admin': return '/admin/dashboard'
     default: return '/'
   }

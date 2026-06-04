@@ -14,7 +14,18 @@ class IsCompanyAdmin(BasePermission):
 
 class IsRecruiter(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role in ('admin', 'company_admin', 'recruiter')
+        if not request.user.is_authenticated:
+            return False
+        role = request.user.role
+        if role in ('admin', 'company_admin'):
+            return True
+        if role == 'recruiter':
+            # Block suspended recruiters
+            try:
+                return request.user.recruiter_profile.is_active
+            except Exception:
+                return False
+        return False
 
 
 class IsCandidate(BasePermission):

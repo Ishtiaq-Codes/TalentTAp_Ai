@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, User, Briefcase, Search, FileText, Heart,
   MessageSquare, Building2, Users, Settings, BarChart3, Sparkles,
+  Shield,
 } from 'lucide-react'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 
@@ -45,9 +46,23 @@ const recruiterLinks = [
   }
 ]
 
-const companyLinks = [
+const companyAdminLinks = [
   {
-    section: 'Organization', items: [
+    section: 'Command Center', items: [
+      { to: '/company/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    ]
+  },
+  {
+    section: 'Talent Discovery', items: [
+      { to: '/recruiter/jobs', icon: Briefcase, label: 'Jobs' },
+      { to: '/recruiter/candidates', icon: Search, label: 'Search Candidates' },
+      { to: '/recruiter/shortlists', icon: Heart, label: 'Shortlists' },
+      { to: '/recruiter/messages', icon: MessageSquare, label: 'Messages' },
+      { to: '/company/pools', icon: Sparkles, label: 'Talent Pools' },
+    ]
+  },
+  {
+    section: 'Company', items: [
       { to: '/company/profile', icon: Building2, label: 'Company Profile' },
       { to: '/company/team', icon: Users, label: 'Team Members' },
       { to: '/company/settings', icon: Settings, label: 'Settings' },
@@ -73,7 +88,7 @@ export default function Sidebar() {
     switch (user?.role) {
       case 'candidate': return candidateLinks
       case 'recruiter': return recruiterLinks
-      case 'company_admin': return [...recruiterLinks, ...companyLinks]
+      case 'company_admin': return companyAdminLinks
       case 'admin': return adminLinks
       default: return []
     }

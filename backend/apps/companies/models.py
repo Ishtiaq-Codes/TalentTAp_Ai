@@ -138,3 +138,51 @@ class CompanyInvitation(models.Model):
 
     def __str__(self):
         return f'Invite to {self.email} for {self.company.name}'
+
+
+# ---------------------------------------------------------------------------
+# Talent Pools — company-curated candidate collections
+# ---------------------------------------------------------------------------
+
+class TalentPool(models.Model):
+    """A named collection of candidates curated by a company."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='talent_pools')
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_pools'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ['company', 'name']
+
+    def __str__(self):
+        return f'{self.name} ({self.company.name})'
+
+
+class TalentPoolMember(models.Model):
+    """A candidate who belongs to a talent pool."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    pool = models.ForeignKey(TalentPool, on_delete=models.CASCADE, related_name='members')
+    candidate = models.ForeignKey(
+        'candidates.CandidateProfile', on_delete=models.CASCADE, related_name='pool_memberships'
+    )
+    added_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='pool_additions'
+    )
+    added_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ['pool', 'candidate']
+        ordering = ['-added_at']
+
+    def __str__(self):
+        return f'{self.candidate.user.full_name} in {self.pool.name}'
+
