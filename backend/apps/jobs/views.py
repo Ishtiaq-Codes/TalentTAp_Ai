@@ -111,7 +111,7 @@ class PublicJobListView(generics.ListAPIView):
     serializer_class = JobListSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['employment_type', 'is_remote', 'country', 'city']
+    filterset_fields = ['company', 'employment_type', 'is_remote', 'country', 'city']
     search_fields = ['title', 'skills__name', 'company__name']
 
     def get_queryset(self):

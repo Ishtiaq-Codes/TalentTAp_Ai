@@ -24,6 +24,7 @@ const TalentProfilePage = lazy(() => import('@/pages/public/TalentProfilePage'))
 const CandidateDashboard = lazy(() => import('@/pages/candidate/DashboardPage'))
 const CandidateProfile = lazy(() => import('@/pages/candidate/ProfilePage'))
 const CandidateJobs = lazy(() => import('@/pages/candidate/JobsPage'))
+const CandidateJobDetailPage = lazy(() => import('@/pages/candidate/JobDetailPage'))
 const CandidateApplications = lazy(() => import('@/pages/candidate/ApplicationsPage'))
 const CandidateMatches = lazy(() => import('@/pages/candidate/MatchesPage'))
 
@@ -38,6 +39,7 @@ const ShortlistsPage = lazy(() => import('@/pages/recruiter/ShortlistsPage'))
 
 // Company
 const CompanyProfilePage = lazy(() => import('@/pages/company/CompanyProfilePage'))
+const PublicCompanyProfilePage = lazy(() => import('@/pages/public/PublicCompanyProfilePage'))
 const TeamPage = lazy(() => import('@/pages/company/TeamPage'))
 const SettingsPage = lazy(() => import('@/pages/company/SettingsPage'))
 const CompanyDashboardPage = lazy(() => import('@/pages/company/DashboardPage'))
@@ -113,6 +115,7 @@ export default function AppRouter() {
             <Route path="/candidate/dashboard" element={<CandidateDashboard />} />
             <Route path="/candidate/profile" element={<CandidateProfile />} />
             <Route path="/candidate/jobs" element={<CandidateJobs />} />
+            <Route path="/candidate/jobs/:id" element={<CandidateJobDetailPage />} />
             <Route path="/candidate/applications" element={<CandidateApplications />} />
             <Route path="/candidate/matches" element={<CandidateMatches />} />
             <Route path="/candidate/messages" element={<MessagesPage />} />
@@ -139,6 +142,9 @@ export default function AppRouter() {
             <Route path="/admin/companies" element={<ComingSoon title="Manage Companies" />} />
             <Route path="/admin/candidates" element={<ComingSoon title="Manage Candidates" />} />
             <Route path="/admin/jobs" element={<ComingSoon title="Manage Jobs" />} />
+
+            {/* Public details (inside AppShell but accessible to any role) */}
+            <Route path="/companies/:id" element={<PublicCompanyProfilePage />} />
           </Route>
 
           {/* Catch-all */}

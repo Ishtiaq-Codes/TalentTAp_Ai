@@ -44,6 +44,13 @@ class CompanyProfileView(generics.RetrieveUpdateAPIView):
         return _get_company_for_user(self.request.user)
 
 
+class PublicCompanyDetailView(generics.RetrieveAPIView):
+    """Publicly accessible view for a company profile."""
+    serializer_class = CompanySerializer
+    permission_classes = [AllowAny]
+    queryset = Company.objects.all()
+
+
 class CompanyImagesUploadView(generics.UpdateAPIView):
     """Upload company logo or banner."""
     serializer_class = CompanySerializer

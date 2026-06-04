@@ -8,6 +8,7 @@ urlpatterns = [
     # Company profile
     path('profile/', views.CompanyProfileView.as_view(), name='profile'),
     path('profile/images/', views.CompanyImagesUploadView.as_view(), name='images-upload'),
+    path('public/<uuid:pk>/', views.PublicCompanyDetailView.as_view(), name='public-detail'),
     path('create/', views.CompanyCreateView.as_view(), name='create'),
 
     # Dashboard analytics (NEW)

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { useDebounce } from '@/hooks/useDebounce'
 import { jobsAPI } from '@/api/jobs'
@@ -21,7 +22,9 @@ export default function JobsPage() {
   const [applying, setApplying] = useState(null)
   const [applied, setApplied] = useState(new Set())
 
-  const handleApply = async (jobId) => {
+  const handleApply = async (e, jobId) => {
+    e.preventDefault()
+    e.stopPropagation()
     setApplying(jobId)
     try {
       await applicationsAPI.apply({ job: jobId })
@@ -66,13 +69,20 @@ export default function JobsPage() {
       ) : (
         <div className="space-y-4">
           {jobList.map((job) => (
-            <div key={job.id} className="rounded-xl border bg-card p-6 transition-shadow hover:shadow-md">
-              <div className="flex items-start justify-between">
+            <div key={job.id} className="group relative rounded-xl border bg-card p-6 transition-shadow hover:shadow-md hover:border-primary/30">
+              <Link to={`/candidate/jobs/${job.id}`} className="absolute inset-0 z-0" aria-label={`View ${job.title}`} />
+              <div className="flex items-start justify-between pointer-events-none">
                 <div className="flex gap-4">
-                  <ProfileAvatar src={job.company_logo} name={job.company_name} size="lg" className="rounded-xl border border-slate-100 shadow-sm" />
+                  <Link to={`/companies/${job.company}`} className="shrink-0 z-20 relative pointer-events-auto">
+                    <ProfileAvatar src={job.company_logo} name={job.company_name} size="lg" className="rounded-xl border border-slate-100 shadow-sm hover:border-primary/50 transition-colors" />
+                  </Link>
                   <div>
-                    <h3 className="text-lg font-semibold">{job.title}</h3>
-                    <p className="mt-1 text-sm font-medium text-primary">{job.company_name}</p>
+                    <Link to={`/candidate/jobs/${job.id}`} className="z-20 relative pointer-events-auto group-hover:text-primary transition-colors">
+                      <h3 className="text-lg font-semibold">{job.title}</h3>
+                    </Link>
+                    <Link to={`/companies/${job.company}`} className="mt-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors z-20 relative inline-block pointer-events-auto">
+                      {job.company_name}
+                    </Link>
                     <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted-foreground">
                       <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {job.city || job.country || 'Remote'}</span>
                       <span className="inline-flex items-center gap-1"><Briefcase className="h-3.5 w-3.5" /> {job.employment_type?.replace('_', ' ')}</span>
@@ -90,9 +100,9 @@ export default function JobsPage() {
                     )}
                   </div>
                 </div>
-                <div className="flex flex-col items-end gap-3 shrink-0">
+                <div className="flex flex-col items-end gap-3 shrink-0 z-20 relative pointer-events-auto">
                   <button
-                    onClick={() => handleApply(job.id)}
+                    onClick={(e) => handleApply(e, job.id)}
                     disabled={applying === job.id || applied.has(job.id) || job.has_applied}
                     className="w-full sm:w-auto rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 disabled:opacity-50 transition-all"
                   >

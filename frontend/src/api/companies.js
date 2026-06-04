@@ -3,6 +3,7 @@ import client from './client'
 export const companiesAPI = {
   // Company profile
   getProfile: () => client.get('/companies/profile/'),
+  getPublicProfile: (id) => client.get(`/companies/public/${id}/`),
   updateProfile: (data) => {
     const payload = { ...data }
     delete payload.logo
