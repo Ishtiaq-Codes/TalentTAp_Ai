@@ -25,6 +25,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
 
+    # Notification Preferences
+    notify_new_apps = models.BooleanField(default=True)
+    notify_ai_match = models.BooleanField(default=True)
+    notify_messages = models.BooleanField(default=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

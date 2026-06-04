@@ -9,11 +9,11 @@ import ProfileAvatar from '@/components/common/ProfileAvatar'
 import { useToast } from '@/contexts/ToastContext'
 
 /* ─── Recruiter Card ─── */
-function RecruiterCard({ recruiter, onRemove, onToggleStatus, isSelf }) {
+function RecruiterCard({ recruiter, onRemove, onToggleStatus, isSelf, className = '' }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <div className={`flex items-center gap-4 p-5 hover:bg-slate-50/50 transition-colors relative ${!recruiter.is_active ? 'opacity-60' : ''}`}>
+    <div className={`flex items-center gap-4 p-5 hover:bg-slate-50/50 transition-colors relative ${!recruiter.is_active ? 'opacity-60' : ''} ${className}`}>
       <div className="relative shrink-0">
         <ProfileAvatar name={recruiter.user_name} src={recruiter.avatar} size="lg" />
         <span className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white ${recruiter.is_active ? 'bg-emerald-500' : 'bg-slate-300'}`} />
@@ -261,8 +261,8 @@ export default function TeamPage() {
       )}
 
       {/* Team List */}
-      <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
-        <div className="border-b bg-slate-50/80 px-6 py-4 flex items-center gap-2">
+      <div className="rounded-2xl border bg-white shadow-sm">
+        <div className="rounded-t-[15px] border-b bg-slate-50/80 px-6 py-4 flex items-center gap-2">
           <Users className="h-5 w-5 text-slate-500" />
           <h3 className="font-semibold text-slate-700">Team Members ({recruiters.length})</h3>
         </div>
@@ -276,13 +276,14 @@ export default function TeamPage() {
           </div>
         ) : (
           <div className="divide-y">
-            {recruiters.map(r => (
+            {recruiters.map((r, i) => (
               <RecruiterCard
                 key={r.id}
                 recruiter={r}
                 isSelf={r.user_email === currentUser?.email}
                 onRemove={(recruiter) => setConfirmRemove({ isOpen: true, recruiter })}
                 onToggleStatus={(recruiter) => setConfirmStatus({ isOpen: true, recruiter })}
+                className={i === recruiters.length - 1 ? 'rounded-b-[15px]' : ''}
               />
             ))}
           </div>
@@ -291,14 +292,14 @@ export default function TeamPage() {
 
       {/* Pending Invitations */}
       {pendingInvites.length > 0 && (
-        <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
-          <div className="border-b bg-amber-50/80 px-6 py-4 flex items-center gap-2">
+        <div className="rounded-2xl border bg-white shadow-sm">
+          <div className="rounded-t-[15px] border-b bg-amber-50/80 px-6 py-4 flex items-center gap-2">
             <Mail className="h-5 w-5 text-amber-600" />
             <h3 className="font-semibold text-amber-800">Pending Invitations ({pendingInvites.length})</h3>
           </div>
           <div className="divide-y">
-            {pendingInvites.map(invite => (
-              <div key={invite.id} className="flex items-center justify-between p-5 hover:bg-slate-50/50 transition-colors">
+            {pendingInvites.map((invite, i) => (
+              <div key={invite.id} className={`flex items-center justify-between p-5 hover:bg-slate-50/50 transition-colors ${i === pendingInvites.length - 1 ? 'rounded-b-[15px]' : ''}`}>
                 <div className="flex items-center gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-lg font-bold text-slate-400">
                     {invite.first_name[0].toUpperCase()}

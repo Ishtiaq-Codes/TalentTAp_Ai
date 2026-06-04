@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { companiesAPI } from '@/api/companies'
@@ -198,7 +199,7 @@ function CreatePoolModal({ onClose, onCreated }) {
     }
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
       <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl animate-scale-in overflow-hidden">
         <div className="border-b px-6 py-5">
@@ -241,7 +242,8 @@ function CreatePoolModal({ onClose, onCreated }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

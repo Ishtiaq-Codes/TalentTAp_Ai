@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Save, Bell, Shield, CreditCard, CheckCircle, Loader2, User, Upload } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { authAPI } from '@/api/auth'
@@ -9,9 +9,23 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile')
   const { info, success, error } = useToast()
 
-  const [prefs, setPrefs] = useState({ newApps: true, aiMatch: true, messages: true })
+  const [prefs, setPrefs] = useState({ 
+    newApps: authUser?.notify_new_apps ?? true, 
+    aiMatch: authUser?.notify_ai_match ?? true, 
+    messages: authUser?.notify_messages ?? true 
+  })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    if (authUser) {
+      setPrefs({
+        newApps: authUser.notify_new_apps ?? true,
+        aiMatch: authUser.notify_ai_match ?? true,
+        messages: authUser.notify_messages ?? true,
+      })
+    }
+  }, [authUser])
 
   const [uiState, setUiState] = useState({
     mfaEnabling: false,
@@ -19,14 +33,23 @@ export default function SettingsPage() {
     portalLoading: false
   })
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault()
     setSaving(true)
-    setTimeout(() => {
-      setSaving(false)
+    try {
+      await authAPI.updateMe({
+        notify_new_apps: prefs.newApps,
+        notify_ai_match: prefs.aiMatch,
+        notify_messages: prefs.messages
+      })
+      await fetchUser()
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
-    }, 800)
+    } catch (err) {
+      error('Failed to save preferences')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleMFA = () => {

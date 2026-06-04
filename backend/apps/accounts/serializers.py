@@ -37,6 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'email', 'first_name', 'last_name', 'full_name',
             'role', 'avatar', 'is_email_verified', 'created_at',
+            'notify_new_apps', 'notify_ai_match', 'notify_messages'
         ]
         read_only_fields = ['id', 'email', 'role', 'is_email_verified', 'created_at']
 

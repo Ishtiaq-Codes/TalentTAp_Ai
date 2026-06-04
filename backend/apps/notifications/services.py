@@ -8,6 +8,14 @@ def notify(user, notification_type, title, message, action_url='', is_rollup=Fal
     If the user is a recruiter and it's an important notification (Message, Match),
     roll it up to the Company Admin.
     """
+    # Check user preferences before creating notification
+    if notification_type == Notification.Type.APPLICATION and not getattr(user, 'notify_new_apps', True):
+        return None
+    if notification_type == Notification.Type.MATCH and not getattr(user, 'notify_ai_match', True):
+        return None
+    if notification_type == Notification.Type.MESSAGE and not getattr(user, 'notify_messages', True):
+        return None
+
     notification = Notification.objects.create(
         user=user,
         type=notification_type,
