@@ -168,6 +168,18 @@ class RevokeInvitationView(generics.DestroyAPIView):
         return CompanyInvitation.objects.none()
 
 
+class MyRecruiterProfileView(generics.RetrieveUpdateAPIView):
+    """Get or update current user's recruiter profile details."""
+    serializer_class = RecruiterProfileSerializer
+    permission_classes = [IsAuthenticated, IsRecruiter]
+
+    def get_object(self):
+        try:
+            return self.request.user.recruiter_profile
+        except RecruiterProfile.DoesNotExist:
+            return None
+
+
 class RemoveRecruiterView(generics.DestroyAPIView):
     """Remove a recruiter from the company."""
     permission_classes = [IsAuthenticated, IsCompanyAdmin]

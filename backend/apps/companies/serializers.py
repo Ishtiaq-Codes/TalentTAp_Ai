@@ -29,7 +29,8 @@ class RecruiterProfileSerializer(serializers.ModelSerializer):
         model = RecruiterProfile
         fields = [
             'id', 'user', 'user_email', 'user_name', 'avatar',
-            'title', 'department', 'is_active', 'created_at',
+            'title', 'department', 'phone_number', 'linkedin_url',
+            'is_active', 'created_at',
             'jobs_count', 'shortlists_count', 'messages_count',
         ]
         read_only_fields = ['id', 'user', 'created_at']

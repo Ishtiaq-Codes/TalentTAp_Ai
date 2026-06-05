@@ -59,6 +59,8 @@ class RecruiterProfile(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='recruiters')
     title = models.CharField(max_length=100, blank=True)
     department = models.CharField(max_length=100, blank=True)
+    phone_number = models.CharField(max_length=20, blank=True)
+    linkedin_url = models.URLField(blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

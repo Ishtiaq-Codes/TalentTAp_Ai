@@ -22,6 +22,8 @@ export const companiesAPI = {
   getDashboard: () => client.get('/companies/dashboard/'),
 
   // Recruiter management
+  getMyRecruiterProfile: () => client.get('/companies/recruiters/me/'),
+  updateMyRecruiterProfile: (data) => client.patch('/companies/recruiters/me/', data),
   getRecruiters: () => client.get('/companies/recruiters/'),
   inviteRecruiter: (data) => client.post('/companies/recruiters/invite/', data),
   getPendingInvites: () => client.get('/companies/recruiters/invite/pending/'),

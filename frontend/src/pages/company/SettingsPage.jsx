@@ -3,6 +3,7 @@ import { Save, Bell, Shield, CreditCard, CheckCircle, Loader2, User, Upload, Key
 import { QRCodeSVG } from 'qrcode.react'
 import { useAuth } from '@/contexts/AuthContext'
 import { authAPI } from '@/api/auth'
+import { companiesAPI } from '@/api/companies'
 import { useToast } from '@/contexts/ToastContext'
 import ConfirmModal from '@/components/common/ConfirmModal'
 
@@ -20,6 +21,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
 
   const [profileData, setProfileData] = useState({ first_name: '', last_name: '' })
+  const [recruiterData, setRecruiterData] = useState({ title: '', department: '', phone_number: '', linkedin_url: '' })
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileSaved, setProfileSaved] = useState(false)
 
@@ -35,6 +37,17 @@ export default function SettingsPage() {
         first_name: authUser.first_name || '',
         last_name: authUser.last_name || ''
       })
+      // Fetch recruiter profile
+      companiesAPI.getMyRecruiterProfile().then(res => {
+        if (res.data) {
+          setRecruiterData({
+            title: res.data.title || '',
+            department: res.data.department || '',
+            phone_number: res.data.phone_number || '',
+            linkedin_url: res.data.linkedin_url || ''
+          })
+        }
+      }).catch(err => console.error(err))
     }
   }, [authUser])
 
@@ -75,6 +88,12 @@ export default function SettingsPage() {
       await authAPI.updateMe({
         first_name: profileData.first_name,
         last_name: profileData.last_name
+      })
+      await companiesAPI.updateMyRecruiterProfile({
+        title: recruiterData.title,
+        department: recruiterData.department,
+        phone_number: recruiterData.phone_number,
+        linkedin_url: recruiterData.linkedin_url
       })
       await fetchUser()
       setProfileSaved(true)
@@ -244,6 +263,46 @@ export default function SettingsPage() {
                   <div className="sm:col-span-2">
                     <label className="text-sm font-semibold text-slate-900">Email Address <span className="text-xs font-normal text-slate-400">(cannot be changed)</span></label>
                     <input type="email" disabled value={authUser?.email || ''} className="mt-2 block w-full rounded-lg border bg-slate-50 px-4 py-2.5 text-sm text-slate-500 cursor-not-allowed" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-slate-900">Job Title</label>
+                    <input 
+                      type="text" 
+                      value={recruiterData.title} 
+                      onChange={(e) => setRecruiterData({ ...recruiterData, title: e.target.value })}
+                      className="mt-2 block w-full rounded-lg border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" 
+                      placeholder="e.g. Senior Recruiter"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-slate-900">Department</label>
+                    <input 
+                      type="text" 
+                      value={recruiterData.department} 
+                      onChange={(e) => setRecruiterData({ ...recruiterData, department: e.target.value })}
+                      className="mt-2 block w-full rounded-lg border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" 
+                      placeholder="e.g. Human Resources"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-slate-900">Phone Number</label>
+                    <input 
+                      type="text" 
+                      value={recruiterData.phone_number} 
+                      onChange={(e) => setRecruiterData({ ...recruiterData, phone_number: e.target.value })}
+                      className="mt-2 block w-full rounded-lg border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" 
+                      placeholder="+1 (555) 000-0000"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-slate-900">LinkedIn URL</label>
+                    <input 
+                      type="url" 
+                      value={recruiterData.linkedin_url} 
+                      onChange={(e) => setRecruiterData({ ...recruiterData, linkedin_url: e.target.value })}
+                      className="mt-2 block w-full rounded-lg border px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" 
+                      placeholder="https://linkedin.com/in/..."
+                    />
                   </div>
                 </div>
 

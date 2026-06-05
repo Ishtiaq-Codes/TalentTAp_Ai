@@ -16,6 +16,7 @@ urlpatterns = [
 
     # Recruiter management
     path('recruiters/', views.RecruiterListView.as_view(), name='recruiter-list'),
+    path('recruiters/me/', views.MyRecruiterProfileView.as_view(), name='recruiter-me'),
     path('recruiters/invite/', views.InviteRecruiterView.as_view(), name='recruiter-invite'),
     path('recruiters/invite/pending/', views.PendingInvitationsListView.as_view(), name='recruiter-invite-pending'),
     path('recruiters/invite/<uuid:id>/', views.GetInvitationView.as_view(), name='recruiter-invite-detail'),
