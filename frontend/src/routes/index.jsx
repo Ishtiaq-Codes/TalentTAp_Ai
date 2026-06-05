@@ -1,7 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth, getDashboardPath } from '@/contexts/AuthContext'
+import { useAuth, getDashboardPath, getRedirectPath } from '@/contexts/AuthContext'
 import AppShell from '@/components/layout/AppShell'
+import OnboardingLayout from '@/components/layout/OnboardingLayout'
 
 // Auth
 const LandingPage = lazy(() => import('@/pages/landing/LandingPage'))
@@ -52,6 +53,10 @@ const TalentPoolsPage = lazy(() => import('@/pages/company/TalentPoolsPage'))
 // Admin
 const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'))
 
+// Onboarding
+const CandidateOnboarding = lazy(() => import('@/pages/onboarding/CandidateOnboarding'))
+const CompanyOnboarding = lazy(() => import('@/pages/onboarding/CompanyOnboarding'))
+
 // Shared
 const MessagesPage = lazy(() => import('@/pages/shared/MessagesPage'))
 
@@ -84,12 +89,26 @@ function RequireAuth({ children }) {
 }
 
 /**
- * Guard: redirects logged-in users to dashboard. For public pages.
+ * Guard: redirects logged-in users to dashboard or onboarding. For public pages.
  */
 function RedirectIfAuth({ children }) {
   const { user, loading } = useAuth()
   if (loading) return <Loading />
-  if (user) return <Navigate to={getDashboardPath(user.role)} replace />
+  if (user) return <Navigate to={getRedirectPath(user)} replace />
+  return children
+}
+
+/**
+ * Guard: requires authentication AND onboarding. Redirects if not.
+ */
+function RequireOnboarded({ children }) {
+  const { user, loading } = useAuth()
+  if (loading) return <Loading />
+  if (!user) return <Navigate to="/login" replace />
+  
+  if (!user.is_onboarded && (user.role === 'candidate' || user.role === 'company_admin')) {
+    return <Navigate to={getRedirectPath(user)} replace />
+  }
   return children
 }
 
@@ -116,8 +135,14 @@ export default function AppRouter() {
           <Route path="/reset-password" element={<RedirectIfAuth><ResetPasswordPage /></RedirectIfAuth>} />
           <Route path="/invite/:token" element={<RedirectIfAuth><AcceptInvitePage /></RedirectIfAuth>} />
 
+          {/* Onboarding routes (Requires Auth but NOT Onboarded) */}
+          <Route element={<RequireAuth><OnboardingLayout /></RequireAuth>}>
+            <Route path="/onboarding/candidate" element={<CandidateOnboarding />} />
+            <Route path="/onboarding/company" element={<CompanyOnboarding />} />
+          </Route>
+
           {/* Protected routes with AppShell layout */}
-          <Route element={<RequireAuth><AppShell /></RequireAuth>}>
+          <Route element={<RequireOnboarded><AppShell /></RequireOnboarded>}>
             {/* Candidate */}
             <Route path="/candidate/dashboard" element={<CandidateDashboard />} />
             <Route path="/candidate/profile" element={<CandidateProfile />} />

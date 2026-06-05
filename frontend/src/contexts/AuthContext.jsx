@@ -16,6 +16,18 @@ export function getDashboardPath(role) {
   }
 }
 
+/**
+ * Returns the proper redirect path considering onboarding status.
+ */
+export function getRedirectPath(user) {
+  if (!user) return '/login'
+  if (!user.is_onboarded) {
+    if (user.role === 'candidate') return '/onboarding/candidate'
+    if (user.role === 'company_admin') return '/onboarding/company'
+  }
+  return getDashboardPath(user.role)
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -71,7 +83,12 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
-  const value = { user, loading, login, loginMFA, register, logout, fetchUser }
+  const completeOnboarding = async () => {
+    await authAPI.completeOnboarding()
+    await fetchUser() // re-fetch user to get updated is_onboarded flag
+  }
+
+  const value = { user, loading, login, loginMFA, register, logout, fetchUser, completeOnboarding }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

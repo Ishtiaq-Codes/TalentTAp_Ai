@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { useAuth, getDashboardPath } from '@/contexts/AuthContext'
+import { useAuth, getRedirectPath } from '@/contexts/AuthContext'
 import Logo from '@/components/common/Logo'
 import { ArrowRight, Mail, Lock, AlertCircle, Shield } from 'lucide-react'
 import SEOHead from '@/components/shared/SEOHead'
@@ -9,7 +9,7 @@ export default function LoginPage() {
   const { user, login, loginMFA } = useAuth()
   const navigate = useNavigate()
 
-  if (user) return <Navigate to={getDashboardPath(user.role)} replace />
+  if (user) return <Navigate to={getRedirectPath(user)} replace />
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -26,14 +26,14 @@ export default function LoginPage() {
     try {
       if (mfaStep) {
         const loggedInUser = await loginMFA(mfaToken, mfaCode)
-        navigate(getDashboardPath(loggedInUser.role), { replace: true })
+        navigate(getRedirectPath(loggedInUser), { replace: true })
       } else {
         const res = await login(form.email, form.password)
         if (res.mfa_required) {
           setMfaToken(res.mfa_token)
           setMfaStep(true)
         } else {
-          navigate(getDashboardPath(res.role), { replace: true })
+          navigate(getRedirectPath(res), { replace: true })
         }
       }
     } catch (err) {

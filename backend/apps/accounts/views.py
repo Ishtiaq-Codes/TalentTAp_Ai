@@ -100,6 +100,17 @@ class MeView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 
+class OnboardCompleteView(APIView):
+    """Mark the current user as onboarded."""
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        user.is_onboarded = True
+        user.save(update_fields=['is_onboarded'])
+        return Response({'status': 'ok', 'is_onboarded': True})
+
+
 class ChangePasswordView(APIView):
     """Change password for authenticated user."""
     permission_classes = [IsAuthenticated]

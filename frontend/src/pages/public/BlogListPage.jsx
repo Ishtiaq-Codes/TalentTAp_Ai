@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { Search, Clock, Eye, ArrowRight, Tag, Rss, TrendingUp } from 'lucide-react'
 import PublicNavbar from '@/components/layout/PublicNavbar'
 import Footer from '@/components/layout/Footer'
+import SEOHead from '@/components/shared/SEOHead'
 import { blogAPI } from '@/api/blog'
 
 // Colour map for category badges
@@ -143,6 +144,10 @@ export default function BlogListPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <SEOHead 
+        title="TalentTap Blog | Recruitment Insights & Market Intelligence"
+        description="Expert hiring guides, salary benchmarks, career advice, and the latest news from the global IT talent market."
+      />
       <PublicNavbar />
 
       {/* ── Hero ──────────────────────────────────────────────────── */}
@@ -156,7 +161,7 @@ export default function BlogListPage() {
               Insights, Tips & Market <span className="text-primary">Intelligence</span>
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-500">
-              Expert hiring guides, salary benchmarks, career advice, and the latest news from Pakistan's IT talent market.
+              Expert hiring guides, salary benchmarks, career advice, and the latest news from the global IT talent market.
             </p>
 
             {/* Search */}
@@ -299,7 +304,7 @@ export default function BlogListPage() {
             <div className="rounded-2xl bg-gradient-to-br from-primary to-blue-600 p-5 text-white shadow-lg">
               <h3 className="text-base font-bold mb-2">Ready to Hire Smarter?</h3>
               <p className="text-sm text-white/80 mb-4">
-                Join software houses across Pakistan using TalentTap's AI matching engine.
+                Join software houses worldwide using TalentTap's AI matching engine.
               </p>
               <Link
                 to="/register"

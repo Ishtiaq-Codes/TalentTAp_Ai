@@ -6,6 +6,7 @@ export const authAPI = {
   refreshToken: (refresh) => client.post('/auth/token/refresh/', { refresh }),
   getMe: () => client.get('/auth/me/'),
   updateMe: (data) => client.patch('/auth/me/', data),
+  completeOnboarding: () => client.patch('/auth/me/onboard-complete/'),
   changePassword: (data) => client.post('/auth/change-password/', data),
   forgotPassword: (email) => client.post('/auth/forgot-password/', { email }),
   resetPassword: (uidb64, token, password) => client.post('/auth/reset-password/', { uidb64, token, password }),

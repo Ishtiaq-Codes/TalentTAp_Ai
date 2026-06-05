@@ -36,11 +36,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'email', 'first_name', 'last_name', 'full_name',
-            'role', 'avatar', 'is_email_verified', 'created_at',
+            'role', 'avatar', 'is_email_verified', 'is_onboarded', 'created_at',
             'notify_new_apps', 'notify_ai_match', 'notify_messages',
             'mfa_enabled'
         ]
-        read_only_fields = ['id', 'email', 'role', 'is_email_verified', 'created_at', 'mfa_enabled']
+        read_only_fields = ['id', 'email', 'role', 'is_email_verified', 'is_onboarded', 'created_at', 'mfa_enabled']
 
 
 class ChangePasswordSerializer(serializers.Serializer):

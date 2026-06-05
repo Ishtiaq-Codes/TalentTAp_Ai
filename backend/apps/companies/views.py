@@ -45,7 +45,10 @@ class CompanyProfileView(generics.RetrieveUpdateAPIView):
         return [IsAuthenticated(), IsRecruiter()]
 
     def get_object(self):
-        return _get_company_for_user(self.request.user)
+        company = _get_company_for_user(self.request.user)
+        if not company and self.request.user.role == 'company_admin':
+            company = Company.objects.create(name='New Company', created_by=self.request.user)
+        return company
 
 
 class PublicCompanyDetailView(generics.RetrieveAPIView):

@@ -24,6 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
+    is_onboarded = models.BooleanField(default=False)
 
     # 2FA / MFA
     mfa_secret = models.CharField(max_length=32, blank=True, null=True)

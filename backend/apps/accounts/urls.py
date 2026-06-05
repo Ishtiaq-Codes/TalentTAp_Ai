@@ -12,6 +12,7 @@ urlpatterns = [
     
     # Profile & settings
     path('me/', views.MeView.as_view(), name='me'),
+    path('me/onboard-complete/', views.OnboardCompleteView.as_view(), name='onboard-complete'),
     path('change-password/', views.ChangePasswordView.as_view(), name='change-password'),
     path('avatar/', views.UserAvatarUploadView.as_view(), name='avatar-upload'),
     
