@@ -54,6 +54,13 @@ export const REMOTE_STATUS = [
   { value: 'hybrid', label: 'Hybrid' },
 ]
 
+export const REMOTE_PREFERENCES = [
+  { value: 'remote', label: 'Remote Only' },
+  { value: 'hybrid', label: 'Hybrid' },
+  { value: 'onsite', label: 'On-site' },
+  { value: 'any', label: 'Any' },
+]
+
 export const COMPANY_SIZE = [
   { value: '1-10', label: '1-10' },
   { value: '11-50', label: '11-50' },

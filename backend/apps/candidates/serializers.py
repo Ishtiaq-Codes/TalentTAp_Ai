@@ -1,6 +1,6 @@
 """Candidate serializers."""
 from rest_framework import serializers
-from .models import CandidateProfile, CandidateSkill, Experience
+from .models import CandidateProfile, CandidateSkill, Experience, Education, Certification
 
 
 class CandidateSkillSerializer(serializers.ModelSerializer):
@@ -20,9 +20,31 @@ class ExperienceSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
+class EducationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education
+        fields = [
+            'id', 'institution_name', 'degree', 'field_of_study',
+            'start_date', 'end_date', 'description',
+        ]
+        read_only_fields = ['id']
+
+
+class CertificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certification
+        fields = [
+            'id', 'name', 'issuing_organization', 'issue_date',
+            'expiration_date', 'credential_id', 'credential_url',
+        ]
+        read_only_fields = ['id']
+
+
 class CandidateProfileSerializer(serializers.ModelSerializer):
     skills = CandidateSkillSerializer(many=True, read_only=True)
     experiences = ExperienceSerializer(many=True, read_only=True)
+    education = EducationSerializer(many=True, read_only=True)
+    certifications = CertificationSerializer(many=True, read_only=True)
     user_name = serializers.CharField(source='user.full_name', read_only=True)
     user_email = serializers.EmailField(source='user.email', read_only=True)
     avatar = serializers.ImageField(source='user.avatar', read_only=True)
@@ -33,10 +55,11 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
             'id', 'user', 'user_name', 'user_email', 'avatar',
             'headline', 'about', 'country', 'city', 'phone',
             'years_of_experience', 'employment_status', 'availability',
-            'employment_type_preferred', 'salary_min', 'salary_max',
-            'salary_currency', 'linkedin_url', 'github_url', 'portfolio_url',
-            'resume', 'banner_image', 'is_open_to_work', 'profile_completion',
-            'skills', 'experiences', 'created_at', 'updated_at',
+            'employment_type_preferred', 'remote_preference', 'career_goals', 
+            'salary_min', 'salary_max', 'salary_currency', 'linkedin_url', 
+            'github_url', 'portfolio_url', 'resume', 'banner_image', 
+            'is_open_to_work', 'profile_completion', 'skills', 'experiences', 
+            'education', 'certifications', 'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'user', 'profile_completion', 'created_at', 'updated_at']
 

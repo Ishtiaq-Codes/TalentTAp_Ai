@@ -25,6 +25,7 @@ const allLinks = {
     {
       section: 'Settings', items: [
         { to: '/candidate/profile', icon: User, label: 'My Profile' },
+        { to: '/candidate/settings', icon: Settings, label: 'Settings' },
       ]
     }
   ],

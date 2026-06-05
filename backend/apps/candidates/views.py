@@ -6,11 +6,12 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django_filters.rest_framework import DjangoFilterBackend
 
 from apps.accounts.permissions import IsCandidate, IsRecruiter
-from .models import CandidateProfile, CandidateSkill, Experience
+from .models import CandidateProfile, CandidateSkill, Experience, Education, Certification
 from .filters import CandidateFilter
 from .serializers import (
     CandidateProfileSerializer, CandidateSearchSerializer,
     CandidateSkillSerializer, ExperienceSerializer,
+    EducationSerializer, CertificationSerializer,
 )
 
 
@@ -124,6 +125,58 @@ class ExperienceDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 # ---------------------------------------------------------------------------
+# Education
+# ---------------------------------------------------------------------------
+
+class EducationListCreateView(generics.ListCreateAPIView):
+    serializer_class = EducationSerializer
+    permission_classes = [IsAuthenticated, IsCandidate]
+
+    def get_queryset(self):
+        profile = CandidateProfile.objects.filter(user=self.request.user).first()
+        return Education.objects.filter(candidate=profile) if profile else Education.objects.none()
+
+    def perform_create(self, serializer):
+        profile, _ = CandidateProfile.objects.get_or_create(user=self.request.user)
+        serializer.save(candidate=profile)
+
+
+class EducationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = EducationSerializer
+    permission_classes = [IsAuthenticated, IsCandidate]
+
+    def get_queryset(self):
+        profile = CandidateProfile.objects.filter(user=self.request.user).first()
+        return Education.objects.filter(candidate=profile) if profile else Education.objects.none()
+
+
+# ---------------------------------------------------------------------------
+# Certifications
+# ---------------------------------------------------------------------------
+
+class CertificationListCreateView(generics.ListCreateAPIView):
+    serializer_class = CertificationSerializer
+    permission_classes = [IsAuthenticated, IsCandidate]
+
+    def get_queryset(self):
+        profile = CandidateProfile.objects.filter(user=self.request.user).first()
+        return Certification.objects.filter(candidate=profile) if profile else Certification.objects.none()
+
+    def perform_create(self, serializer):
+        profile, _ = CandidateProfile.objects.get_or_create(user=self.request.user)
+        serializer.save(candidate=profile)
+
+
+class CertificationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CertificationSerializer
+    permission_classes = [IsAuthenticated, IsCandidate]
+
+    def get_queryset(self):
+        profile = CandidateProfile.objects.filter(user=self.request.user).first()
+        return Certification.objects.filter(candidate=profile) if profile else Certification.objects.none()
+
+
+# ---------------------------------------------------------------------------
 # Candidate Search (for recruiters)
 # ---------------------------------------------------------------------------
 
@@ -146,4 +199,4 @@ class CandidatePublicProfileView(generics.RetrieveAPIView):
     """View a candidate's profile (recruiter view)."""
     serializer_class = CandidateProfileSerializer
     permission_classes = [IsAuthenticated, IsRecruiter]
-    queryset = CandidateProfile.objects.select_related('user').prefetch_related('skills', 'experiences')
+    queryset = CandidateProfile.objects.select_related('user').prefetch_related('skills', 'experiences', 'education', 'certifications')

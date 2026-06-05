@@ -135,6 +135,23 @@ export default function TalentProfilePage() {
                 </div>
               </div>
             </div>
+            {/* About & Career Goals */}
+            {(profile?.about || profile?.career_goals) && (
+              <div className="grid gap-6 md:grid-cols-2">
+                {profile?.about && (
+                  <div className="rounded-2xl border bg-white p-6 shadow-sm">
+                    <h2 className="text-base font-bold text-slate-900 mb-3">About</h2>
+                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{profile.about}</p>
+                  </div>
+                )}
+                {profile?.career_goals && (
+                  <div className="rounded-2xl border bg-white p-6 shadow-sm">
+                    <h2 className="text-base font-bold text-slate-900 mb-3">Career Goals</h2>
+                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{profile.career_goals}</p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Skills */}
             {profile?.skills?.length > 0 && (
@@ -170,6 +187,59 @@ export default function TalentProfilePage() {
                         <p className="font-medium text-primary text-sm mt-0.5">{exp.company_name}</p>
                         {exp.description && <p className="text-sm text-slate-600 leading-relaxed mt-3">{exp.description}</p>}
                       </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Education */}
+            {profile?.education?.length > 0 && (
+              <div className="rounded-2xl border bg-white p-6 shadow-sm">
+                <h2 className="text-base font-bold mb-5">Education</h2>
+                <div className="relative space-y-5 pl-6 before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+                  {profile.education.map((edu) => (
+                    <div key={edu.id} className="relative">
+                      <div className="absolute -left-6 top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-primary bg-white z-10" />
+                      <div className="rounded-xl border border-slate-100 p-4 hover:shadow-sm transition-shadow">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                          <h3 className="font-bold text-slate-900">{edu.degree}</h3>
+                          <span className="text-xs text-slate-400">{edu.start_date} — {edu.end_date || 'Present'}</span>
+                        </div>
+                        <p className="font-medium text-primary text-sm mt-0.5">{edu.institution_name}</p>
+                        {edu.field_of_study && <p className="text-sm font-medium text-slate-700 mt-2">Field of Study: {edu.field_of_study}</p>}
+                        {edu.description && <p className="text-sm text-slate-600 leading-relaxed mt-2">{edu.description}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Certifications */}
+            {profile?.certifications?.length > 0 && (
+              <div className="rounded-2xl border bg-white p-6 shadow-sm">
+                <h2 className="text-base font-bold mb-4">Certifications</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {profile.certifications.map((cert) => (
+                    <div key={cert.id} className="rounded-xl border border-slate-100 p-4 hover:shadow-sm transition-shadow bg-slate-50/50">
+                      <h3 className="font-bold text-slate-900">{cert.name}</h3>
+                      <p className="font-medium text-primary text-sm mt-0.5">{cert.issuing_organization}</p>
+                      {cert.issue_date && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Issued {cert.issue_date} {cert.expiration_date ? `· Expires ${cert.expiration_date}` : ''}
+                        </p>
+                      )}
+                      {(cert.credential_id || cert.credential_url) && (
+                        <div className="mt-3 flex flex-wrap gap-3 text-sm">
+                          {cert.credential_id && <span className="text-slate-600 font-mono text-xs bg-white border px-2 py-1 rounded">ID: {cert.credential_id}</span>}
+                          {cert.credential_url && (
+                            <a href={cert.credential_url} target="_blank" rel="noreferrer" className="text-primary hover:underline inline-flex items-center gap-1 text-xs bg-white border px-2 py-1 rounded">
+                              Verify <ExternalLink className="h-3 w-3" />
+                            </a>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -27,6 +27,12 @@ class CandidateProfile(models.Model):
         FREELANCE = 'freelance', 'Freelance'
         INTERNSHIP = 'internship', 'Internship'
 
+    class RemotePreference(models.TextChoices):
+        REMOTE = 'remote', 'Remote Only'
+        HYBRID = 'hybrid', 'Hybrid'
+        ONSITE = 'onsite', 'On-site'
+        ANY = 'any', 'Any'
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='candidate_profile',
@@ -46,6 +52,10 @@ class CandidateProfile(models.Model):
     employment_type_preferred = models.CharField(
         max_length=20, choices=EmploymentType.choices, default=EmploymentType.FULL_TIME,
     )
+    remote_preference = models.CharField(
+        max_length=20, choices=RemotePreference.choices, default=RemotePreference.ANY,
+    )
+    career_goals = models.TextField(blank=True)
     salary_min = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     salary_max = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     salary_currency = models.CharField(max_length=3, default='USD')
@@ -76,9 +86,15 @@ class CandidateProfile(models.Model):
         # Skills: 20 points (need at least 3)
         skill_count = self.skills.count()
         score += min(skill_count * 7, 20)
-        # Experience: 15 points (need at least 1)
+        # Experience: 10 points (need at least 1)
         if self.experiences.exists():
-            score += 15
+            score += 10
+        # Education: 5 points (need at least 1)
+        if self.education.exists():
+            score += 5
+        # Certifications: 5 points (optional, bonus if present, up to 100 max)
+        if self.certifications.exists():
+            score += 5
         return min(score, 100)
 
     def save(self, *args, **kwargs):
@@ -129,3 +145,39 @@ class Experience(models.Model):
 
     def __str__(self):
         return f'{self.title} at {self.company_name}'
+
+class Education(models.Model):
+    """Educational background."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    candidate = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name='education')
+    institution_name = models.CharField(max_length=200)
+    degree = models.CharField(max_length=200)
+    field_of_study = models.CharField(max_length=200, blank=True)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    description = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-start_date']
+
+    def __str__(self):
+        return f'{self.degree} at {self.institution_name}'
+
+class Certification(models.Model):
+    """Professional certifications."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    candidate = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name='certifications')
+    name = models.CharField(max_length=200)
+    issuing_organization = models.CharField(max_length=200)
+    issue_date = models.DateField(null=True, blank=True)
+    expiration_date = models.DateField(null=True, blank=True)
+    credential_id = models.CharField(max_length=100, blank=True)
+    credential_url = models.URLField(blank=True)
+
+    class Meta:
+        ordering = ['-issue_date']
+
+    def __str__(self):
+        return f'{self.name} by {self.issuing_organization}'

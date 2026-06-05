@@ -28,6 +28,7 @@ const CandidateJobs = lazy(() => import('@/pages/candidate/JobsPage'))
 const CandidateJobDetailPage = lazy(() => import('@/pages/candidate/JobDetailPage'))
 const CandidateApplications = lazy(() => import('@/pages/candidate/ApplicationsPage'))
 const CandidateMatches = lazy(() => import('@/pages/candidate/MatchesPage'))
+const CandidateSettingsPage = lazy(() => import('@/pages/candidate/CandidateSettingsPage'))
 
 // Recruiter
 const RecruiterDashboard = lazy(() => import('@/pages/recruiter/DashboardPage'))
@@ -121,6 +122,7 @@ export default function AppRouter() {
             <Route path="/candidate/applications" element={<CandidateApplications />} />
             <Route path="/candidate/matches" element={<CandidateMatches />} />
             <Route path="/candidate/messages" element={<MessagesPage />} />
+            <Route path="/candidate/settings" element={<CandidateSettingsPage />} />
 
             {/* Recruiter */}
             <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />

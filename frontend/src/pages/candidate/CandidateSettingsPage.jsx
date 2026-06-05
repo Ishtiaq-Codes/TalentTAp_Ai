@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
-import { Save, Bell, Shield, CreditCard, CheckCircle, Loader2, User, Upload, KeyRound } from 'lucide-react'
+import { Save, Bell, Shield, CheckCircle, Loader2, User, Upload, KeyRound } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useAuth } from '@/contexts/AuthContext'
 import { authAPI } from '@/api/auth'
 import { useToast } from '@/contexts/ToastContext'
 
-export default function SettingsPage() {
+export default function CandidateSettingsPage() {
   const { user: authUser, fetchUser } = useAuth()
   const [activeTab, setActiveTab] = useState('profile')
-  const { info, success, error } = useToast()
+  const { success, error } = useToast()
 
   const [prefs, setPrefs] = useState({ 
     newApps: authUser?.notify_new_apps ?? true, 
@@ -35,10 +35,6 @@ export default function SettingsPage() {
       })
     }
   }, [authUser])
-
-  const [uiState, setUiState] = useState({
-    portalLoading: false
-  })
 
   // MFA State
   const [mfaEnabling, setMfaEnabling] = useState(false)
@@ -131,19 +127,10 @@ export default function SettingsPage() {
     }
   }
 
-  const handleBilling = () => {
-    setUiState(s => ({ ...s, portalLoading: true }))
-    setTimeout(() => {
-      setUiState(s => ({ ...s, portalLoading: false }))
-      info('Billing portal integration is part of the upcoming Phase 5.')
-    }, 800)
-  }
-
   const tabs = [
-    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'profile', label: 'Account Profile', icon: User },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Shield },
-    { id: 'billing', label: 'Billing', icon: CreditCard },
   ]
 
   const handleAvatarUpload = async (e) => {
@@ -151,7 +138,6 @@ export default function SettingsPage() {
     if (!file) return
     try {
       await authAPI.uploadAvatar(file)
-      // Update context so header shows new avatar
       await fetchUser()
       success('Avatar uploaded successfully!')
     } catch {
@@ -164,7 +150,7 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="mt-2 text-muted-foreground max-w-xl">
-          Manage your account preferences, security settings, and billing information.
+          Manage your account preferences and security settings.
         </p>
       </div>
 
@@ -193,7 +179,7 @@ export default function SettingsPage() {
           {activeTab === 'profile' && (
             <div className="animate-fade-in-up rounded-2xl border bg-white shadow-sm overflow-hidden">
               <div className="border-b bg-slate-50/50 px-6 py-5">
-                <h2 className="text-lg font-bold">Personal Profile</h2>
+                <h2 className="text-lg font-bold">Account Profile</h2>
                 <p className="text-sm text-muted-foreground mt-1">Manage your personal information and avatar.</p>
               </div>
 
@@ -274,9 +260,9 @@ export default function SettingsPage() {
 
               <div className="p-6 space-y-6">
                 {[
-                  { id: 'newApps', title: 'New Applications', desc: 'Receive an email when a candidate applies to your job.' },
-                  { id: 'aiMatch', title: 'AI Match Alerts', desc: 'Get notified when the AI finds a 90%+ match.' },
-                  { id: 'messages', title: 'Messages', desc: 'Receive an email when a candidate messages you.' }
+                  { id: 'newApps', title: 'Application Updates', desc: 'Receive an email when the status of an application changes.' },
+                  { id: 'aiMatch', title: 'AI Match Alerts', desc: 'Get notified when the AI matches you with a new relevant job.' },
+                  { id: 'messages', title: 'Messages', desc: 'Receive an email when a recruiter messages you.' }
                 ].map((item, idx) => (
                   <div key={item.id} className={`flex items-center justify-between ${idx !== 0 ? 'border-t pt-6' : ''}`}>
                     <div className="pr-4">
@@ -405,50 +391,6 @@ export default function SettingsPage() {
                     className="inline-flex items-center gap-2 rounded-full border-2 border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                   >
                     Reset Password
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'billing' && (
-            <div className="animate-fade-in-up rounded-2xl border bg-white shadow-sm overflow-hidden">
-              <div className="border-b bg-slate-50/50 px-6 py-5">
-                <h2 className="text-lg font-bold">Billing & Plan</h2>
-                <p className="text-sm text-muted-foreground mt-1">Manage your subscription, payment methods, and billing history.</p>
-              </div>
-
-              <div className="p-6 space-y-8">
-                <div className="rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-blue-50 p-6 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
-                    <CreditCard className="h-32 w-32 -mt-8 -mr-8" />
-                  </div>
-
-                  <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-bold text-slate-900">Pro Plan</h3>
-                        <span className="inline-flex items-center rounded-full bg-primary/20 px-2.5 py-0.5 text-xs font-bold text-primary">Active</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground max-w-md leading-relaxed">
-                        Unlimited active jobs, premium AI matching, and advanced candidate filtering.
-                      </p>
-                    </div>
-
-                    <div className="text-left sm:text-right">
-                      <p className="text-3xl font-bold tracking-tight text-slate-900">$49<span className="text-lg text-muted-foreground font-medium">/mo</span></p>
-                      <p className="text-xs text-muted-foreground mt-1">Renews on July 1, 2025</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    onClick={handleBilling}
-                    disabled={uiState.portalLoading}
-                    className="inline-flex items-center justify-center min-w-[200px] gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-slate-800 disabled:opacity-50 transition-all"
-                  >
-                    {uiState.portalLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Manage via Stripe'}
                   </button>
                 </div>
               </div>
