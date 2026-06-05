@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { applicationsAPI } from '@/api/applications'
@@ -7,6 +8,7 @@ import SkeletonCard from '@/components/common/SkeletonCard'
 import { formatDate } from '@/lib/utils'
 import { FileText, Pencil, Trash2, Loader2, Save, X } from 'lucide-react'
 import { useToast } from '@/contexts/ToastContext'
+import ConfirmModal from '@/components/common/ConfirmModal'
 
 const STATUS_COLORS = {
   applied: 'bg-blue-100 text-blue-700',
@@ -26,6 +28,7 @@ export default function ApplicationsPage() {
   const [coverLetter, setCoverLetter] = useState('')
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
   if (loading) return <div className="space-y-4">{[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}</div>
 
@@ -51,7 +54,6 @@ export default function ApplicationsPage() {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to withdraw and delete this application?')) return
     setDeletingId(id)
     try {
       await applicationsAPI.delete(id)
@@ -97,7 +99,7 @@ export default function ApplicationsPage() {
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button 
-                      onClick={() => handleDelete(app.id)}
+                      onClick={() => setConfirmDeleteId(app.id)}
                       disabled={deletingId === app.id}
                       className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                       title="Withdraw Application"
@@ -128,9 +130,9 @@ export default function ApplicationsPage() {
       )}
 
       {/* Edit Modal */}
-      {editingApp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl animate-in zoom-in-95 duration-200">
+      {editingApp && createPortal(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b p-5">
               <h2 className="text-lg font-bold">Edit Application</h2>
               <button 
@@ -172,8 +174,20 @@ export default function ApplicationsPage() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={() => handleDelete(confirmDeleteId)}
+        title="Withdraw Application"
+        message="Are you sure you want to withdraw and delete this application? This action cannot be undone."
+        confirmText="Withdraw & Delete"
+        isDestructive={true}
+      />
     </div>
   )
 }

@@ -146,29 +146,37 @@ export default function JobDetailPage() {
           {appList.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">No applications yet.</p>
           ) : appList.map((app) => (
-            <div key={app.id} className="flex items-center justify-between rounded-xl border bg-card p-5">
-              <Link to={`/recruiter/candidates/${app.candidate}`} className="flex items-center gap-3 group">
-                <ProfileAvatar src={app.candidate_avatar} name={app.candidate_name} size="md" />
-                <div>
-                  <p className="font-medium text-sm group-hover:text-primary transition-colors">{app.candidate_name}</p>
-                  <p className="text-xs text-muted-foreground">Applied {formatDate(app.created_at)}</p>
-                </div>
-              </Link>
-              <div className="flex items-center gap-2">
-                <Link
-                  to={`/recruiter/candidates/${app.candidate}`}
-                  className="flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors h-10"
-                >
-                  <ExternalLink className="h-4 w-4" /> Profile
+            <div key={app.id} className="flex flex-col gap-4 rounded-xl border bg-card p-5">
+              <div className="flex items-center justify-between">
+                <Link to={`/recruiter/candidates/${app.candidate}`} className="flex items-center gap-3 group">
+                  <ProfileAvatar src={app.candidate_avatar} name={app.candidate_name} size="md" />
+                  <div>
+                    <p className="font-medium text-sm group-hover:text-primary transition-colors">{app.candidate_name}</p>
+                    <p className="text-xs text-muted-foreground">Applied {formatDate(app.created_at)}</p>
+                  </div>
                 </Link>
-                <MessageButton recipientId={app.candidate_user_id} name={app.candidate_name} />
-                <ShortlistButton 
-                  candidateId={app.candidate} 
-                  jobId={job.id} 
-                  initialIsShortlisted={shortlistsArray.some(s => s.candidate === app.candidate)}
-                />
-                <span className="ml-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 capitalize">{app.status}</span>
+                <div className="flex items-center gap-2">
+                  <Link
+                    to={`/recruiter/candidates/${app.candidate}`}
+                    className="flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors h-10"
+                  >
+                    <ExternalLink className="h-4 w-4" /> Profile
+                  </Link>
+                  <MessageButton recipientId={app.candidate_user_id} name={app.candidate_name} />
+                  <ShortlistButton 
+                    candidateId={app.candidate} 
+                    jobId={job.id} 
+                    initialIsShortlisted={shortlistsArray.some(s => s.candidate === app.candidate)}
+                  />
+                  <span className="ml-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 capitalize">{app.status}</span>
+                </div>
               </div>
+              {app.cover_letter && (
+                <div className="rounded-lg bg-slate-50 p-4 border text-sm text-slate-700">
+                  <p className="font-semibold text-slate-900 mb-1">Cover Letter / Note</p>
+                  <p className="whitespace-pre-wrap">{app.cover_letter}</p>
+                </div>
+              )}
             </div>
           ))}
         </div>

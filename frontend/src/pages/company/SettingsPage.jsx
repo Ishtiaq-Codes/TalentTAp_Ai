@@ -4,6 +4,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useAuth } from '@/contexts/AuthContext'
 import { authAPI } from '@/api/auth'
 import { useToast } from '@/contexts/ToastContext'
+import ConfirmModal from '@/components/common/ConfirmModal'
 
 export default function SettingsPage() {
   const { user: authUser, fetchUser } = useAuth()
@@ -24,6 +25,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (authUser) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPrefs({
         newApps: authUser.notify_new_apps ?? true,
         aiMatch: authUser.notify_ai_match ?? true,
@@ -45,6 +47,7 @@ export default function SettingsPage() {
   const [mfaSetupData, setMfaSetupData] = useState(null)
   const [mfaCode, setMfaCode] = useState('')
   const [mfaError, setMfaError] = useState('')
+  const [showDisableMfaConfirm, setShowDisableMfaConfirm] = useState(false)
 
   const handleSave = async (e) => {
     e.preventDefault()
@@ -58,8 +61,8 @@ export default function SettingsPage() {
       await fetchUser()
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
-    } catch (err) {
-      error('Failed to save preferences')
+    } catch {
+      error('Failed to update preferences.')
     } finally {
       setSaving(false)
     }
@@ -77,8 +80,8 @@ export default function SettingsPage() {
       setProfileSaved(true)
       setTimeout(() => setProfileSaved(false), 3000)
       success('Profile updated successfully!')
-    } catch (err) {
-      error('Failed to update profile')
+    } catch {
+      error('Failed to update profile.')
     } finally {
       setSavingProfile(false)
     }
@@ -90,8 +93,8 @@ export default function SettingsPage() {
     try {
       const res = await authAPI.setupMFA()
       setMfaSetupData(res.data)
-    } catch (err) {
-      error('Failed to initiate MFA setup')
+    } catch {
+      setMfaError('Failed to initiate MFA setup')
     } finally {
       setMfaEnabling(false)
     }
@@ -110,7 +113,7 @@ export default function SettingsPage() {
       setMfaSetupData(null)
       setMfaCode('')
       success('2FA enabled successfully!')
-    } catch (err) {
+    } catch {
       setMfaError('Invalid code. Try again.')
     } finally {
       setMfaEnabling(false)
@@ -118,13 +121,12 @@ export default function SettingsPage() {
   }
 
   const handleDisableMFA = async () => {
-    if (!window.confirm('Are you sure you want to disable Two-Factor Authentication?')) return
     setMfaEnabling(true)
     try {
       await authAPI.disableMFA()
       await fetchUser()
       success('2FA disabled.')
-    } catch (err) {
+    } catch {
       error('Failed to disable MFA')
     } finally {
       setMfaEnabling(false)
@@ -329,7 +331,7 @@ export default function SettingsPage() {
 
                   {authUser?.mfa_enabled ? (
                     <button
-                      onClick={handleDisableMFA}
+                      onClick={() => setShowDisableMfaConfirm(true)}
                       disabled={mfaEnabling}
                       className="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition-all border-2 border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
                     >
@@ -456,6 +458,16 @@ export default function SettingsPage() {
           )}
         </main>
       </div>
+
+      <ConfirmModal
+        isOpen={showDisableMfaConfirm}
+        onClose={() => setShowDisableMfaConfirm(false)}
+        onConfirm={handleDisableMFA}
+        title="Disable 2FA"
+        message="Are you sure you want to disable Two-Factor Authentication? This will make your account less secure."
+        confirmText="Disable 2FA"
+        isDestructive={true}
+      />
     </div>
   )
 }
