@@ -67,7 +67,8 @@ class StartConversationView(APIView):
             notification_type=Notification.Type.MESSAGE,
             title="New Message",
             message=f"{request.user.full_name} sent you a message.",
-            action_url=action_url
+            action_url=action_url,
+            sender=request.user
         )
 
         return Response(
@@ -118,7 +119,8 @@ class SendMessageView(APIView):
                 notification_type=Notification.Type.MESSAGE,
                 title="New Message",
                 message=f"{request.user.full_name} sent you a message.",
-                action_url=action_url
+                action_url=action_url,
+                sender=request.user
             )
 
         return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)

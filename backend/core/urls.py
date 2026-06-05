@@ -18,6 +18,10 @@ urlpatterns = [
     path('api/v1/messages/', include('apps.messaging.urls')),
     path('api/v1/notifications/', include('apps.notifications.urls')),
     path('api/v1/admin/', include('apps.analytics.urls')),
+    path('api/v1/blog/', include('apps.blog.urls')),
+
+    # CKEditor image uploader
+    path('ckeditor/', include('ckeditor_uploader.urls')),
 
     # API docs
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

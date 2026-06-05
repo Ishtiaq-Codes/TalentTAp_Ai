@@ -2,7 +2,7 @@
 from .models import Notification
 
 
-def notify(user, notification_type, title, message, action_url='', is_rollup=False):
+def notify(user, notification_type, title, message, action_url='', is_rollup=False, sender=None):
     """Create a notification for a user.
     
     If the user is a recruiter and it's an important notification (Message, Match),
@@ -32,15 +32,16 @@ def notify(user, notification_type, title, message, action_url='', is_rollup=Fal
             profile = getattr(user, 'recruiter_profile', None)
             if profile and profile.company:
                 company_admin = profile.company.created_by
-                if company_admin and company_admin != user:
-                    # Duplicate notification for admin
-                    Notification.objects.create(
-                        user=company_admin,
-                        type=notification_type,
-                        title=f"Team Update: {title}",
-                        message=f"[{user.full_name}] {message}",
-                        action_url=action_url,
-                    )
+                if company_admin and company_admin.id != user.id:
+                    if sender is None or company_admin.id != sender.id:
+                        # Duplicate notification for admin
+                        Notification.objects.create(
+                            user=company_admin,
+                            type=notification_type,
+                            title=f"Team Update: {title}",
+                            message=f"[{user.full_name}] {message}",
+                            action_url=action_url,
+                        )
         except Exception as e:
             import logging
             logger = logging.getLogger(__name__)

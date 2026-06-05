@@ -20,6 +20,8 @@ const ContactPage = lazy(() => import('@/pages/public/ContactPage'))
 const PrivacyPage = lazy(() => import('@/pages/public/PrivacyPage'))
 const TermsPage = lazy(() => import('@/pages/public/TermsPage'))
 const TalentProfilePage = lazy(() => import('@/pages/public/TalentProfilePage'))
+const BlogListPage = lazy(() => import('@/pages/public/BlogListPage'))
+const BlogDetailPage = lazy(() => import('@/pages/public/BlogDetailPage'))
 
 // Candidate
 const CandidateDashboard = lazy(() => import('@/pages/candidate/DashboardPage'))
@@ -105,6 +107,8 @@ export default function AppRouter() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
+          <Route path="/blog" element={<BlogListPage />} />
+          <Route path="/blog/:slug" element={<BlogDetailPage />} />
           <Route path="/talent/:id" element={<TalentProfilePage />} />
           <Route path="/login" element={<RedirectIfAuth><LoginPage /></RedirectIfAuth>} />
           <Route path="/register" element={<RedirectIfAuth><RegisterPage /></RedirectIfAuth>} />
