@@ -45,6 +45,12 @@ const recruiterLinks = [
       { to: '/recruiter/messages', icon: MessageSquare, label: 'Messages' },
       { to: '/company/pools', icon: Sparkles, label: 'Talent Pools' },
     ]
+  },
+  {
+    section: 'Company', items: [
+      { to: '/company/profile', icon: Building2, label: 'Company Profile' },
+      { to: '/company/settings', icon: Settings, label: 'Settings' },
+    ]
   }
 ]
 

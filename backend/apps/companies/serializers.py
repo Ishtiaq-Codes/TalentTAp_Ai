@@ -7,12 +7,16 @@ User = get_user_model()
 
 
 class CompanySerializer(serializers.ModelSerializer):
+    admin_id = serializers.UUIDField(source='created_by.id', read_only=True)
+    admin_name = serializers.CharField(source='created_by.full_name', read_only=True)
+
     class Meta:
         model = Company
         fields = [
             'id', 'name', 'slug', 'logo', 'banner_image', 'description', 'industry',
             'company_size', 'website', 'linkedin_url', 'location',
             'country', 'city', 'is_verified', 'created_at',
+            'admin_id', 'admin_name'
         ]
         read_only_fields = ['id', 'slug', 'is_verified', 'created_at']
 

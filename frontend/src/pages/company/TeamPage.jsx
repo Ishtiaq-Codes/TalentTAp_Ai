@@ -7,9 +7,10 @@ import SkeletonCard from '@/components/common/SkeletonCard'
 import ConfirmModal from '@/components/common/ConfirmModal'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 import { useToast } from '@/contexts/ToastContext'
+import MessageButton from '@/components/common/MessageButton'
 
 /* ─── Recruiter Card ─── */
-function RecruiterCard({ recruiter, onRemove, onToggleStatus, isSelf, className = '' }) {
+function RecruiterCard({ recruiter, onRemove, onToggleStatus, isSelf, isAdmin, className = '' }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -59,47 +60,51 @@ function RecruiterCard({ recruiter, onRemove, onToggleStatus, isSelf, className 
       </div>
 
       {/* Actions */}
-      {!isSelf && (
-        <div className="relative shrink-0">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 transition-colors"
-          >
-            <MoreVertical className="h-4 w-4" />
-          </button>
-          {menuOpen && (
-            <>
-              <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 top-9 z-20 w-44 rounded-xl border bg-white shadow-xl py-1 animate-fade-in-up">
-                <button
-                  onClick={() => { onToggleStatus(recruiter); setMenuOpen(false) }}
-                  className={`flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium ${
-                    recruiter.is_active
-                      ? 'text-amber-600 hover:bg-amber-50'
-                      : 'text-emerald-600 hover:bg-emerald-50'
-                  }`}
-                >
-                  {recruiter.is_active ? <ShieldX className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
-                  {recruiter.is_active ? 'Suspend' : 'Reactivate'}
-                </button>
-                <div className="border-t my-1" />
-                <button
-                  onClick={() => { onRemove(recruiter); setMenuOpen(false) }}
-                  className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 className="h-4 w-4" /> Remove
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+      <div className="relative shrink-0 flex items-center gap-2">
+        {!isSelf && <MessageButton recipientId={recruiter.user} name={recruiter.user_name} />}
+        {isAdmin && !isSelf && (
+          <>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 transition-colors"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </button>
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                <div className="absolute right-0 top-9 z-20 w-44 rounded-xl border bg-white shadow-xl py-1 animate-fade-in-up">
+                  <button
+                    onClick={() => { onToggleStatus(recruiter); setMenuOpen(false) }}
+                    className={`flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium ${
+                      recruiter.is_active
+                        ? 'text-amber-600 hover:bg-amber-50'
+                        : 'text-emerald-600 hover:bg-emerald-50'
+                    }`}
+                  >
+                    {recruiter.is_active ? <ShieldX className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+                    {recruiter.is_active ? 'Suspend' : 'Reactivate'}
+                  </button>
+                  <div className="border-t my-1" />
+                  <button
+                    onClick={() => { onRemove(recruiter); setMenuOpen(false) }}
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4" /> Remove
+                  </button>
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }
 
 export default function TeamPage() {
-  const { user: currentUser } = useAuth()
+  const { user: authUser } = useAuth()
+  const isAdmin = authUser?.role === 'company_admin'
   const { data: team, loading: loadingTeam, refetch: refetchTeam } = useFetch(() => companiesAPI.getRecruiters())
   const { data: pendingData, loading: loadingPending, refetch: refetchPending } = useFetch(() => companiesAPI.getPendingInvites())
 
@@ -280,7 +285,8 @@ export default function TeamPage() {
               <RecruiterCard
                 key={r.id}
                 recruiter={r}
-                isSelf={r.user_email === currentUser?.email}
+                isSelf={r.user === authUser?.id}
+                isAdmin={isAdmin}
                 onRemove={(recruiter) => setConfirmRemove({ isOpen: true, recruiter })}
                 onToggleStatus={(recruiter) => setConfirmStatus({ isOpen: true, recruiter })}
                 className={i === recruiters.length - 1 ? 'rounded-b-[15px]' : ''}

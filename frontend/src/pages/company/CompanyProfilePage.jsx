@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { useFetch } from '@/hooks/useFetch'
 import { companiesAPI } from '@/api/companies'
 import SkeletonCard from '@/components/common/SkeletonCard'
-import { Save, Upload, Camera } from 'lucide-react'
+import { Save, Camera } from 'lucide-react'
 import { COMPANY_SIZE } from '@/lib/constants'
 import { getImageUrl } from '@/lib/utils'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
+import MessageButton from '@/components/common/MessageButton'
 
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -120,6 +121,11 @@ export default function CompanyProfilePage() {
                 <p className="text-sm text-muted-foreground">{profile?.industry || 'Industry'}</p>
               </div>
             </div>
+            {!isCompanyAdmin && profile?.admin_id && profile.admin_id !== authUser?.id && (
+              <div className="pb-1 sm:pb-2">
+                <MessageButton recipientId={profile.admin_id} name={profile.admin_name || 'Company Admin'} />
+              </div>
+            )}
           </div>
         </div>
       </div>
