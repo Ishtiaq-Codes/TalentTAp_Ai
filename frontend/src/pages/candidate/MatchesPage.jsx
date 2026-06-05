@@ -4,6 +4,7 @@ import EmptyState from '@/components/common/EmptyState'
 import MatchScoreBadge from '@/components/common/MatchScoreBadge'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import { Sparkles, MapPin, Briefcase } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export default function MatchesPage() {
   const { data: matches, loading } = useFetch(() => matchingAPI.getCandidateMatches())
@@ -24,10 +25,12 @@ export default function MatchesPage() {
       ) : (
         <div className="space-y-4">
           {matchList.map((match) => (
-            <div key={match.id} className="flex items-center gap-6 rounded-xl border bg-card p-6 transition-shadow hover:shadow-md">
+            <div key={match.id} className="group flex items-center gap-6 rounded-xl border bg-card p-6 transition-all hover:shadow-md hover:border-primary/30 relative">
               <MatchScoreBadge score={match.overall_score} />
               <div className="flex-1">
-                <h3 className="text-lg font-semibold">{match.job_title}</h3>
+                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                  <Link to={`/candidate/jobs/${match.job}`} className="hover:underline">{match.job_title}</Link>
+                </h3>
                 <p className="text-sm text-muted-foreground">{match.company_name}</p>
                 <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted-foreground">
                   {match.job_location && <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {match.job_location}</span>}

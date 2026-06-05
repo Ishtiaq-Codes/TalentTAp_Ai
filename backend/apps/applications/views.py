@@ -78,6 +78,25 @@ class ApplicationListView(generics.ListAPIView):
         return qs  # admin
 
 
+class ApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Candidate updates/deletes their own application."""
+    serializer_class = ApplicationSerializer
+    permission_classes = [IsAuthenticated, IsCandidate]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'candidate':
+            return Application.objects.filter(candidate__user=user)
+        return Application.objects.none()
+
+    def perform_update(self, serializer):
+        # Candidates can only update their cover letter
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
+
 class ApplicationStatusUpdateView(APIView):
     """Recruiter updates application status."""
     permission_classes = [IsAuthenticated, IsRecruiter]

@@ -121,7 +121,9 @@ export default function CandidateDashboard() {
             {Array.isArray(matches) && matches.length > 0 ? matches.slice(0, 3).map((match) => (
               <div key={match.id} className="group relative flex flex-col gap-4 rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-primary/30 sm:flex-row sm:items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{match.job_title}</h3>
+                  <h3 className="text-lg font-bold group-hover:text-primary transition-colors">
+                    <Link to={`/candidate/jobs/${match.job}`} className="hover:underline">{match.job_title}</Link>
+                  </h3>
                   <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
                     <span className="font-medium text-slate-700">{match.company_name}</span>
                     <span className="h-1 w-1 rounded-full bg-slate-300" />
@@ -139,7 +141,7 @@ export default function CandidateDashboard() {
                     </div>
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Match Score</span>
                   </div>
-                  <Link to={`/candidate/matches/${match.id}`} className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-colors group-hover:bg-primary group-hover:text-white">
+                  <Link to={`/candidate/jobs/${match.job}`} className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-colors group-hover:bg-primary group-hover:text-white">
                     <ArrowRight className="h-5 w-5" />
                   </Link>
                 </div>
