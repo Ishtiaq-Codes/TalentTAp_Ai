@@ -38,7 +38,11 @@ def _get_company_for_user(user):
 class CompanyProfileView(generics.RetrieveUpdateAPIView):
     """Get or update the current user's company profile."""
     serializer_class = CompanySerializer
-    permission_classes = [IsAuthenticated, IsCompanyAdmin]
+
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return [IsAuthenticated(), IsCompanyAdmin()]
+        return [IsAuthenticated(), IsRecruiter()]
 
     def get_object(self):
         return _get_company_for_user(self.request.user)

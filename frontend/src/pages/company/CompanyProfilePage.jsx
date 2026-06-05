@@ -7,7 +7,12 @@ import { COMPANY_SIZE } from '@/lib/constants'
 import { getImageUrl } from '@/lib/utils'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 
+import { useAuth } from '@/contexts/AuthContext'
+
 export default function CompanyProfilePage() {
+  const { user: authUser } = useAuth()
+  const isCompanyAdmin = authUser?.role === 'company_admin'
+
   const { data: profile, loading, refetch } = useFetch(() => companiesAPI.getProfile())
   const [form, setForm] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -68,12 +73,16 @@ export default function CompanyProfilePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Company Profile</h1>
-          <p className="text-muted-foreground">Manage your company's public information.</p>
+          <p className="text-muted-foreground">
+            {isCompanyAdmin ? "Manage your company's public information." : "View your company's public information."}
+          </p>
         </div>
-        <button onClick={handleSave} disabled={saving}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-          <Save className="h-4 w-4" /> {saving ? 'Saving...' : 'Save Changes'}
-        </button>
+        {isCompanyAdmin && (
+          <button onClick={handleSave} disabled={saving}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
+            <Save className="h-4 w-4" /> {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+        )}
       </div>
 
       {message && <div className="rounded-lg bg-primary/10 p-3 text-sm text-primary">{message}</div>}
@@ -86,10 +95,12 @@ export default function CompanyProfilePage() {
           ) : (
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-500/20" />
           )}
-          <label className="absolute bottom-2 right-2 cursor-pointer rounded-lg bg-black/50 p-2 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100 backdrop-blur-sm">
-            <Camera className="h-4 w-4" />
-            <input type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
-          </label>
+          {isCompanyAdmin && (
+            <label className="absolute bottom-2 right-2 cursor-pointer rounded-lg bg-black/50 p-2 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100 backdrop-blur-sm">
+              <Camera className="h-4 w-4" />
+              <input type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
+            </label>
+          )}
         </div>
 
         <div className="px-6 pb-6">
@@ -97,10 +108,12 @@ export default function CompanyProfilePage() {
             <div className="flex items-end gap-4">
               <div className="-mt-12 relative z-10 group flex h-24 w-24 items-center justify-center rounded-xl border-4 border-white bg-white shadow-md overflow-hidden shrink-0">
                 <ProfileAvatar name={profile?.name || 'Company'} src={profile?.logo} size="xl" className="h-full w-full rounded-none" />
-                <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100 backdrop-blur-sm">
-                  <Camera className="h-6 w-6" />
-                  <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-                </label>
+                {isCompanyAdmin && (
+                  <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100 backdrop-blur-sm">
+                    <Camera className="h-6 w-6" />
+                    <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                  </label>
+                )}
               </div>
               <div className="pb-1">
                 <h2 className="text-2xl font-bold">{profile?.name || 'Company Name'}</h2>
@@ -117,24 +130,24 @@ export default function CompanyProfilePage() {
         <h2 className="text-lg font-semibold">Basic Details</h2>
         <div>
           <label className="text-sm font-medium">Company Name</label>
-          <input value={form.name || ''} onChange={update('name')}
-            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+          <input value={form.name || ''} onChange={update('name')} disabled={!isCompanyAdmin}
+            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" />
         </div>
         <div>
           <label className="text-sm font-medium">Description</label>
-          <textarea value={form.description || ''} onChange={update('description')} rows={4}
-            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+          <textarea value={form.description || ''} onChange={update('description')} rows={4} disabled={!isCompanyAdmin}
+            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium">Industry</label>
-            <input value={form.industry || ''} onChange={update('industry')} placeholder="e.g. Technology"
-              className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+            <input value={form.industry || ''} onChange={update('industry')} placeholder="e.g. Technology" disabled={!isCompanyAdmin}
+              className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" />
           </div>
           <div>
             <label className="text-sm font-medium">Company Size</label>
-            <select value={form.company_size || ''} onChange={update('company_size')}
-              className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none">
+            <select value={form.company_size || ''} onChange={update('company_size')} disabled={!isCompanyAdmin}
+              className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200">
               <option value="">Select size...</option>
               {COMPANY_SIZE.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
@@ -146,18 +159,18 @@ export default function CompanyProfilePage() {
         <h2 className="text-lg font-semibold">Location & Links</h2>
         <div>
           <label className="text-sm font-medium">Location (City, Country)</label>
-          <input value={form.location || ''} onChange={update('location')}
-            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+          <input value={form.location || ''} onChange={update('location')} disabled={!isCompanyAdmin}
+            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" />
         </div>
         <div>
           <label className="text-sm font-medium">Website URL</label>
-          <input value={form.website || ''} onChange={update('website')} placeholder="https://..."
-            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+          <input value={form.website || ''} onChange={update('website')} placeholder="https://..." disabled={!isCompanyAdmin}
+            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" />
         </div>
         <div>
           <label className="text-sm font-medium">LinkedIn URL</label>
-          <input value={form.linkedin_url || ''} onChange={update('linkedin_url')} placeholder="https://linkedin.com/company/..."
-            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none" />
+          <input value={form.linkedin_url || ''} onChange={update('linkedin_url')} placeholder="https://linkedin.com/company/..." disabled={!isCompanyAdmin}
+            className="mt-1 block w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200" />
         </div>
       </section>
     </div>
