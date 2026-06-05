@@ -1,9 +1,14 @@
 import PublicNavbar from '@/components/layout/PublicNavbar'
 import Footer from '@/components/layout/Footer'
+import SEOHead from '@/components/shared/SEOHead'
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Terms of Service | TalentTap"
+        description="TalentTap Terms of Service. Read the terms and conditions for using our AI hiring platform."
+      />
       <PublicNavbar />
       <section className="pt-32 pb-24">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">

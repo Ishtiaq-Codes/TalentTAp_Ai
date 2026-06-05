@@ -2,6 +2,7 @@ import PublicNavbar from '@/components/layout/PublicNavbar'
 import Footer from '@/components/layout/Footer'
 import { Link } from 'react-router-dom'
 import { Users, Target, Globe, Heart, ArrowRight } from 'lucide-react'
+import SEOHead from '@/components/shared/SEOHead'
 
 const values = [
   { icon: Target, title: 'Mission-Driven', desc: 'We believe talent should be discovered, not filtered out. Our AI levels the playing field.' },
@@ -20,6 +21,10 @@ const team = [
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="About Us | The Mission Behind TalentTap"
+        description="Learn how TalentTap is revolutionizing global IT recruitment by replacing manual screening with intelligent AI matching."
+      />
       <PublicNavbar />
 
       {/* Hero */}

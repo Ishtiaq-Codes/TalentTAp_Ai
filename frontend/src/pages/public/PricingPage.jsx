@@ -2,6 +2,7 @@ import PublicNavbar from '@/components/layout/PublicNavbar'
 import Footer from '@/components/layout/Footer'
 import { Link } from 'react-router-dom'
 import { Check, Sparkles, ArrowRight, Zap } from 'lucide-react'
+import SEOHead from '@/components/shared/SEOHead'
 
 const plans = [
   {
@@ -64,6 +65,10 @@ const plans = [
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Pricing | Transparent Hiring Plans for Software Houses"
+        description="Flexible, cost-effective pricing plans for software houses of all sizes worldwide. Free for candidates. Start hiring smarter with TalentTap AI today."
+      />
       <PublicNavbar />
 
       {/* Hero */}

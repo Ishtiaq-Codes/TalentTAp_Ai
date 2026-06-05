@@ -2,6 +2,7 @@ import { useState } from 'react'
 import PublicNavbar from '@/components/layout/PublicNavbar'
 import Footer from '@/components/layout/Footer'
 import { ChevronDown } from 'lucide-react'
+import SEOHead from '@/components/shared/SEOHead'
 
 const faqs = [
   { cat: 'General', q: 'What is TalentTap AI?', a: 'TalentTap AI is an AI-powered talent marketplace. Candidates create profiles and get automatically discovered by companies. Recruiters post jobs and receive AI-ranked candidate recommendations instantly.' },
@@ -39,6 +40,10 @@ export default function FAQPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Frequently Asked Questions | TalentTap Support"
+        description="Find answers to common questions about using TalentTap for global hiring, AI candidate matching, pricing, and account management."
+      />
       <PublicNavbar />
 
       <section className="pt-32 pb-16">

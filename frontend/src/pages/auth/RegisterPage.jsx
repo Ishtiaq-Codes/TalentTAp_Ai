@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import Logo from '@/components/common/Logo'
 import { ArrowRight, Mail, Lock, User, Briefcase, Target, AlertCircle } from 'lucide-react'
+import SEOHead from '@/components/shared/SEOHead'
 
 export default function RegisterPage() {
   const { register } = useAuth()
@@ -38,6 +39,10 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen bg-background">
+      <SEOHead 
+        title="Create Free Account | TalentTap"
+        description="Create your free TalentTap account. Join the global AI-powered hiring platform to hire or get hired."
+      />
       {/* Left panel — branding */}
       <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-slate-900 p-12 lg:flex">
         {/* Background blobs */}

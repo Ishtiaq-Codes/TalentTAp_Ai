@@ -2,6 +2,7 @@ import { useState } from 'react'
 import PublicNavbar from '@/components/layout/PublicNavbar'
 import Footer from '@/components/layout/Footer'
 import { Mail, MapPin, Phone, Send, CheckCircle } from 'lucide-react'
+import SEOHead from '@/components/shared/SEOHead'
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
@@ -20,6 +21,10 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Contact Us | TalentTap Sales & Support"
+        description="Get in touch with the TalentTap team for enterprise hiring solutions, support, or global partnership inquiries."
+      />
       <PublicNavbar />
 
       <section className="pt-32 pb-16">

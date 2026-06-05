@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth, getDashboardPath } from '@/contexts/AuthContext'
 import Logo from '@/components/common/Logo'
 import { ArrowRight, Mail, Lock, AlertCircle, Shield } from 'lucide-react'
+import SEOHead from '@/components/shared/SEOHead'
 
 export default function LoginPage() {
   const { user, login, loginMFA } = useAuth()
@@ -44,6 +45,10 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen bg-background">
+      <SEOHead 
+        title="Log In | TalentTap"
+        description="Log in to your TalentTap account to access your AI talent dashboard."
+      />
       {/* Left panel — branding */}
       <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-slate-900 p-12 lg:flex">
         {/* Background blobs */}

@@ -5,6 +5,7 @@ import {
   Brain, Search, BarChart3, Target, Zap, Globe,
   MessageSquare, Shield, Users, FileText, ArrowRight, CheckCircle,
 } from 'lucide-react'
+import SEOHead from '@/components/shared/SEOHead'
 
 const features = [
   {
@@ -52,6 +53,10 @@ const features = [
 export default function FeaturesPage() {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Platform Features | Advanced AI Recruitment Tools"
+        description="Explore TalentTap's features: AI matching, candidate pipelines, automated screening, and integrated messaging built for modern software houses."
+      />
       <PublicNavbar />
 
       {/* Hero */}

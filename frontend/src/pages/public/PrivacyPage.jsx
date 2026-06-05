@@ -1,9 +1,14 @@
 import PublicNavbar from '@/components/layout/PublicNavbar'
 import Footer from '@/components/layout/Footer'
+import SEOHead from '@/components/shared/SEOHead'
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Privacy Policy | TalentTap"
+        description="TalentTap Privacy Policy. Learn how we collect, use, and protect your data."
+      />
       <PublicNavbar />
       <section className="pt-32 pb-24">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">

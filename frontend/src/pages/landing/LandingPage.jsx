@@ -3,6 +3,7 @@ import { Link, Navigate } from 'react-router-dom'
 import { useAuth, getDashboardPath } from '@/contexts/AuthContext'
 import PublicNavbar from '@/components/layout/PublicNavbar'
 import Footer from '@/components/layout/Footer'
+import SEOHead from '@/components/shared/SEOHead'
 import {
   Sparkles, ArrowRight, Users, Briefcase, Brain, CheckCircle,
   Zap, Shield, Globe, Search, Target, BarChart3, ChevronDown,
@@ -190,6 +191,10 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="TalentTap | Global AI-Powered Talent Matching Platform"
+        description="Hire top 1% software engineers globally. TalentTap uses AI to match software houses with pre-vetted digital professionals. Reduce hiring time by 70%."
+      />
       <PublicNavbar />
 
       {/* ── 1. HERO ── */}
