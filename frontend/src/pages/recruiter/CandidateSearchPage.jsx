@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -52,6 +52,7 @@ export default function CandidateSearchPage() {
   const [selectedId, setSelectedId] = useState(null)
   const [showFilters, setShowFilters] = useState(false)
   const debounced = useDebounce(search)
+  const [focusedIndex, setFocusedIndex] = useState(-1)
   const { data: candidates, loading } = useFetch(
     () => candidatesAPI.search({ search: debounced, ...filters }),
     [debounced, filters],
@@ -59,6 +60,53 @@ export default function CandidateSearchPage() {
 
   const list = Array.isArray(candidates) ? candidates : []
   const selected = list.find(c => c.id === selectedId)
+
+  // Keyboard Navigation System
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Don't trigger if typing in an input
+      if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return
+
+      if (e.key === 'j' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        setFocusedIndex(prev => (prev < list.length - 1 ? prev + 1 : prev))
+      } else if (e.key === 'k' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        setFocusedIndex(prev => (prev > 0 ? prev - 1 : 0))
+      } else if (e.key === 'Enter') {
+        if (focusedIndex >= 0 && focusedIndex < list.length) {
+          e.preventDefault()
+          setSelectedId(list[focusedIndex].id)
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        setSelectedId(null)
+      } else if (e.key === 's' || e.key === 'S') {
+        e.preventDefault()
+        const targetId = selectedId || (focusedIndex >= 0 ? list[focusedIndex]?.id : null)
+        if (targetId) {
+          const wrapper = document.getElementById(`shortlist-btn-${targetId}`)
+          if (wrapper) {
+            const btn = wrapper.querySelector('button')
+            if (btn) btn.click()
+          }
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [list, focusedIndex, selectedId])
+
+  // Scroll focused element into view
+  useEffect(() => {
+    if (focusedIndex >= 0 && list[focusedIndex]) {
+      const el = document.getElementById(`candidate-item-${list[focusedIndex].id}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    }
+  }, [focusedIndex, list])
 
   const clearFilters = () => {
     setFilters({})
@@ -235,9 +283,17 @@ export default function CandidateSearchPage() {
         {/* CENTER: Results List */}
         <div className={`flex-1 min-w-0 flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm ${selected ? 'hidden lg:flex' : 'flex'}`}>
           {/* Results header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b bg-slate-50/50">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Candidates</span>
-            <span className="text-xs text-slate-400">{list.length} results</span>
+          <div className="flex flex-col border-b bg-slate-50/50">
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Candidates</span>
+              <span className="text-xs text-slate-400">{list.length} results</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-4 px-4 pb-3 text-[10px] text-slate-400">
+              <div className="flex items-center gap-1.5"><kbd className="rounded border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[9px] font-bold text-slate-500 shadow-sm">↑</kbd> <kbd className="rounded border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[9px] font-bold text-slate-500 shadow-sm">↓</kbd> navigate</div>
+              <div className="flex items-center gap-1.5"><kbd className="rounded border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[9px] font-bold text-slate-500 shadow-sm">Enter</kbd> open</div>
+              <div className="flex items-center gap-1.5"><kbd className="rounded border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[9px] font-bold text-slate-500 shadow-sm">S</kbd> save</div>
+              <div className="flex items-center gap-1.5"><kbd className="rounded border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[9px] font-bold text-slate-500 shadow-sm">Esc</kbd> close</div>
+            </div>
           </div>
 
           {/* Results list */}
@@ -263,16 +319,17 @@ export default function CandidateSearchPage() {
                 <p className="mt-1 text-sm text-muted-foreground max-w-xs">Try broadening your search or adjusting filters.</p>
               </div>
             ) : (
-              list.map((c) => (
+              list.map((c, idx) => (
                 <button
                   key={c.id}
-                  onClick={() => setSelectedId(c.id)}
-                  className={`w-full text-left flex items-center gap-3 px-4 py-3.5 border-b border-slate-100 transition-all hover:bg-slate-50 cursor-pointer ${
+                  id={`candidate-item-${c.id}`}
+                  onClick={() => { setSelectedId(c.id); setFocusedIndex(idx); }}
+                  className={`group w-full text-left flex items-center gap-3 px-4 py-3.5 border-b border-slate-100 transition-all hover:bg-slate-50 cursor-pointer ${
                     selectedId === c.id ? 'bg-primary/5 border-l-2 border-l-primary' : ''
-                  }`}
+                  } ${focusedIndex === idx && selectedId !== c.id ? 'ring-2 ring-inset ring-primary/30 bg-slate-50' : ''}`}
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 overflow-hidden shrink-0">
-                    <ProfileAvatar name={c.user_name} src={c.avatar} size="md" className="h-full w-full" />
+                    <ProfileAvatar name={c.user_name} src={c.avatar} size="md" className="h-full w-full" isActive={c.is_open_to_work} />
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -280,6 +337,11 @@ export default function CandidateSearchPage() {
                       <h3 className="text-sm font-semibold text-slate-900 truncate">{c.user_name || 'Candidate'}</h3>
                       {c.is_open_to_work && (
                         <span className="flex h-2 w-2 rounded-full bg-emerald-500 shrink-0" title="Open to work" />
+                      )}
+                      {(c.years_of_experience >= 5 || c.is_recommended) && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-ai/10 px-2 py-0.5 text-[9px] font-bold text-ai uppercase tracking-wider">
+                          <Sparkles className="h-2.5 w-2.5" /> Top Match
+                        </span>
                       )}
                     </div>
                     <p className="text-xs text-slate-500 truncate mt-0.5">{c.headline || 'Professional'}</p>
@@ -298,6 +360,11 @@ export default function CandidateSearchPage() {
                   </div>
 
                   <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    <div className={`transition-opacity ${focusedIndex === idx || selectedId === c.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                      <div id={`shortlist-btn-${c.id}`} onClick={(e) => e.stopPropagation()}>
+                        <ShortlistButton candidateId={c.id} initialIsShortlisted={c.is_shortlisted} className="!py-1 !px-2 !text-[10px]" />
+                      </div>
+                    </div>
                     <AvailabilityBadge availability={c.availability} />
                     {c.skills?.length > 0 && (
                       <div className="flex gap-1">
@@ -371,7 +438,7 @@ export default function CandidateSearchPage() {
                   >
                     View Full Profile <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
-                  <div className="shrink-0">
+                  <div className="shrink-0" id={`shortlist-btn-${selected.id}`}>
                     <ShortlistButton candidateId={selected.id} initialIsShortlisted={selected.is_shortlisted} />
                   </div>
                 </div>

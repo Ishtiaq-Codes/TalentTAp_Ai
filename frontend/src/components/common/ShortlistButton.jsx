@@ -6,7 +6,7 @@ import { useToast } from '@/contexts/ToastContext'
 export default function ShortlistButton({ candidateId, jobId, initialIsShortlisted = false, className = '' }) {
   const [isShortlisted, setIsShortlisted] = useState(initialIsShortlisted)
   const [loading, setLoading] = useState(false)
-  const { error } = useToast()
+  const { error, success } = useToast()
 
   useEffect(() => {
     setIsShortlisted(initialIsShortlisted)
@@ -23,7 +23,13 @@ export default function ShortlistButton({ candidateId, jobId, initialIsShortlist
       if (jobId) payload.job = jobId
 
       const response = await applicationsAPI.toggleShortlist(payload)
-      setIsShortlisted(response.data?.is_shortlisted ?? response.is_shortlisted)
+      const newState = response.data?.is_shortlisted ?? response.is_shortlisted
+      setIsShortlisted(newState)
+      if (newState) {
+        success('Candidate saved to shortlist')
+      } else {
+        success('Candidate removed from shortlist')
+      }
     } catch (err) {
       console.error('Shortlist error:', err)
       error(err.response?.data?.detail || 'Error toggling shortlist')

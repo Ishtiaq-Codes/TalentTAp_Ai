@@ -191,6 +191,25 @@ export default function CandidateDetailPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* ─── Main Content ─── */}
         <div className="lg:col-span-2 space-y-6">
+          {/* AI Decision Layer Insight */}
+          {(profile.skills?.length > 0 || profile.years_of_experience > 0) && (
+            <div className="rounded-2xl border border-ai/20 bg-gradient-to-r from-ai/5 to-transparent p-6 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                <Sparkles className="h-24 w-24 text-ai" />
+              </div>
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="h-5 w-5 text-ai" />
+                <h2 className="text-base font-bold text-slate-900">AI Match Insight</h2>
+              </div>
+              <p className="text-sm text-slate-700 leading-relaxed max-w-2xl">
+                TalentTap AI identifies this candidate as a strong prospect. 
+                {profile.years_of_experience > 0 && ` They bring ${profile.years_of_experience} years of professional experience, `}
+                {profile.skills?.length > 0 && `anchored by core competencies in ${profile.skills.slice(0, 3).map(s => typeof s === 'string' ? s : s.name).join(', ')}.`}
+                {profile.is_open_to_work && " Crucially, they are currently open to new opportunities and likely to respond quickly."}
+              </p>
+            </div>
+          )}
+
           {/* About */}
           {profile.about && (
             <div className="rounded-2xl border bg-white p-6 shadow-sm">

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useFetch } from '@/hooks/useFetch'
 import { companiesAPI } from '@/api/companies'
 import { Link } from 'react-router-dom'
@@ -8,6 +9,7 @@ import {
 } from 'lucide-react'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 import SkeletonCard from '@/components/common/SkeletonCard'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 /* ─── Stat Card ─── */
 function DashStat({ icon: Icon, label, value, color = 'blue', sub }) {
@@ -90,6 +92,8 @@ function RecruiterRow({ recruiter }) {
 
 /* ─── Main Dashboard ─── */
 export default function CompanyDashboardPage() {
+  const [sortField, setSortField] = useState('created_at')
+  const [sortOrder, setSortOrder] = useState('desc')
   const { data, loading } = useFetch(() => companiesAPI.getDashboard())
 
   if (loading) {
@@ -127,13 +131,32 @@ export default function CompanyDashboardPage() {
   // Pipeline total for percentage bars
   const pipelineTotal = Object.values(pipeline).reduce((a, b) => a + b, 0)
   const pipelineSteps = [
-    { key: 'applied', label: 'Applied', color: 'bg-blue-500' },
-    { key: 'reviewing', label: 'Reviewing', color: 'bg-violet-500' },
-    { key: 'shortlisted', label: 'Shortlisted', color: 'bg-amber-500' },
-    { key: 'interview', label: 'Interview', color: 'bg-orange-500' },
-    { key: 'offered', label: 'Offered', color: 'bg-emerald-500' },
-    { key: 'rejected', label: 'Rejected', color: 'bg-red-400' },
+    { key: 'applied', label: 'Applied', hex: '#3b82f6' },
+    { key: 'reviewing', label: 'Reviewing', hex: '#8b5cf6' },
+    { key: 'shortlisted', label: 'Shortlisted', hex: '#f59e0b' },
+    { key: 'interview', label: 'Interview', hex: '#f97316' },
+    { key: 'offered', label: 'Offered', hex: '#10b981' },
+    { key: 'rejected', label: 'Rejected', hex: '#f87171' },
   ]
+  const pipelineData = pipelineSteps.map(s => ({
+    label: s.label,
+    count: pipeline[s.key] || 0,
+    hex: s.hex
+  }))
+
+  const sortedJobs = [...recent_jobs].sort((a, b) => {
+    let aVal = a[sortField]
+    let bVal = b[sortField]
+    if (typeof aVal === 'string') {
+      return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
+    }
+    return sortOrder === 'asc' ? aVal - bVal : bVal - aVal
+  })
+
+  const handleSort = (field) => {
+    if (sortField === field) setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    else { setSortField(field); setSortOrder('desc') }
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-fade-in pb-12">
@@ -250,15 +273,20 @@ export default function CompanyDashboardPage() {
             {pipelineTotal === 0 ? (
               <p className="text-sm text-slate-400 text-center py-6">No applications yet.</p>
             ) : (
-              pipelineSteps.map(step => (
-                <PipelineBar
-                  key={step.key}
-                  label={step.label}
-                  count={pipeline[step.key] || 0}
-                  total={pipelineTotal}
-                  color={step.color}
-                />
-              ))
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={pipelineData} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
+                    <XAxis type="number" hide />
+                    <YAxis type="category" dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} width={80} />
+                    <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24}>
+                      {pipelineData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.hex} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </div>
           <div className="border-t px-6 py-4 bg-slate-50/40">
@@ -301,15 +329,15 @@ export default function CompanyDashboardPage() {
             <table className="w-full text-sm">
               <thead className="border-b text-xs uppercase tracking-wider text-slate-400 bg-slate-50/40">
                 <tr>
-                  <th className="px-6 py-3 text-left font-semibold">Job Title</th>
-                  <th className="px-6 py-3 text-left font-semibold hidden sm:table-cell">Location</th>
-                  <th className="px-6 py-3 text-center font-semibold">Applications</th>
-                  <th className="px-6 py-3 text-left font-semibold hidden md:table-cell">Posted</th>
+                  <th className="px-6 py-3 text-left font-semibold cursor-pointer hover:text-slate-700 transition-colors" onClick={() => handleSort('title')}>Job Title {sortField === 'title' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+                  <th className="px-6 py-3 text-left font-semibold hidden sm:table-cell cursor-pointer hover:text-slate-700 transition-colors" onClick={() => handleSort('city')}>Location {sortField === 'city' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+                  <th className="px-6 py-3 text-center font-semibold cursor-pointer hover:text-slate-700 transition-colors" onClick={() => handleSort('applications_count')}>Applications {sortField === 'applications_count' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+                  <th className="px-6 py-3 text-left font-semibold hidden md:table-cell cursor-pointer hover:text-slate-700 transition-colors" onClick={() => handleSort('created_at')}>Posted {sortField === 'created_at' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                   <th className="px-6 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {recent_jobs.map(job => (
+                {sortedJobs.map(job => (
                   <tr key={job.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <p className="font-semibold text-slate-900">{job.title}</p>

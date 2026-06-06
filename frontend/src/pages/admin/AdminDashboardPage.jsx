@@ -2,6 +2,22 @@ import { useFetch } from '@/hooks/useFetch'
 import { authAPI } from '@/api/auth'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import { Users, Building2, Briefcase, BarChart3, TrendingUp, Activity, Server, Database, Globe } from 'lucide-react'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+
+const growthData = [
+  { name: 'Jan', users: 4000, companies: 240 },
+  { name: 'Feb', users: 5500, companies: 300 },
+  { name: 'Mar', users: 4500, companies: 280 },
+  { name: 'Apr', users: 6000, companies: 390 },
+  { name: 'May', users: 7500, companies: 480 },
+  { name: 'Jun', users: 6500, companies: 430 },
+  { name: 'Jul', users: 8000, companies: 510 },
+  { name: 'Aug', users: 9500, companies: 620 },
+  { name: 'Sep', users: 8500, companies: 580 },
+  { name: 'Oct', users: 10000, companies: 710 },
+  { name: 'Nov', users: 11000, companies: 840 },
+  { name: 'Dec', users: 13000, companies: 980 },
+]
 
 function AdminStatCard({ icon: Icon, label, value, trend, trendLabel, colorClass }) {
   return (
@@ -67,18 +83,26 @@ export default function AdminDashboardPage() {
                 <option>Last Year</option>
               </select>
             </div>
-            {/* Chart Placeholder */}
-            <div className="h-64 flex items-end justify-between gap-2 px-2 border-b border-l border-slate-200 pb-2">
-              {[40, 55, 45, 60, 75, 65, 80, 95, 85, 100, 110, 130].map((h, i) => (
-                <div key={i} className="w-full bg-primary/20 hover:bg-primary/40 rounded-t transition-colors relative group" style={{ height: `${(h / 130) * 100}%` }}>
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-slate-800 text-white text-xs py-1 px-2 rounded transition-opacity">
-                    {h}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-between mt-3 text-xs text-muted-foreground px-2">
-              <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+            {/* Real Interactive Analytics */}
+            <div className="h-72 w-full mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={growthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                    itemStyle={{ fontSize: '14px', fontWeight: '500' }}
+                  />
+                  <Area type="monotone" dataKey="users" stroke="#4F46E5" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
