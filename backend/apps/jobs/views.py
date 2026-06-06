@@ -68,6 +68,14 @@ class JobListCreateView(generics.ListCreateAPIView):
                     action_url=f"/recruiter/jobs/{job.id}",
                     is_rollup=True
                 )
+                
+            # Run matching engine automatically
+            if job.status == 'active':
+                try:
+                    from apps.matching.services import run_matching_for_job
+                    run_matching_for_job(job)
+                except Exception as e:
+                    pass
         else:
             from apps.companies.models import Company
             company = Company.objects.filter(created_by=user).first()
@@ -86,6 +94,15 @@ class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return Job.objects.select_related('company', 'recruiter__user').prefetch_related('skills').annotate(applicants_count=Count('applications'))
 
+    def perform_update(self, serializer):
+        job = serializer.save()
+        if job.status == 'active':
+            try:
+                from apps.matching.services import run_matching_for_job
+                run_matching_for_job(job)
+            except Exception as e:
+                pass
+
 
 class JobStatusView(APIView):
     """Change job status (draft → active → paused → closed → archived)."""
@@ -102,7 +119,16 @@ class JobStatusView(APIView):
             return Response({'detail': 'Invalid status.'}, status=status.HTTP_400_BAD_REQUEST)
 
         job.status = new_status
-        job.save(update_fields=['status', 'updated_at'])
+        job.save()
+        
+        # Run matching engine automatically if job becomes active
+        if new_status == 'active':
+            try:
+                from apps.matching.services import run_matching_for_job
+                run_matching_for_job(job)
+            except Exception as e:
+                pass
+
         return Response(JobSerializer(job).data)
 
 

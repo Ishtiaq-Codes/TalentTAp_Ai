@@ -5,14 +5,14 @@ import { useState, useEffect, useCallback } from 'react'
  * @param {Function} fetchFn - API function that returns a promise
  * @param {Array} deps - dependency array for re-fetching
  */
-export function useFetch(fetchFn, deps = []) {
+export function useFetch(fetchFn, deps = [], options = {}) {
   const [data, setData] = useState(null)
   const [meta, setMeta] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const refetch = useCallback(async () => {
-    setLoading(true)
+  const refetch = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
     setError(null)
     try {
       const response = await fetchFn()
@@ -34,7 +34,14 @@ export function useFetch(fetchFn, deps = []) {
     }
   }, deps) // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { refetch() }, [refetch])
+  useEffect(() => {
+    refetch()
+    
+    if (options.pollInterval) {
+      const interval = setInterval(() => refetch(true), options.pollInterval)
+      return () => clearInterval(interval)
+    }
+  }, [refetch, options.pollInterval])
 
   return { data, meta, loading, error, refetch, setData }
 }

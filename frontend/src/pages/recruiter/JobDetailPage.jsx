@@ -175,6 +175,12 @@ export default function JobDetailPage() {
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground">{match.candidate_headline}</p>
+                      {match.match_explainer && (
+                        <div className="mt-1.5 flex items-center gap-1.5">
+                          <Sparkles className="h-3 w-3 text-ai shrink-0" />
+                          <p className="text-xs font-medium text-slate-600">{match.match_explainer}</p>
+                        </div>
+                      )}
                     </div>
                   </Link>
                   <div className="flex gap-2">

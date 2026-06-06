@@ -5,7 +5,8 @@ import { jobsAPI } from '@/api/jobs'
 import { applicationsAPI } from '@/api/applications'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 import SkeletonCard from '@/components/common/SkeletonCard'
-import { ArrowLeft, MapPin, Briefcase, Clock, DollarSign, Building } from 'lucide-react'
+import { ArrowLeft, MapPin, Briefcase, Clock, DollarSign, Building, Sparkles, X } from 'lucide-react'
+import { candidatesAPI } from '@/api/candidates'
 
 export default function CandidateJobDetailPage() {
   const { id } = useParams()
@@ -21,6 +22,22 @@ export default function CandidateJobDetailPage() {
       setApplied(true)
     } catch { }
     setApplying(false)
+  }
+
+  const [coverLetterDraft, setCoverLetterDraft] = useState(null)
+  const [generatingCoverLetter, setGeneratingCoverLetter] = useState(false)
+
+  const handleGenerateCoverLetter = async () => {
+    setGeneratingCoverLetter(true)
+    setCoverLetterDraft('')
+    try {
+      await candidatesAPI.generateCoverLetterStream(id, (chunk) => {
+        setCoverLetterDraft(prev => (prev || '') + chunk)
+      })
+    } catch (e) {
+      console.error(e)
+    }
+    setGeneratingCoverLetter(false)
   }
 
   if (loading) return <div className="max-w-4xl mx-auto space-y-6"><SkeletonCard /><SkeletonCard /></div>
@@ -59,6 +76,13 @@ export default function CandidateJobDetailPage() {
               </div>
             </div>
             <div className="shrink-0 flex flex-col items-stretch sm:items-end gap-3">
+              <button
+                onClick={handleGenerateCoverLetter}
+                disabled={generatingCoverLetter}
+                className="w-full sm:w-auto rounded-xl bg-ai/10 px-6 py-3 text-sm font-bold text-ai shadow-sm hover:bg-ai/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+              >
+                <Sparkles className="h-4 w-4" /> {generatingCoverLetter ? 'Generating...' : 'Auto-Draft Cover Letter'}
+              </button>
               <button
                 onClick={handleApply}
                 disabled={applying || isApplied}
@@ -100,6 +124,41 @@ export default function CandidateJobDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Cover Letter Modal */}
+      {coverLetterDraft !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-100/80 p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 my-8">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
+                <Sparkles className="h-5 w-5 text-ai" /> Tailored Cover Letter
+              </h2>
+              <button onClick={() => setCoverLetterDraft(null)} className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-slate-600 mb-6">
+              Review and copy this AI-generated cover letter tailored specifically to your profile and this job description.
+            </p>
+
+            <div className="space-y-4">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800 whitespace-pre-wrap font-mono leading-relaxed">
+                {coverLetterDraft}
+              </div>
+            </div>
+            
+            <div className="mt-6 flex justify-end gap-3">
+              <button onClick={() => navigator.clipboard.writeText(coverLetterDraft)} className="rounded-lg border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 shadow-sm transition-all">
+                Copy to Clipboard
+              </button>
+              <button onClick={() => setCoverLetterDraft(null)} className="rounded-lg bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800 shadow-sm transition-all">
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

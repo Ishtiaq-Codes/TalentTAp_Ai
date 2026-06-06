@@ -3,9 +3,12 @@ import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 import MobileNav from './MobileNav'
+import RecruiterChatbot from '@/components/shared/RecruiterChatbot'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { user } = useAuth()
 
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground font-sans selection:bg-primary/20">
@@ -22,6 +25,8 @@ export default function AppShell() {
           </div>
         </main>
       </div>
+
+      {user?.role === 'recruiter' && <RecruiterChatbot />}
     </div>
   )
 }

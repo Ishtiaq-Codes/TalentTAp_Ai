@@ -27,6 +27,11 @@ class CandidateProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         profile, _ = CandidateProfile.objects.get_or_create(user=self.request.user)
         return profile
+        
+    def perform_update(self, serializer):
+        profile = serializer.save()
+        from apps.matching.services import run_matching_for_candidate
+        run_matching_for_candidate(profile)
 
 
 class CandidateResumeUploadView(generics.UpdateAPIView):
@@ -48,6 +53,14 @@ class CandidateResumeUploadView(generics.UpdateAPIView):
             return Response({'detail': 'Only PDF files are allowed.'}, status=status.HTTP_400_BAD_REQUEST)
         profile.resume = resume
         profile.save()
+        
+        from .services import parse_resume
+        parse_resume(profile.id)
+        
+        from apps.matching.services import run_matching_for_candidate
+        profile.refresh_from_db()
+        run_matching_for_candidate(profile)
+        
         return Response(CandidateProfileSerializer(profile).data)
 
 
@@ -314,3 +327,23 @@ class CandidateInterviewPrepView(generics.RetrieveAPIView):
             from .services import generate_interview_questions
             questions = generate_interview_questions(candidate, job_id)
             return Response({"questions": questions})
+
+
+class CandidateCoverLetterView(generics.GenericAPIView):
+    """Returns an AI-generated cover letter stream for a candidate."""
+    permission_classes = [IsAuthenticated, IsCandidate]
+    
+    def get(self, request, *args, **kwargs):
+        from .models import CandidateProfile
+        candidate = CandidateProfile.objects.filter(user=request.user).first()
+        if not candidate:
+            return Response({"detail": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        job_id = request.query_params.get('job_id')
+        if not job_id:
+            return Response({"detail": "job_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        from django.http import StreamingHttpResponse
+        from .services import generate_cover_letter_stream
+        stream = generate_cover_letter_stream(candidate, job_id)
+        return StreamingHttpResponse(stream, content_type='text/plain')

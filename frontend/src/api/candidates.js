@@ -91,5 +91,32 @@ export const candidatesAPI = {
         onChunk(decoder.decode(value, { stream: true }));
       }
     }
+  },
+
+  generateCoverLetterStream: async (jobId, onChunk) => {
+    const baseURL = client.defaults.baseURL || 'http://localhost:8000/api/v1';
+    const token = localStorage.getItem('access_token');
+    
+    // We assume backend handles the stream query param via fetch
+    const response = await fetch(`${baseURL}/candidates/cover-letter/?job_id=${jobId}`, {
+      method: 'GET',
+      headers: {
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      }
+    });
+    
+    if (!response.ok) throw new Error(`Streaming API error: ${response.statusText}`);
+    
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    
+    let done = false;
+    while (!done) {
+      const { value, done: doneReading } = await reader.read();
+      done = doneReading;
+      if (value) {
+        onChunk(decoder.decode(value, { stream: true }));
+      }
+    }
   }
 }

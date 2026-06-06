@@ -74,7 +74,7 @@ const TABS = [
   { id: 'experience', label: 'Experience', icon: FileText },
   { id: 'education', label: 'Education', icon: GraduationCap },
   { id: 'certifications', label: 'Certifications', icon: Award },
-  { id: 'links', label: 'Links & Resume', icon: Globe },
+  { id: 'links', label: 'Links', icon: Globe },
 ]
 
 export default function ProfilePage() {
@@ -82,6 +82,7 @@ export default function ProfilePage() {
   const { data: profile, loading, refetch } = useFetch(() => candidatesAPI.getProfile())
   const [form, setForm] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [isParsing, setIsParsing] = useState(false)
   const [skillInput, setSkillInput] = useState('')
   const [skillProficiency, setSkillProficiency] = useState('intermediate')
   const [message, setMessage] = useState('')
@@ -186,10 +187,16 @@ export default function ProfilePage() {
     const file = e.target.files[0]
     if (!file) return
     try {
-      await candidatesAPI.uploadResume(file)
-      setMessage('Resume uploaded!')
+      setIsParsing(true)
+      setMessage('Uploading and analyzing with AI...')
+      const res = await candidatesAPI.uploadResume(file)
+      
+      setForm(res.data)
+      setIsParsing(false)
+      setMessage('Resume parsed! All sections are updated.')
       refetch()
     } catch {
+      setIsParsing(false)
       setMessage('Error uploading resume')
     }
   }
@@ -278,11 +285,36 @@ export default function ProfilePage() {
       </div>
 
       {message && (
-        <div className={`rounded-lg p-3 text-sm font-medium flex items-center gap-2 ${message.includes('Error') ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
-          {message.includes('Error') ? <AlertCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+        <div className={`rounded-lg p-3 text-sm font-medium flex items-center gap-2 ${message.includes('Error') ? 'bg-red-50 text-red-700' : isParsing ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'}`}>
+          {message.includes('Error') ? <AlertCircle className="h-4 w-4" /> : isParsing ? <Sparkles className="h-4 w-4 animate-pulse" /> : <CheckCircle className="h-4 w-4" />}
           {message}
         </div>
       )}
+
+      {/* ─── AI Resume Upload Banner ─── */}
+      <div className="rounded-xl border border-indigo-100 bg-gradient-to-r from-indigo-50 to-blue-50/50 p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-5 relative overflow-hidden">
+        <div className="absolute -right-10 -top-10 opacity-10 blur-xl">
+          <Sparkles className="h-40 w-40 text-blue-600" />
+        </div>
+        <div className="relative z-10">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-indigo-600" /> Let AI build your profile
+          </h2>
+          <p className="text-sm text-slate-600 mt-1 max-w-xl">
+            Upload your resume and our advanced AI will instantly populate your experience, education, skills, and links below.
+          </p>
+          {profile?.resume && (
+            <p className="text-xs font-medium text-indigo-700 mt-2 flex items-center gap-1.5 bg-indigo-100/50 w-fit px-2.5 py-1 rounded-full">
+              <CheckCircle className="h-3 w-3" /> Current: {profile.resume.split('/').pop()}
+            </p>
+          )}
+        </div>
+        <label className={`relative z-10 shrink-0 inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold transition-all shadow-sm ${isParsing ? 'bg-indigo-100 text-indigo-400 cursor-wait' : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow'}`}>
+          {isParsing ? <Sparkles className="h-4 w-4 animate-pulse" /> : <Upload className="h-4 w-4" />}
+          {isParsing ? 'AI is analyzing...' : 'Upload Resume'}
+          <input type="file" accept=".pdf" disabled={isParsing} className="hidden" onChange={handleResumeUpload} />
+        </label>
+      </div>
 
       {/* ─── Profile Strength ─── */}
       <ProfileStrengthBanner completion={completion} suggestions={suggestions} />
@@ -630,28 +662,13 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Links & Resume Tab */}
+        {/* Links Tab */}
         {activeTab === 'links' && (
           <div className="space-y-5">
-            <h2 className="text-base font-bold text-slate-900">Links & Resume</h2>
+            <h2 className="text-base font-bold text-slate-900">Professional Links</h2>
             <InputField label="LinkedIn" field="linkedin_url" placeholder="https://linkedin.com/in/..." form={form} update={update} />
             <InputField label="GitHub" field="github_url" placeholder="https://github.com/..." form={form} update={update} />
             <InputField label="Portfolio" field="portfolio_url" placeholder="https://..." form={form} update={update} />
-
-            <div className="border-t pt-5">
-              <h3 className="text-sm font-bold text-slate-900 mb-3">Resume</h3>
-              {profile?.resume && (
-                <p className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-emerald-500" />
-                  Current: {profile.resume.split('/').pop()}
-                </p>
-              )}
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 hover:border-primary hover:bg-primary/5 transition-all">
-                <Upload className="h-5 w-5 text-muted-foreground" />
-                <span className="text-sm font-medium text-muted-foreground">Upload PDF resume</span>
-                <input type="file" accept=".pdf" className="hidden" onChange={handleResumeUpload} />
-              </label>
-            </div>
           </div>
         )}
       </div>

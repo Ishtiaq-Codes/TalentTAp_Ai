@@ -1,8 +1,14 @@
 import os
 import logging
 from django.conf import settings
+from pathlib import Path
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
+
+# Force load .env from backend root just in case server wasn't restarted
+backend_dir = Path(__file__).resolve().parent.parent.parent
+load_dotenv(backend_dir / '.env', override=True)
 
 GEMINI_API_KEY = getattr(settings, 'GEMINI_API_KEY', os.environ.get('GEMINI_API_KEY'))
 

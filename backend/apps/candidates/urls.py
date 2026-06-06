@@ -10,6 +10,7 @@ urlpatterns = [
     path('resume/', views.CandidateResumeUploadView.as_view(), name='resume-upload'),
     path('banner/', views.CandidateBannerUploadView.as_view(), name='banner-upload'),
     # AI Features
+    path('cover-letter/', views.CandidateCoverLetterView.as_view(), name='cover-letter'),
     path('<uuid:pk>/outreach-draft/', views.CandidateOutreachView.as_view(), name='outreach-draft'),
     path('<uuid:pk>/interview-questions/', views.CandidateInterviewPrepView.as_view(), name='interview-questions'),
 
