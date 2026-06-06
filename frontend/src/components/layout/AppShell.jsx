@@ -8,7 +8,7 @@ export default function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 text-foreground font-sans selection:bg-primary/20">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground font-sans selection:bg-primary/20">
       <Sidebar />
       <MobileNav open={mobileOpen} onClose={() => setMobileOpen(false)} />
 

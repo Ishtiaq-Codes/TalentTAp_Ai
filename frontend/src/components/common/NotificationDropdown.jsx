@@ -46,7 +46,7 @@ export default function NotificationDropdown() {
 
   const getIcon = (type) => {
     switch (type) {
-      case 'match': return <Sparkles className="h-4 w-4 text-emerald-500" />
+      case 'match': return <Sparkles className="h-4 w-4 text-ai" />
       case 'message': return <MessageSquare className="h-4 w-4 text-blue-500" />
       case 'application': return <FileText className="h-4 w-4 text-primary" />
       case 'job_status': return <Briefcase className="h-4 w-4 text-amber-500" />

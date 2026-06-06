@@ -136,7 +136,7 @@ export default function CandidateDetailPage() {
                   {isInAnyPool ? (
                     <button 
                       disabled
-                      className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium bg-violet-50 text-violet-700 border-violet-200"
+                      className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium bg-ai/10 text-ai border-ai/20"
                     >
                       <Sparkles className="h-4 w-4" /> In Pool
                     </button>
@@ -145,7 +145,7 @@ export default function CandidateDetailPage() {
                       onClick={() => setIsPoolModalOpen(true)}
                       className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all"
                     >
-                      <Sparkles className="h-4 w-4 text-violet-500" /> Add to Pool
+                      <Sparkles className="h-4 w-4 text-ai" /> Add to Pool
                     </button>
                   )}
                   {profile.resume && (

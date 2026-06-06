@@ -51,7 +51,7 @@ export default function AdminDashboardPage() {
         <AdminStatCard icon={Users} label="Total Users" value="15,482" trend="+124" trendLabel="this week" colorClass="bg-blue-100 text-blue-600" />
         <AdminStatCard icon={Building2} label="Active Companies" value="512" trend="+8" trendLabel="this week" colorClass="bg-indigo-100 text-indigo-600" />
         <AdminStatCard icon={Briefcase} label="Active Job Posts" value="2,104" trend="+42" trendLabel="this week" colorClass="bg-emerald-100 text-emerald-600" />
-        <AdminStatCard icon={BarChart3} label="Global Match Accuracy" value="89.2%" trend="+1.1%" trendLabel="this month" colorClass="bg-purple-100 text-purple-600" />
+        <AdminStatCard icon={BarChart3} label="Global Match Accuracy" value="89.2%" trend="+1.1%" trendLabel="this month" colorClass="bg-ai/10 text-ai" />
       </div>
 
       {/* Advanced Layout */}

@@ -47,7 +47,7 @@ export default function MatchesPage() {
                   ].map(({ label, score }) => (
                     <div key={label} className="text-center">
                       <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                        <div className="h-full rounded-full bg-primary" style={{ width: `${score || 0}%` }} />
+                        <div className="h-full rounded-full bg-ai" style={{ width: `${score || 0}%` }} />
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">{label}</p>
                     </div>

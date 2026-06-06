@@ -134,8 +134,8 @@ export default function CandidateDashboard() {
                 <div className="flex items-center justify-between gap-6">
                   <div className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Sparkles className={`h-4 w-4 ${match.overall_score >= 80 ? 'text-emerald-500' : match.overall_score >= 60 ? 'text-amber-500' : 'text-slate-400'}`} />
-                      <span className={`text-lg font-bold ${match.overall_score >= 80 ? 'text-emerald-600' : match.overall_score >= 60 ? 'text-amber-600' : 'text-slate-500'}`}>
+                      <Sparkles className="h-4 w-4 text-ai" />
+                      <span className="text-lg font-bold text-ai">
                         {Math.round(match.overall_score)}%
                       </span>
                     </div>

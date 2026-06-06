@@ -105,9 +105,9 @@ export default function Sidebar() {
   const sections = getNavSections()
 
   return (
-    <aside className="hidden lg:flex w-[260px] flex-col border-r bg-white">
+    <aside className="hidden lg:flex w-[260px] flex-col border-r border-slate-800 bg-sidebar text-slate-300">
       {/* Logo Area */}
-      <div className="flex h-16 items-center px-6 border-b">
+      <div className="flex h-16 items-center px-6 border-b border-slate-800">
         <Logo />
       </div>
 
@@ -115,7 +115,7 @@ export default function Sidebar() {
       <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-8">
         {sections.map((section, idx) => (
           <div key={idx}>
-            <h4 className="mb-3 px-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+            <h4 className="mb-3 px-3 text-xs font-bold uppercase tracking-wider text-slate-500">
               {section.section}
             </h4>
             <div className="space-y-1">
@@ -126,15 +126,15 @@ export default function Sidebar() {
                   className={({ isActive }) => cn(
                     'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
                     isActive
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+                      ? 'bg-primary/20 text-white'
+                      : 'text-slate-400 hover:bg-slate-800 hover:text-white',
                   )}
                 >
                   {({ isActive }) => (
                     <>
                       <div className={cn(
                         'flex h-6 w-6 items-center justify-center rounded-lg transition-colors',
-                        isActive ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-slate-400 group-hover:text-primary'
+                        isActive ? 'bg-primary text-white shadow-sm' : 'text-slate-500 group-hover:text-slate-300'
                       )}>
                         <Icon className="h-4 w-4" />
                       </div>
@@ -151,12 +151,12 @@ export default function Sidebar() {
       </nav>
 
       {/* User Quick Profile Area */}
-      <div className="border-t p-4">
-        <div className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-slate-50">
+      <div className="border-t border-slate-800 p-4">
+        <div className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-slate-800">
           <ProfileAvatar name={`${user?.first_name} ${user?.last_name}`} src={user?.avatar} size="md" />
           <div className="flex-1 overflow-hidden">
-            <p className="truncate text-sm font-semibold">{user?.first_name} {user?.last_name}</p>
-            <p className="truncate text-xs text-muted-foreground capitalize">{user?.role?.replace('_', ' ')}</p>
+            <p className="truncate text-sm font-semibold text-white">{user?.first_name} {user?.last_name}</p>
+            <p className="truncate text-xs text-slate-500 capitalize">{user?.role?.replace('_', ' ')}</p>
           </div>
         </div>
       </div>

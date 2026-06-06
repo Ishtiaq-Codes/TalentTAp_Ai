@@ -279,10 +279,10 @@ export default function LandingPage() {
                 </div>
                 {/* Mock candidate rows */}
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                  <div className="px-4 py-2 sm:py-3 border-b border-slate-100 bg-slate-50/50">
-                    <span className="text-sm font-semibold text-slate-900">Recent AI Matches</span>
+                  <div className="px-4 py-2 sm:py-3 border-b border-border bg-background/50">
+                    <span className="text-sm font-semibold text-foreground">Recent AI Matches</span>
                   </div>
-                  <div className="p-2 sm:p-3 space-y-2 bg-slate-50">
+                  <div className="p-2 sm:p-3 space-y-2 bg-background">
                     {[
                       {name: 'Elias Pena', role: 'Product Designer', score: 92, pic: 'https://randomuser.me/api/portraits/men/22.jpg'},
                       {name: 'Arlen McCoy', role: 'Frontend Lead', score: 87, pic: 'https://randomuser.me/api/portraits/men/68.jpg'},
@@ -345,9 +345,9 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-              <div className="mt-8 flex items-center gap-3 rounded-xl bg-primary/5 p-4">
-                <Sparkles className="h-5 w-5 text-primary flex-shrink-0" />
-                <p className="text-sm font-medium text-primary">TalentTap AI solves this by inverting the model — candidates get discovered, recruiters get recommendations.</p>
+              <div className="mt-8 flex items-center gap-3 rounded-xl bg-ai/10 p-4">
+                <Sparkles className="h-5 w-5 text-ai flex-shrink-0" />
+                <p className="text-sm font-medium text-ai">TalentTap AI solves this by inverting the model — candidates get discovered, recruiters get recommendations.</p>
               </div>
             </div>
             <div className="flex justify-center">
@@ -545,7 +545,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section ref={showcaseReveal.ref} className="bg-slate-50 py-12 sm:py-20 border-y border-slate-200/60">
+      <section ref={showcaseReveal.ref} className="bg-background py-12 sm:py-20 border-y border-border/60">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center">
           <span className="text-sm font-semibold uppercase tracking-wider text-primary">Match Intelligence</span>
           <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">See why you match</h2>
@@ -573,7 +573,7 @@ export default function LandingPage() {
                   { label: 'Experience Level', score: 95, note: '6 years experience (Role requires 5+)' },
                   { label: 'Location Fit', score: 100, note: 'Open to Remote (Role is Remote)' },
                 ].map((item, i) => (
-                  <div key={i} className="flex flex-col gap-2 p-4 rounded-xl bg-slate-50 border border-slate-100">
+                  <div key={i} className="flex flex-col gap-2 p-4 rounded-xl bg-background border border-border">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-slate-700">{item.label}</span>
                       <span className="font-bold text-slate-900">{item.score}%</span>

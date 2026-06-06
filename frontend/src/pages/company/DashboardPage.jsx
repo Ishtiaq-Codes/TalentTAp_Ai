@@ -345,7 +345,7 @@ export default function CompanyDashboardPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { to: '/company/team', icon: Users, label: 'Manage Team', color: 'text-blue-600 bg-blue-50' },
-          { to: '/company/pools', icon: Sparkles, label: 'Talent Pools', color: 'text-violet-600 bg-violet-50' },
+          { to: '/company/pools', icon: Sparkles, label: 'Talent Pools', color: 'text-ai bg-ai/10' },
           { to: '/recruiter/candidates', icon: FileText, label: 'Find Talent', color: 'text-emerald-600 bg-emerald-50' },
           { to: '/company/profile', icon: Building2, label: 'Company Profile', color: 'text-amber-600 bg-amber-50' },
         ].map(item => (

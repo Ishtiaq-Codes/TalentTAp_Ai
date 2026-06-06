@@ -212,7 +212,7 @@ export default function BlogDetailPage() {
   const catColour = post?.category ? (COLOUR_MAP[post.category.color] || 'bg-slate-100 text-slate-700') : ''
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <SEOHead post={post} />
       <PublicNavbar />
 
@@ -295,7 +295,7 @@ export default function BlogDetailPage() {
                     <Link
                       key={tag.slug}
                       to={`/blog?tag=${tag.slug}`}
-                      className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600 hover:border-primary hover:text-primary transition-colors"
+                      className="flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                     >
                       <Tag className="h-3 w-3" /> {tag.name}
                     </Link>
@@ -332,8 +332,9 @@ export default function BlogDetailPage() {
                     prose-strong:text-slate-900
                     prose-ul:text-slate-600 prose-ol:text-slate-600
                     prose-li:my-1
-                    prose-table:text-sm prose-th:bg-slate-50 prose-th:font-semibold
-                    prose-img:rounded-xl prose-img:shadow-md
+                    prose-table:w-full prose-table:overflow-hidden prose-table:rounded-xl prose-table:border prose-table:border-border
+                    prose-table:text-sm prose-th:bg-background prose-th:font-semibold
+                    prose-th:p-3 prose-td:p-3 prose-tr:border-b prose-tr:border-border
                     prose-blockquote:border-primary prose-blockquote:bg-primary/5 prose-blockquote:rounded-r-xl prose-blockquote:py-1
                   "
                   dangerouslySetInnerHTML={{ __html: post.content }}

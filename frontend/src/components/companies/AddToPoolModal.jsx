@@ -66,7 +66,7 @@ export default function AddToPoolModal({ isOpen, onClose, candidateId, candidate
         >
           <div className="flex items-center justify-between border-b px-6 py-4">
             <h2 className="text-lg font-bold flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-violet-500" /> Add to Talent Pool
+              <Sparkles className="h-5 w-5 text-ai" /> Add to Talent Pool
             </h2>
             <button
               onClick={onClose}
