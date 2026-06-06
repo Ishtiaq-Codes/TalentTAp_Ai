@@ -8,5 +8,6 @@ export const jobsAPI = {
   update: (id, data) => client.put(`/jobs/${id}/`, data),
   delete: (id) => client.delete(`/jobs/${id}/`),
   updateStatus: (id, status) => client.patch(`/jobs/${id}/status/`, { status }),
+  repost: (id) => client.post(`/jobs/${id}/repost/`),
   optimize: (data) => client.post('/jobs/optimize/', data),
 }

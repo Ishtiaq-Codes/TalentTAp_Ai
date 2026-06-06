@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { jobsAPI } from '@/api/jobs'
 import { EMPLOYMENT_TYPE, REMOTE_STATUS } from '@/lib/constants'
 import { ArrowLeft, Plus, X, Sparkles } from 'lucide-react'
 
-export default function CreateJobPage() {
+export default function EditJobPage() {
+  const { id } = useParams()
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -18,6 +19,33 @@ export default function CreateJobPage() {
   
   const [optimizeLoading, setOptimizeLoading] = useState(false)
   const [optimizeResult, setOptimizeResult] = useState(null)
+
+  useEffect(() => {
+    const fetchJob = async () => {
+      try {
+        const { data } = await jobsAPI.get(id)
+        setForm({
+          title: data.title || '',
+          description: data.description || '',
+          experience_min: data.experience_min || 0,
+          experience_max: data.experience_max || 3,
+          employment_type: data.employment_type || 'full_time',
+          location: data.location || '',
+          country: data.country || '',
+          city: data.city || '',
+          is_remote: data.is_remote || 'onsite',
+          salary_min: data.salary_min || '',
+          salary_max: data.salary_max || '',
+          salary_currency: data.salary_currency || 'USD',
+          status: data.status || 'draft',
+          skills: data.skills || [],
+        })
+      } catch (err) {
+        setError('Failed to load job details')
+      }
+    }
+    fetchJob()
+  }, [id])
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
 
@@ -61,8 +89,8 @@ export default function CreateJobPage() {
       if (payload.salary_min === '') payload.salary_min = null
       if (payload.salary_max === '') payload.salary_max = null
       
-      await jobsAPI.create(payload)
-      navigate('/recruiter/jobs')
+      await jobsAPI.update(id, payload)
+      navigate(`/recruiter/jobs/${id}`)
     } catch (err) {
       const data = err.response?.data
       setError(typeof data === 'object' ? JSON.stringify(data) : 'Failed to create job')
@@ -75,7 +103,7 @@ export default function CreateJobPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center gap-3">
         <button onClick={() => navigate(-1)} className="rounded-lg p-2 hover:bg-muted"><ArrowLeft className="h-5 w-5" /></button>
-        <h1 className="text-2xl font-bold">Post a New Job</h1>
+        <h1 className="text-2xl font-bold">Edit Job Post</h1>
       </div>
 
       {error && <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
@@ -216,7 +244,7 @@ export default function CreateJobPage() {
         </button>
         <button onClick={() => handleSubmit('active')} disabled={saving}
           className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-          {saving ? 'Publishing...' : 'Publish Job'}
+          {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
     </div>

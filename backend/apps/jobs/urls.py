@@ -10,4 +10,5 @@ urlpatterns = [
     path('optimize/', views.JobOptimizeView.as_view(), name='optimize'),
     path('<uuid:pk>/', views.JobDetailView.as_view(), name='detail'),
     path('<uuid:pk>/status/', views.JobStatusView.as_view(), name='status'),
+    path('<uuid:pk>/repost/', views.JobRepostView.as_view(), name='repost'),
 ]

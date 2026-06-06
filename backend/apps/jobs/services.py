@@ -1,60 +1,43 @@
 """Job specific services."""
 
-def analyze_job_description(title, description, skills):
+"""Job specific services."""
+
+def generate_job_description(title, experience_level, salary_range, location, job_type, skills):
     """
-    Analyzes a job description against the candidate pool to provide optimization suggestions.
+    Generates a professional job description draft based on the provided inputs.
     """
-    from apps.candidates.models import CandidateProfile
-    from sklearn.feature_extraction.text import TfidfVectorizer
-    import re
+    skill_names = [s.get('name', '') for s in skills] if isinstance(skills, list) else []
+    skills_str = ", ".join(skill_names) if skill_names else "relevant industry skills"
     
-    # Get top 50 highly complete candidates in the system
-    top_candidates = CandidateProfile.objects.filter(
-        profile_completion__gte=70,
-        is_open_to_work=True
-    ).prefetch_related('skills')[:50]
+    title_str = title if title else "Open Position"
+    exp_str = experience_level if experience_level else "demonstrated"
     
-    if not top_candidates:
-        return {
-            "suggestions": ["Add more details to attract top talent. No comparable profiles found to optimize against."],
-            "recommended_skills": []
-        }
-        
-    all_skills_in_pool = {}
-    for c in top_candidates:
-        for s in c.skills.all():
-            skill_name = s.name.lower()
-            all_skills_in_pool[skill_name] = all_skills_in_pool.get(skill_name, 0) + 1
-            
-    # Find common skills we are missing
-    existing_skills = [s.get('name', '').lower() for s in skills] if isinstance(skills, list) else []
+    draft = f"## About the Role\n"
+    draft += f"We are actively seeking a talented and motivated {title_str} to join our growing team. "
+    draft += f"In this {job_type or 'full-time'} role based in {location or 'our primary office'}, you will be instrumental in driving our core projects forward and collaborating with cross-functional teams to deliver high-quality solutions.\n\n"
     
-    recommended = []
-    for skill_name, count in sorted(all_skills_in_pool.items(), key=lambda x: x[1], reverse=True):
-        if skill_name not in existing_skills and count >= 5: # At least 5 top candidates have it
-            recommended.append(skill_name.title())
-        if len(recommended) >= 5:
-            break
-            
-    # Basic text analysis
-    suggestions = []
+    draft += f"## Key Responsibilities\n"
+    draft += f"- Lead the design, development, and implementation of critical systems and features.\n"
+    draft += f"- Collaborate closely with product managers, designers, and other engineers.\n"
+    draft += f"- Ensure best practices in architecture, performance, and code quality.\n"
+    draft += f"- Mentor junior team members and contribute to a culture of continuous learning.\n\n"
     
-    word_count = len(re.findall(r'\w+', description))
-    if word_count < 50:
-        suggestions.append("Your job description is very short. Top performing posts typically have 150-300 words outlining responsibilities and culture.")
-    elif word_count > 500:
-        suggestions.append("Your job description is quite long. Consider using bullet points to make it more scannable for candidates.")
+    draft += f"## Required Qualifications\n"
+    draft += f"- {exp_str.capitalize()} experience working in a similar {title_str} capacity.\n"
+    draft += f"- Strong proficiency and hands-on experience with {skills_str}.\n"
+    draft += f"- Excellent problem-solving abilities and a strong attention to detail.\n"
+    draft += f"- Effective communication skills and the ability to work in a dynamic team environment.\n\n"
+    
+    draft += f"## What We Offer\n"
+    if salary_range:
+        draft += f"- Competitive compensation package: {salary_range}.\n"
+    else:
+        draft += f"- Competitive compensation package commensurate with experience.\n"
         
-    if recommended:
-        suggestions.append(f"Consider adding these skills: {', '.join(recommended[:3])}. Many top candidates in our pool possess these.")
-        
-    if 'salary' not in description.lower() and 'compensation' not in description.lower():
-        suggestions.append("Job posts that include a salary range or compensation details receive 35% more applications from top-tier talent.")
-        
-    if not suggestions:
-        suggestions.append("Your job post looks strong and well-optimized!")
-        
+    draft += f"- Comprehensive health, dental, and vision insurance.\n"
+    draft += f"- Flexible working hours and a supportive, inclusive culture.\n"
+    draft += f"- Opportunities for professional growth and continuous learning.\n"
+    
     return {
-        "suggestions": suggestions,
-        "recommended_skills": recommended
+        "drafted_description": draft
     }

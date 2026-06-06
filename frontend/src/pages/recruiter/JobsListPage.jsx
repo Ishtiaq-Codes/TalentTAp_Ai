@@ -5,7 +5,11 @@ import SkeletonCard from '@/components/common/SkeletonCard'
 import { formatDate } from '@/lib/utils'
 import { Link } from 'react-router-dom'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
-import { Briefcase, Plus, Eye, MapPin, Clock, Users, ArrowRight } from 'lucide-react'
+import { Briefcase, Plus, Eye, MapPin, Clock, Users, ArrowRight, Edit2, Trash2, Repeat, Archive } from 'lucide-react'
+import ConfirmModal from '@/components/common/ConfirmModal'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useToast } from '@/contexts/ToastContext'
 
 const STATUS_COLORS = {
   active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -16,7 +20,38 @@ const STATUS_COLORS = {
 }
 
 export default function JobsListPage() {
-  const { data: jobs, loading } = useFetch(() => jobsAPI.list())
+  const { data: jobs, loading, refetch } = useFetch(() => jobsAPI.list())
+  const navigate = useNavigate()
+  const { success, error: showError } = useToast()
+  
+  const [jobToDelete, setJobToDelete] = useState(null)
+
+  const handleDelete = async () => {
+    if (!jobToDelete) return
+    try {
+      await jobsAPI.delete(jobToDelete)
+      success('Job deleted successfully')
+      refetch()
+    } catch (err) {
+      showError('Failed to delete job')
+    }
+    setJobToDelete(null)
+  }
+
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      if (newStatus === 'repost') {
+        await jobsAPI.repost(id)
+        success('Job reposted successfully')
+      } else {
+        await jobsAPI.updateStatus(id, newStatus)
+        success(`Job marked as ${newStatus}`)
+      }
+      refetch()
+    } catch (err) {
+      showError('Failed to update job status')
+    }
+  }
 
   if (loading) {
     return (
@@ -75,8 +110,22 @@ export default function JobsListPage() {
                   <div className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wider ${STATUS_COLORS[job.status] || ''}`}>
                     {job.status}
                   </div>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                    <Eye className="h-4 w-4" />
+                  <div className="flex items-center gap-1 pointer-events-auto">
+                    {(job.status === 'closed' || job.status === 'archived') ? (
+                      <button onClick={(e) => { e.preventDefault(); handleStatusChange(job.id, 'repost') }} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Repost Job">
+                        <Repeat className="h-4 w-4" />
+                      </button>
+                    ) : (
+                      <button onClick={(e) => { e.preventDefault(); handleStatusChange(job.id, 'closed') }} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Close Job">
+                        <Archive className="h-4 w-4" />
+                      </button>
+                    )}
+                    <button onClick={(e) => { e.preventDefault(); navigate(`/recruiter/jobs/${job.id}/edit`) }} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Job">
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button onClick={(e) => { e.preventDefault(); setJobToDelete(job.id) }} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Job">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
 
@@ -119,6 +168,16 @@ export default function JobsListPage() {
           ))}
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={!!jobToDelete} 
+        onClose={() => setJobToDelete(null)} 
+        onConfirm={handleDelete}
+        title="Delete Job Post"
+        message="Are you sure you want to delete this job post? All applications and matches associated with it will also be deleted."
+        confirmText="Delete"
+        isDestructive={true}
+      />
     </div>
   )
 }

@@ -78,8 +78,8 @@ class JobListCreateView(generics.ListCreateAPIView):
                 serializer.save(recruiter=None)
 
 
-class JobDetailView(generics.RetrieveUpdateAPIView):
-    """Get or update a job."""
+class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Get, update, or delete a job."""
     serializer_class = JobSerializer
     permission_classes = [IsAuthenticated]
 
@@ -106,6 +106,26 @@ class JobStatusView(APIView):
         return Response(JobSerializer(job).data)
 
 
+class JobRepostView(APIView):
+    """Repost a job by updating created_at and setting status to active."""
+    permission_classes = [IsAuthenticated, IsRecruiter]
+
+    def post(self, request, pk):
+        try:
+            job = Job.objects.annotate(applicants_count=Count('applications')).get(pk=pk)
+        except Job.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        from django.utils import timezone
+        now = timezone.now()
+        job.created_at = now
+        job.updated_at = now
+        job.status = 'active'
+        job.save(update_fields=['created_at', 'updated_at', 'status'])
+        
+        return Response(JobSerializer(job).data)
+
+
 class PublicJobListView(generics.ListAPIView):
     """Public job listing — no auth required."""
     serializer_class = JobListSerializer
@@ -124,10 +144,13 @@ class JobOptimizeView(APIView):
     
     def post(self, request, *args, **kwargs):
         title = request.data.get('title', '')
-        description = request.data.get('description', '')
+        experience_level = request.data.get('experience_level', '')
+        salary_range = request.data.get('salary_range', '')
+        location = request.data.get('location', '')
+        job_type = request.data.get('type', '')
         skills = request.data.get('skills', [])
         
-        from .services import analyze_job_description
-        result = analyze_job_description(title, description, skills)
+        from .services import generate_job_description
+        result = generate_job_description(title, experience_level, salary_range, location, job_type, skills)
         
         return Response(result)

@@ -37,6 +37,7 @@ const CandidateSettingsPage = lazy(() => import('@/pages/candidate/CandidateSett
 const RecruiterDashboard = lazy(() => import('@/pages/recruiter/DashboardPage'))
 const JobsListPage = lazy(() => import('@/pages/recruiter/JobsListPage'))
 const CreateJobPage = lazy(() => import('@/pages/recruiter/CreateJobPage'))
+const EditJobPage = lazy(() => import('@/pages/recruiter/EditJobPage'))
 const JobDetailPage = lazy(() => import('@/pages/recruiter/JobDetailPage'))
 const CandidateSearchPage = lazy(() => import('@/pages/recruiter/CandidateSearchPage'))
 const CandidateDetailPage = lazy(() => import('@/pages/recruiter/CandidateDetailPage'))
@@ -157,6 +158,7 @@ export default function AppRouter() {
             <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
             <Route path="/recruiter/jobs" element={<JobsListPage />} />
             <Route path="/recruiter/jobs/new" element={<CreateJobPage />} />
+            <Route path="/recruiter/jobs/:id/edit" element={<EditJobPage />} />
             <Route path="/recruiter/jobs/:id" element={<JobDetailPage />} />
             <Route path="/recruiter/candidates" element={<CandidateSearchPage />} />
             <Route path="/recruiter/candidates/:id" element={<CandidateDetailPage />} />

@@ -22,6 +22,9 @@ class RunMatchingView(APIView):
         except Job.DoesNotExist:
             return Response({'detail': 'Job not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+        if job.status != 'active':
+            return Response({'detail': 'Matching is only available for active jobs.'}, status=status.HTTP_400_BAD_REQUEST)
+
         results = services.run_matching_for_job(job)
         return Response({
             'job': str(job.title),
