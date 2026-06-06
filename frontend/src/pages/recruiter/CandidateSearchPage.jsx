@@ -116,9 +116,9 @@ export default function CandidateSearchPage() {
   const activeFilterCount = Object.values(filters).filter(Boolean).length
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] animate-fade-in">
+    <div className="flex flex-col h-[calc(100vh-5.5rem)] sm:h-[calc(100vh-6.5rem)] lg:h-[calc(100vh-7rem)] animate-fade-in">
       {/* Top Bar */}
-      <div className="shrink-0 pb-4">
+      <div className="shrink-0 pb-3">
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Talent Discovery</h1>
@@ -143,9 +143,16 @@ export default function CandidateSearchPage() {
       <div className="flex flex-1 gap-4 min-h-0 overflow-hidden">
 
         {/* LEFT: Filters */}
-        <aside className={`${showFilters ? 'fixed inset-0 z-50 bg-black/40 lg:relative lg:bg-transparent' : 'hidden'} lg:block lg:w-64 shrink-0`}>
-          <div className={`${showFilters ? 'absolute right-0 top-0 h-full w-80 bg-white shadow-xl lg:relative lg:w-auto lg:shadow-none' : ''} flex flex-col h-full overflow-y-auto rounded-xl border bg-white shadow-sm`}>
-            {/* Filter header */}
+        <aside 
+          className={`${showFilters ? 'fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm lg:relative lg:bg-transparent lg:backdrop-blur-none' : 'hidden'} lg:block lg:w-64 shrink-0`}
+          onClick={() => setShowFilters(false)}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className={`${showFilters ? 'absolute right-0 top-0 h-full w-[85%] max-w-sm bg-white shadow-2xl lg:relative lg:w-auto lg:shadow-none' : ''} flex flex-col h-full overflow-hidden rounded-xl border bg-white shadow-sm`}
+          >
+            <div className="flex-1 overflow-y-auto">
+              {/* Filter header */}
             <div className="flex items-center justify-between p-4 border-b">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-primary" />
@@ -277,6 +284,19 @@ export default function CandidateSearchPage() {
                 ))}
               </div>
             </div>
+            </div>
+            
+            {/* Mobile Apply Button */}
+            {showFilters && (
+              <div className="lg:hidden p-4 border-t bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] mt-auto shrink-0">
+                <button 
+                  onClick={() => setShowFilters(false)}
+                  className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
+                >
+                  Show {list.length} Results
+                </button>
+              </div>
+            )}
           </div>
         </aside>
 

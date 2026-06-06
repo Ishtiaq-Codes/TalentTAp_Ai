@@ -16,8 +16,8 @@ export default function AppShell() {
         <Topbar onToggleMobile={() => setMobileOpen(true)} />
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 relative z-0">
-          <div className="mx-auto max-w-7xl">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 relative z-0">
+          <div className="mx-auto max-w-7xl h-full">
             <Outlet />
           </div>
         </main>

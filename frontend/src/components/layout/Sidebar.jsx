@@ -112,10 +112,10 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-8">
+      <nav className="flex-1 px-4 py-4 space-y-6">
         {sections.map((section, idx) => (
           <div key={idx}>
-            <h4 className="mb-3 px-3 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <h4 className="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-slate-500">
               {section.section}
             </h4>
             <div className="space-y-1">
@@ -124,7 +124,7 @@ export default function Sidebar() {
                   key={to}
                   to={to}
                   className={({ isActive }) => cn(
-                    'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                    'group flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200',
                     isActive
                       ? 'bg-primary/20 text-white'
                       : 'text-slate-400 hover:bg-slate-800 hover:text-white',
