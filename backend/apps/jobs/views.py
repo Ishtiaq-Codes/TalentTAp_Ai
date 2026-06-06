@@ -116,3 +116,18 @@ class PublicJobListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Job.objects.filter(status='active').select_related('company').prefetch_related('skills').annotate(applicants_count=Count('applications'))
+
+
+class JobOptimizeView(APIView):
+    """Analyze a draft job and provide AI suggestions."""
+    permission_classes = [IsAuthenticated, IsRecruiter]
+    
+    def post(self, request, *args, **kwargs):
+        title = request.data.get('title', '')
+        description = request.data.get('description', '')
+        skills = request.data.get('skills', [])
+        
+        from .services import analyze_job_description
+        result = analyze_job_description(title, description, skills)
+        
+        return Response(result)

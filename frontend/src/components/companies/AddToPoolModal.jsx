@@ -58,7 +58,7 @@ export default function AddToPoolModal({ isOpen, onClose, candidateId, candidate
 
   return createPortal(
     <>
-      <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      <div className="fixed inset-0 z-[9999] bg-slate-100/80 backdrop-blur-sm transition-opacity" onClick={onClose} />
       <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
         <div 
           className="w-full max-w-md scale-100 transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all animate-in zoom-in-95"

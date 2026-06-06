@@ -72,6 +72,20 @@ class CandidateProfile(models.Model):
     class Meta:
         ordering = ['-updated_at']
 
+    @property
+    def is_flight_risk(self):
+        """
+        AI Heuristic: Returns True if candidate is highly likely to move jobs.
+        Trigger: Employed, 2+ years exp, and updated profile in the last 14 days.
+        """
+        from django.utils import timezone
+        import datetime
+        if self.employment_status == 'employed' and self.years_of_experience >= 2:
+            fourteen_days_ago = timezone.now() - datetime.timedelta(days=14)
+            if self.updated_at >= fourteen_days_ago:
+                return True
+        return False
+
     def __str__(self):
         return f'{self.user.full_name} — {self.headline}'
 

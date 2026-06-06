@@ -274,3 +274,33 @@ class CandidatePublicProfileView(generics.RetrieveAPIView):
             response.data.update(ai_data)
         
         return response
+
+
+class CandidateOutreachView(generics.RetrieveAPIView):
+    """Returns an AI-generated outreach message for a candidate."""
+    queryset = CandidateProfile.objects.all()
+    permission_classes = [IsAuthenticated, IsRecruiter]
+    
+    def retrieve(self, request, *args, **kwargs):
+        candidate = self.get_object()
+        job_id = request.query_params.get('job_id')
+        
+        from .services import generate_outreach_draft
+        draft = generate_outreach_draft(candidate, job_id, recruiter_user=request.user)
+        
+        return Response(draft)
+
+
+class CandidateInterviewPrepView(generics.RetrieveAPIView):
+    """Returns AI-generated interview questions for a candidate."""
+    queryset = CandidateProfile.objects.all()
+    permission_classes = [IsAuthenticated, IsRecruiter]
+    
+    def retrieve(self, request, *args, **kwargs):
+        candidate = self.get_object()
+        job_id = request.query_params.get('job_id')
+        
+        from .services import generate_interview_questions
+        questions = generate_interview_questions(candidate, job_id)
+        
+        return Response({"questions": questions})

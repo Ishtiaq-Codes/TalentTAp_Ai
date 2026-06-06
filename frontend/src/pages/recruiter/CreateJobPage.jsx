@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { jobsAPI } from '@/api/jobs'
 import { EMPLOYMENT_TYPE, REMOTE_STATUS } from '@/lib/constants'
-import { ArrowLeft, Plus, X } from 'lucide-react'
+import { ArrowLeft, Plus, X, Sparkles } from 'lucide-react'
 
 export default function CreateJobPage() {
   const navigate = useNavigate()
@@ -15,6 +15,9 @@ export default function CreateJobPage() {
     is_remote: 'onsite', salary_min: '', salary_max: '', salary_currency: 'USD',
     status: 'draft', skills: [],
   })
+  
+  const [optimizeLoading, setOptimizeLoading] = useState(false)
+  const [optimizeResult, setOptimizeResult] = useState(null)
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
 
@@ -29,6 +32,22 @@ export default function CreateJobPage() {
 
   const removeSkill = (idx) => {
     setForm({ ...form, skills: form.skills.filter((_, i) => i !== idx) })
+  }
+
+  const handleOptimize = async () => {
+    setOptimizeLoading(true)
+    setOptimizeResult(null)
+    try {
+      const res = await jobsAPI.optimize({
+        title: form.title,
+        description: form.description,
+        skills: form.skills
+      })
+      setOptimizeResult(res.data)
+    } catch (err) {
+      console.error(err)
+    }
+    setOptimizeLoading(false)
   }
 
   const handleSubmit = async (status) => {
@@ -155,16 +174,60 @@ export default function CreateJobPage() {
         </div>
       </section>
 
-      <div className="flex justify-end gap-3">
-        <button onClick={() => handleSubmit('draft')} disabled={saving}
-          className="rounded-lg border px-6 py-2.5 text-sm font-medium hover:bg-muted disabled:opacity-50">
-          Save Draft
-        </button>
-        <button onClick={() => handleSubmit('active')} disabled={saving}
-          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-          {saving ? 'Publishing...' : 'Publish Job'}
-        </button>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t">
+        <div>
+          <button onClick={handleOptimize} disabled={optimizeLoading || !form.title}
+            className="inline-flex items-center gap-2 rounded-lg bg-ai/10 px-4 py-2.5 text-sm font-semibold text-ai hover:bg-ai/20 disabled:opacity-50">
+            <Sparkles className="h-4 w-4" /> {optimizeLoading ? 'Analyzing...' : 'Optimize with AI'}
+          </button>
+        </div>
+        
+        <div className="flex justify-end gap-3 w-full sm:w-auto">
+          <button onClick={() => handleSubmit('draft')} disabled={saving}
+            className="rounded-lg border px-6 py-2.5 text-sm font-medium hover:bg-muted disabled:opacity-50">
+            Save Draft
+          </button>
+          <button onClick={() => handleSubmit('active')} disabled={saving}
+            className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
+            {saving ? 'Publishing...' : 'Publish Job'}
+          </button>
+        </div>
       </div>
+      
+      {optimizeResult && (
+        <div className="rounded-xl border border-ai/30 bg-ai/5 p-6 animate-in slide-in-from-bottom-2">
+          <h3 className="flex items-center gap-2 font-bold text-slate-900 mb-4">
+            <Sparkles className="h-5 w-5 text-ai" /> AI Optimization Insights
+          </h3>
+          <ul className="space-y-3 mb-6">
+            {optimizeResult.suggestions.map((s, i) => (
+              <li key={i} className="flex gap-3 text-sm text-slate-700">
+                <span className="shrink-0 flex h-5 w-5 items-center justify-center rounded-full bg-ai/20 text-[10px] font-bold text-ai">{i+1}</span>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ul>
+          {optimizeResult.recommended_skills?.length > 0 && (
+            <div>
+              <p className="text-sm font-semibold mb-2">Recommended Missing Skills:</p>
+              <div className="flex flex-wrap gap-2">
+                {optimizeResult.recommended_skills.map((skill, i) => (
+                  <button 
+                    key={i} 
+                    onClick={() => {
+                      setSkillInput(skill)
+                      // Small delay so user can click "Required" or "Nice-to-have"
+                    }}
+                    className="rounded-full bg-white px-3 py-1 text-xs font-medium border border-slate-200 hover:border-ai hover:text-ai transition-colors"
+                  >
+                    + {skill}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

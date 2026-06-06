@@ -119,3 +119,98 @@ def generate_relevance_data(candidate, job_id=None):
         "missing_factors": [],
         "match_reason": reason
     }
+
+
+def generate_outreach_draft(candidate, job_id, recruiter_user=None):
+    """Generates a personalized outreach message based on Semantic Match context."""
+    recruiter_name = "Recruiter"
+    company_name_str = ""
+    
+    if recruiter_user:
+        if recruiter_user.first_name:
+            recruiter_name = f"{recruiter_user.first_name} {recruiter_user.last_name}".strip()
+        
+        if hasattr(recruiter_user, 'recruiter_profile') and recruiter_user.recruiter_profile.company:
+            company_name_str = f"\n{recruiter_user.recruiter_profile.company.name}"
+            
+    sign_off = f"Best regards,\n{recruiter_name}{company_name_str}"
+
+    if not job_id:
+        return {"subject": "Opportunities at our company", "body": f"Hi {candidate.user.first_name},\n\nI came across your profile and was impressed by your background. We are currently hiring and I'd love to chat.\n\n{sign_off}"}
+        
+    from apps.matching.models import MatchScore
+    from apps.jobs.models import Job
+    job = Job.objects.filter(id=job_id).first()
+    match_record = MatchScore.objects.filter(candidate=candidate, job_id=job_id).first()
+    
+    if not job or not match_record:
+        return {"subject": f"Opportunity: {job.title if job else 'Open Role'}", "body": f"Hi {candidate.user.first_name},\n\nI was impressed by your profile and would love to discuss a role we have open.\n\n{sign_off}"}
+
+    breakdown = match_record.breakdown or {}
+    skills_bd = breakdown.get('skills', {}) if isinstance(breakdown, dict) else {}
+    matched_skills = skills_bd.get('matched', []) if isinstance(skills_bd, dict) else []
+    missing_skills = skills_bd.get('missing', []) if isinstance(skills_bd, dict) else []
+    score = match_record.overall_score
+    
+    subject = f"Opportunity: {job.title} - Your background in {matched_skills[0] if matched_skills else 'tech'}"
+    
+    body = f"Hi {candidate.user.first_name},\n\n"
+    body += f"I'm reaching out because your profile indicates a strong semantic alignment ({score:.0f}% match) with a {job.title} role I'm currently recruiting for at {job.company.name}.\n\n"
+    
+    if matched_skills:
+        body += f"Specifically, your experience with {', '.join(matched_skills[:3])} stood out to me as highly relevant to our stack.\n\n"
+        
+    if missing_skills:
+        body += f"While this role also touches on {', '.join(missing_skills[:2])}, our team is highly supportive and we're willing to help the right candidate ramp up in those areas.\n\n"
+        
+    body += "Are you open to a brief 10-minute chat this week to discuss further?\n\n"
+    body += sign_off
+    
+    return {"subject": subject, "body": body}
+
+
+def generate_interview_questions(candidate, job_id):
+    """Generates tailored interview questions based on candidate's missing/matched skills."""
+    if not job_id:
+        return ["Can you walk me through your resume?", "What are your greatest strengths?", "Describe a challenge you overcame."]
+        
+    from apps.matching.models import MatchScore
+    match_record = MatchScore.objects.filter(candidate=candidate, job_id=job_id).first()
+    
+    if not match_record:
+        return ["Can you walk me through your resume?", "What are your greatest strengths?", "Describe a challenge you overcame."]
+
+    breakdown = match_record.breakdown or {}
+    skills_bd = breakdown.get('skills', {}) if isinstance(breakdown, dict) else {}
+    matched_skills = skills_bd.get('matched', []) if isinstance(skills_bd, dict) else []
+    missing_skills = skills_bd.get('missing', []) if isinstance(skills_bd, dict) else []
+    
+    questions = []
+    
+    if matched_skills:
+        # Deep dive into a matched skill
+        questions.append(f"You have experience with {matched_skills[0]}. Can you describe the most complex problem you've solved using this technology?")
+        
+    if len(matched_skills) > 1:
+        questions.append(f"How do you typically structure your workflows when working with {matched_skills[1]}?")
+        
+    if missing_skills:
+        # Probe missing skills
+        questions.append(f"This role requires some familiarity with {missing_skills[0]}. Have you had any exposure to it, and how would you approach learning it quickly?")
+        
+    if len(missing_skills) > 1:
+        questions.append(f"We also use {missing_skills[1]}. Since you don't have direct experience with it, what similar tools have you used that might translate well?")
+        
+    # Standard fallback if not enough skills to generate 4 questions
+    while len(questions) < 4:
+        fallbacks = [
+            "Tell me about a time you had to learn a new framework on the fly.",
+            "How do you handle technical disagreements within your team?",
+            "What architectural decisions are you most proud of in your past roles?"
+        ]
+        for f in fallbacks:
+            if f not in questions:
+                questions.append(f)
+                break
+                
+    return questions[:4]

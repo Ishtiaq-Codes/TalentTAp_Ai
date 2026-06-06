@@ -9,6 +9,9 @@ urlpatterns = [
     path('profile/', views.CandidateProfileView.as_view(), name='profile'),
     path('resume/', views.CandidateResumeUploadView.as_view(), name='resume-upload'),
     path('banner/', views.CandidateBannerUploadView.as_view(), name='banner-upload'),
+    # AI Features
+    path('<uuid:pk>/outreach-draft/', views.CandidateOutreachView.as_view(), name='outreach-draft'),
+    path('<uuid:pk>/interview-questions/', views.CandidateInterviewPrepView.as_view(), name='interview-questions'),
 
     # Skills
     path('skills/', views.CandidateSkillListCreateView.as_view(), name='skill-list-create'),

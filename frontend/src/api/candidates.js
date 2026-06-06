@@ -36,4 +36,6 @@ export const candidatesAPI = {
   deleteCertification: (id) => client.delete(`/candidates/certifications/${id}/`),
   search: (params) => client.get('/candidates/top/', { params }),
   getPublicProfile: (id, params) => client.get(`/candidates/${id}/`, { params }),
+  getOutreachDraft: (id, params) => client.get(`/candidates/${id}/outreach-draft/`, { params }),
+  getInterviewQuestions: (id, params) => client.get(`/candidates/${id}/interview-questions/`, { params }),
 }

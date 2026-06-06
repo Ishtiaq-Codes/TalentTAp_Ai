@@ -54,6 +54,7 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
     relevance_factors = serializers.JSONField(read_only=True, required=False)
     missing_factors = serializers.JSONField(read_only=True, required=False)
     match_reason = serializers.CharField(read_only=True, required=False)
+    is_flight_risk = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = CandidateProfile
@@ -67,6 +68,7 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
             'is_open_to_work', 'profile_completion', 'skills', 'experiences', 
             'education', 'certifications', 'created_at', 'updated_at',
             'ranking_score', 'relevance_factors', 'missing_factors', 'match_reason',
+            'is_flight_risk',
         ]
         read_only_fields = ['id', 'user', 'profile_completion', 'created_at', 'updated_at']
 
@@ -84,6 +86,7 @@ class CandidateSearchSerializer(serializers.ModelSerializer):
     relevance_factors = serializers.JSONField(read_only=True, required=False)
     missing_factors = serializers.JSONField(read_only=True, required=False)
     match_reason = serializers.CharField(read_only=True, required=False)
+    is_flight_risk = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = CandidateProfile
@@ -92,6 +95,7 @@ class CandidateSearchSerializer(serializers.ModelSerializer):
             'years_of_experience', 'employment_status', 'availability',
             'employment_type_preferred', 'is_open_to_work', 'skills', 'is_shortlisted',
             'ranking_score', 'relevance_factors', 'missing_factors', 'match_reason',
+            'is_flight_risk',
         ]
 
     def get_is_shortlisted(self, obj):

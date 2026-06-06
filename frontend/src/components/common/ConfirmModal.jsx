@@ -5,7 +5,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
   if (!isOpen) return null
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-100/80 backdrop-blur-sm animate-fade-in">
       <div 
         className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl animate-scale-in"
         onClick={(e) => e.stopPropagation()}

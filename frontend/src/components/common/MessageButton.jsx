@@ -44,7 +44,7 @@ export default function MessageButton({ recipientId, name }) {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-100/80 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-xl border bg-card shadow-lg">
             <div className="flex items-center justify-between border-b p-4">
               <h2 className="font-semibold">Message {name}</h2>

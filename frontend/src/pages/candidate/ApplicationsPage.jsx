@@ -131,7 +131,7 @@ export default function ApplicationsPage() {
 
       {/* Edit Modal */}
       {editingApp && createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-100/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b p-5">
               <h2 className="text-lg font-bold">Edit Application</h2>

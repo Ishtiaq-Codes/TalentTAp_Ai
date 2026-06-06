@@ -4,11 +4,13 @@ import { useFetch } from '@/hooks/useFetch'
 import { candidatesAPI } from '@/api/candidates'
 import { applicationsAPI } from '@/api/applications'
 import { companiesAPI } from '@/api/companies'
+import { messagingAPI } from '@/api/messaging'
 import {
   MapPin, Briefcase, Calendar, User, ArrowLeft, FileText,
-  Clock, Award, Globe, ExternalLink, Sparkles,
-  Mail, Phone, CheckCircle,
+  Clock, Award, Globe, ExternalLink, Sparkles, X,
+  Mail, Phone, CheckCircle, MessageSquare, ClipboardList,
 } from 'lucide-react'
+import { useToast } from '@/contexts/ToastContext'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import MessageButton from '@/components/common/MessageButton'
 import ShortlistButton from '@/components/common/ShortlistButton'
@@ -70,9 +72,18 @@ export default function CandidateDetailPage() {
   const navigate = useNavigate()
   const searchParams = new URLSearchParams(window.location.search)
   const jobId = searchParams.get('job_id')
+  const { success, error: showError } = useToast()
   
   const [isPoolModalOpen, setIsPoolModalOpen] = useState(false)
   const [localIsInPool, setLocalIsInPool] = useState(false)
+  
+  const [outreachLoading, setOutreachLoading] = useState(false)
+  const [outreachDraft, setOutreachDraft] = useState(null)
+  const [outreachSending, setOutreachSending] = useState(false)
+  
+  const [interviewLoading, setInterviewLoading] = useState(false)
+  const [interviewQuestions, setInterviewQuestions] = useState(null)
+
   const { data: profile, loading, error } = useFetch(
     () => candidatesAPI.getPublicProfile(id, jobId ? { job_id: jobId } : {}), 
     [id, jobId]
@@ -83,6 +94,46 @@ export default function CandidateDetailPage() {
   const poolsArray = Array.isArray(pools) ? pools : []
   
   const isInAnyPool = localIsInPool || (profile ? poolsArray.some(p => p.member_candidate_ids?.includes(profile.id)) : false)
+
+  const handlePoolAdded = () => setLocalIsInPool(true)
+
+  const handleGenerateOutreach = async () => {
+    setOutreachLoading(true)
+    try {
+      const res = await candidatesAPI.getOutreachDraft(id, jobId ? { job_id: jobId } : {})
+      const fullText = `Subject: ${res.data.subject}\n\n${res.data.body}`
+      setOutreachDraft(fullText)
+    } catch (e) {
+      console.error(e)
+    }
+    setOutreachLoading(false)
+  }
+
+  const handleSendOutreach = async () => {
+    if (!outreachDraft.trim()) return
+    setOutreachSending(true)
+    try {
+      await messagingAPI.startConversation({ recipient_id: profile.user, message: outreachDraft.trim() })
+      setOutreachDraft(null)
+      success('Message sent successfully!')
+    } catch (err) {
+      console.error(err)
+      showError(err.response?.data?.detail || 'Error sending message.')
+    } finally {
+      setOutreachSending(false)
+    }
+  }
+
+  const handleGenerateInterview = async () => {
+    setInterviewLoading(true)
+    try {
+      const res = await candidatesAPI.getInterviewQuestions(id, jobId ? { job_id: jobId } : {})
+      setInterviewQuestions(res.data.questions)
+    } catch (e) {
+      console.error(e)
+    }
+    setInterviewLoading(false)
+  }
 
   if (loading) return <div className="space-y-6"><SkeletonCard /><SkeletonCard /></div>
 
@@ -129,8 +180,15 @@ export default function CandidateDetailPage() {
             <div className="flex-1 pb-1">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                  <h1 className="text-2xl font-bold text-slate-900">{profile.user_name}</h1>
-                  <p className="text-base text-muted-foreground mt-0.5">{profile.headline || 'Professional'}</p>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{profile.user_name}</h1>
+                  {profile.is_flight_risk && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700 ring-1 ring-inset ring-rose-600/20">
+                      🚀 Passive Talent
+                    </span>
+                  )}
+                </div>
+                <p className="text-lg text-muted-foreground mt-1 font-medium">{profile.headline || 'Professional'}</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <MessageButton recipientId={profile.user} name={profile.user_name} className="text-sm" />
@@ -252,6 +310,52 @@ export default function CandidateDetailPage() {
                       </ul>
                     </div>
                   )}
+                </div>
+              )}
+              
+              {/* Premium AI Actions */}
+              <div className="mt-5 flex flex-wrap gap-3 pt-5 border-t border-ai/10">
+                <button
+                  onClick={handleGenerateOutreach}
+                  disabled={outreachLoading}
+                  className="inline-flex items-center gap-2 rounded-lg bg-ai/10 px-4 py-2 text-sm font-semibold text-ai hover:bg-ai/20 transition-colors disabled:opacity-50"
+                >
+                  <MessageSquare className="h-4 w-4" /> 
+                  {outreachLoading ? 'Drafting...' : 'Auto-Draft Message'}
+                </button>
+                <button
+                  onClick={handleGenerateInterview}
+                  disabled={interviewLoading}
+                  className="inline-flex items-center gap-2 rounded-lg bg-ai/10 px-4 py-2 text-sm font-semibold text-ai hover:bg-ai/20 transition-colors disabled:opacity-50"
+                >
+                  <ClipboardList className="h-4 w-4" /> 
+                  {interviewLoading ? 'Generating...' : 'Interview Prep'}
+                </button>
+              </div>
+              
+              {/* Output Areas */}
+              {outreachDraft && (
+                <div className="mt-4 rounded-xl bg-white p-4 border border-ai/20 shadow-sm animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">AI Generated Draft</h3>
+                    <button className="text-xs text-primary hover:underline font-medium" onClick={() => navigator.clipboard.writeText(outreachDraft.body)}>Copy</button>
+                  </div>
+                  <p className="text-sm font-semibold text-slate-800 mb-2">Subject: {outreachDraft.subject}</p>
+                  <div className="text-sm text-slate-600 whitespace-pre-wrap">{outreachDraft.body}</div>
+                </div>
+              )}
+              
+              {interviewQuestions && (
+                <div className="mt-4 rounded-xl bg-white p-4 border border-ai/20 shadow-sm animate-in fade-in slide-in-from-top-2">
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">AI Tailored Interview Questions</h3>
+                  <ul className="space-y-3">
+                    {interviewQuestions.map((q, i) => (
+                      <li key={i} className="flex gap-3 text-sm text-slate-700">
+                        <span className="shrink-0 flex h-5 w-5 items-center justify-center rounded-full bg-ai/10 text-[10px] font-bold text-ai">{i+1}</span>
+                        <span>{q}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </div>
@@ -474,6 +578,84 @@ export default function CandidateDetailPage() {
           candidateName={profile.user_name} 
           onSuccess={() => setLocalIsInPool(true)}
         />
+      )}
+
+      {/* AI Outreach Draft Modal */}
+      {outreachDraft !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-100/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 flex flex-col max-h-[90vh]">
+            <div className="mb-5 flex items-center justify-between shrink-0">
+              <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
+                <Sparkles className="h-5 w-5 text-ai" /> Auto-Drafted Message
+              </h2>
+              <button onClick={() => setOutreachDraft(null)} className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-slate-600 mb-4 shrink-0">
+              Review and edit the AI-generated message below. Clicking send will deliver it directly to the candidate's inbox.
+            </p>
+
+            <div className="flex-1 min-h-0 relative rounded-lg border border-slate-200 bg-slate-50 overflow-hidden">
+              <textarea
+                value={outreachDraft}
+                onChange={e => setOutreachDraft(e.target.value)}
+                className="w-full h-full min-h-[300px] resize-none bg-transparent p-4 text-sm text-slate-700 whitespace-pre-wrap font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ai/50"
+              />
+            </div>
+            
+            <div className="mt-6 flex justify-end gap-3 shrink-0">
+              <button onClick={() => setOutreachDraft(null)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                Cancel
+              </button>
+              <button 
+                onClick={handleSendOutreach} 
+                disabled={outreachSending || !outreachDraft.trim()} 
+                className="rounded-lg bg-ai px-6 py-2 text-sm font-semibold text-white hover:bg-ai/90 shadow-sm transition-all disabled:opacity-50"
+              >
+                {outreachSending ? 'Sending...' : 'Send Message'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Interview Prep Modal */}
+      {interviewQuestions && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-100/80 p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 my-8">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
+                <Sparkles className="h-5 w-5 text-ai" /> Tailored Interview Guide
+              </h2>
+              <button onClick={() => setInterviewQuestions(null)} className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-slate-600 mb-6">
+              These questions were dynamically generated based on the semantic gap between this candidate's profile and your job requirements.
+            </p>
+
+            <div className="space-y-4">
+              {interviewQuestions.map((q, idx) => (
+                <div key={idx} className="flex gap-4 rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ai/10 font-bold text-ai">
+                    {idx + 1}
+                  </div>
+                  <p className="pt-1 text-sm font-medium text-slate-800 leading-relaxed">{q}</p>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-6 flex justify-end">
+              <button onClick={() => setInterviewQuestions(null)} className="rounded-lg bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800 shadow-sm transition-all">
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

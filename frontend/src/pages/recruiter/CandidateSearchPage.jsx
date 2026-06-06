@@ -456,7 +456,14 @@ export default function CandidateSearchPage() {
               <div className="flex-1 px-5 pb-5 space-y-5">
                 {/* Name & headline */}
                 <div className="pt-2">
-                  <h2 className="text-lg font-bold text-slate-900">{selected.user_name}</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-slate-900">{selected.user_name}</h2>
+                    {selected.is_flight_risk && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                        🚀 Passive Talent
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground">{selected.headline || 'Professional'}</p>
 
                   <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3 text-xs text-slate-500">

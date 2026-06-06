@@ -7,12 +7,17 @@ from .models import RecruiterActionLog
 def log_action_async(recruiter_id, candidate_id, action_type, job_id=None):
     """Run the DB log creation in a separate thread so it doesn't block the API."""
     def _log():
-        RecruiterActionLog.objects.create(
-            recruiter_id=recruiter_id,
-            candidate_id=candidate_id,
-            action_type=action_type,
-            job_id=job_id
-        )
+        from django.db import connection
+        try:
+            RecruiterActionLog.objects.create(
+                recruiter_id=recruiter_id,
+                candidate_id=candidate_id,
+                action_type=action_type,
+                job_id=job_id
+            )
+        finally:
+            connection.close()
+            
     threading.Thread(target=_log).start()
 
 @receiver(post_save, sender=Shortlist)
