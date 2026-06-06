@@ -150,7 +150,12 @@ class JobOptimizeView(APIView):
         job_type = request.data.get('type', '')
         skills = request.data.get('skills', [])
         
-        from .services import generate_job_description
-        result = generate_job_description(title, experience_level, salary_range, location, job_type, skills)
-        
-        return Response(result)
+        if request.query_params.get('stream') == 'true':
+            from django.http import StreamingHttpResponse
+            from .services import generate_job_description_stream
+            stream = generate_job_description_stream(title, experience_level, salary_range, location, job_type, skills)
+            return StreamingHttpResponse(stream, content_type='text/plain')
+        else:
+            from .services import generate_job_description
+            result = generate_job_description(title, experience_level, salary_range, location, job_type, skills)
+            return Response(result)

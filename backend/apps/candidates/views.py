@@ -285,10 +285,15 @@ class CandidateOutreachView(generics.RetrieveAPIView):
         candidate = self.get_object()
         job_id = request.query_params.get('job_id')
         
-        from .services import generate_outreach_draft
-        draft = generate_outreach_draft(candidate, job_id, recruiter_user=request.user)
-        
-        return Response(draft)
+        if request.query_params.get('stream') == 'true':
+            from django.http import StreamingHttpResponse
+            from .services import generate_outreach_draft_stream
+            stream = generate_outreach_draft_stream(candidate, job_id, recruiter_user=request.user)
+            return StreamingHttpResponse(stream, content_type='text/plain')
+        else:
+            from .services import generate_outreach_draft
+            draft = generate_outreach_draft(candidate, job_id, recruiter_user=request.user)
+            return Response(draft)
 
 
 class CandidateInterviewPrepView(generics.RetrieveAPIView):
@@ -300,7 +305,12 @@ class CandidateInterviewPrepView(generics.RetrieveAPIView):
         candidate = self.get_object()
         job_id = request.query_params.get('job_id')
         
-        from .services import generate_interview_questions
-        questions = generate_interview_questions(candidate, job_id)
-        
-        return Response({"questions": questions})
+        if request.query_params.get('stream') == 'true':
+            from django.http import StreamingHttpResponse
+            from .services import generate_interview_questions_stream
+            stream = generate_interview_questions_stream(candidate, job_id)
+            return StreamingHttpResponse(stream, content_type='text/plain')
+        else:
+            from .services import generate_interview_questions
+            questions = generate_interview_questions(candidate, job_id)
+            return Response({"questions": questions})

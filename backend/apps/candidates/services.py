@@ -176,6 +176,59 @@ Goal:
     
     return {"subject": subject, "body": body}
 
+def generate_outreach_draft_stream(candidate, job_id, recruiter_user=None):
+    """Generates a personalized outreach message stream based on Semantic Match context."""
+    from apps.core.llm import generate_text_stream
+    from apps.matching.models import MatchScore
+    from apps.jobs.models import Job
+    
+    recruiter_name = "Recruiter"
+    company_name_str = ""
+    
+    if recruiter_user:
+        if recruiter_user.first_name:
+            recruiter_name = f"{recruiter_user.first_name} {recruiter_user.last_name}".strip()
+        
+        if hasattr(recruiter_user, 'recruiter_profile') and recruiter_user.recruiter_profile.company:
+            company_name_str = f"\n{recruiter_user.recruiter_profile.company.name}"
+            
+    sign_off = f"Best regards,\n{recruiter_name}{company_name_str}"
+
+    if not job_id:
+        yield f"Hi {candidate.user.first_name},\n\nI came across your profile and was impressed by your background. We are currently hiring and I'd love to chat.\n\n{sign_off}"
+        return
+        
+    job = Job.objects.filter(id=job_id).first()
+    match_record = MatchScore.objects.filter(candidate=candidate, job_id=job_id).first()
+    
+    if not job or not match_record:
+        yield f"Hi {candidate.user.first_name},\n\nI was impressed by your profile and would love to discuss a role we have open.\n\n{sign_off}"
+        return
+
+    breakdown = match_record.breakdown or {}
+    skills_bd = breakdown.get('skills', {}) if isinstance(breakdown, dict) else {}
+    matched_skills = skills_bd.get('matched', []) if isinstance(skills_bd, dict) else []
+    
+    prompt = f"""
+Act as a professional technical recruiter. Write a highly personalized, compelling, and concise outreach email (2-3 short paragraphs) to a candidate named {candidate.user.first_name}.
+
+Context:
+- You are recruiting for a "{job.title}" role at "{job.company.name}".
+- The candidate has these relevant skills that match the job: {', '.join(matched_skills[:5]) if matched_skills else 'a strong background in tech'}.
+- The match score was {match_record.overall_score:.0f}%, meaning they are a great fit.
+
+Goal:
+- Highlight why their specific background caught your eye.
+- Mention the job title and company.
+- Ask for a brief 10-minute chat this week.
+- Do NOT include a subject line in the text, just the body.
+- End the email exactly with this sign-off (do not change it or add placeholders):
+
+{sign_off}
+"""
+    
+    yield from generate_text_stream(prompt, temperature=0.7)
+
 
 def generate_interview_questions(candidate, job_id):
     """Generates tailored interview questions using Gemini."""
@@ -233,3 +286,43 @@ Return ONLY a numbered list of the 4 questions. No introductions, no explanation
                 questions.append(f)
                 
     return questions[:4]
+
+def generate_interview_questions_stream(candidate, job_id):
+    """Generates tailored interview questions stream using Gemini."""
+    if not job_id:
+        yield "1. Can you walk me through your resume?\n2. What are your greatest strengths?\n3. Describe a challenge you overcame."
+        return
+        
+    from apps.matching.models import MatchScore
+    from apps.jobs.models import Job
+    from apps.core.llm import generate_text_stream
+    
+    match_record = MatchScore.objects.filter(candidate=candidate, job_id=job_id).first()
+    job = Job.objects.filter(id=job_id).first()
+    
+    if not match_record or not job:
+        yield "1. Can you walk me through your resume?\n2. What are your greatest strengths?\n3. Describe a challenge you overcame."
+        return
+
+    breakdown = match_record.breakdown or {}
+    skills_bd = breakdown.get('skills', {}) if isinstance(breakdown, dict) else {}
+    matched_skills = skills_bd.get('matched', []) if isinstance(skills_bd, dict) else []
+    missing_skills = skills_bd.get('missing', []) if isinstance(skills_bd, dict) else []
+    
+    prompt = f"""
+Act as a senior hiring manager preparing for an interview for a "{job.title}" role.
+
+Candidate Context:
+- They already possess these required skills: {', '.join(matched_skills) if matched_skills else 'general industry skills'}.
+- They are missing or weak in these required skills: {', '.join(missing_skills) if missing_skills else 'no major skill gaps'}.
+
+Task:
+Generate exactly 4 highly specific and insightful interview questions to ask this candidate.
+- 2 questions should dive deep into their existing skills to verify their expertise.
+- 2 questions should probe their ability to learn or handle the missing skills.
+
+Output Format:
+Return ONLY a numbered list of the 4 questions. No introductions, no explanations, no markdown other than numbers (1. 2. 3. 4.).
+"""
+    
+    yield from generate_text_stream(prompt, temperature=0.7)

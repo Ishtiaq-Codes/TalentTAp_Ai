@@ -36,17 +36,21 @@ export default function CreateJobPage() {
 
   const handleOptimize = async () => {
     setOptimizeLoading(true)
-    setOptimizeResult(null)
+    setOptimizeResult({ drafted_description: '' })
     try {
-      const res = await jobsAPI.optimize({
+      await jobsAPI.optimizeStream({
         title: form.title,
         experience_level: `${form.experience_min} to ${form.experience_max} years`,
         salary_range: form.salary_min ? `${form.salary_currency} ${form.salary_min} - ${form.salary_max}` : '',
         location: form.city ? `${form.city}, ${form.country}` : form.country,
         type: form.employment_type,
         skills: form.skills
+      }, (chunk) => {
+        setOptimizeResult(prev => ({
+          ...prev,
+          drafted_description: (prev?.drafted_description || '') + chunk
+        }))
       })
-      setOptimizeResult(res.data)
     } catch (err) {
       console.error(err)
     }
