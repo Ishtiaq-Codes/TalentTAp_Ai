@@ -68,9 +68,15 @@ function ProfileStrength({ completion }) {
 export default function CandidateDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const searchParams = new URLSearchParams(window.location.search)
+  const jobId = searchParams.get('job_id')
+  
   const [isPoolModalOpen, setIsPoolModalOpen] = useState(false)
   const [localIsInPool, setLocalIsInPool] = useState(false)
-  const { data: profile, loading, error } = useFetch(() => candidatesAPI.getPublicProfile(id), [id])
+  const { data: profile, loading, error } = useFetch(
+    () => candidatesAPI.getPublicProfile(id, jobId ? { job_id: jobId } : {}), 
+    [id, jobId]
+  )
   const { data: shortlists } = useFetch(() => applicationsAPI.getShortlists())
   const { data: pools } = useFetch(() => companiesAPI.getPools())
   const shortlistsArray = Array.isArray(shortlists) ? shortlists : []
@@ -192,21 +198,62 @@ export default function CandidateDetailPage() {
         {/* ─── Main Content ─── */}
         <div className="lg:col-span-2 space-y-6">
           {/* AI Decision Layer Insight */}
-          {(profile.skills?.length > 0 || profile.years_of_experience > 0) && (
+          {(profile.match_reason || profile.skills?.length > 0 || profile.years_of_experience > 0) && (
             <div className="rounded-2xl border border-ai/20 bg-gradient-to-r from-ai/5 to-transparent p-6 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
                 <Sparkles className="h-24 w-24 text-ai" />
               </div>
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="h-5 w-5 text-ai" />
-                <h2 className="text-base font-bold text-slate-900">AI Match Insight</h2>
+                <h2 className="text-base font-bold text-slate-900">AI Semantic Match Insight</h2>
+                {profile.ranking_score && (
+                  <span className="ml-auto inline-flex items-center rounded-full bg-ai/10 px-2.5 py-0.5 text-xs font-semibold text-ai">
+                    {profile.ranking_score.toFixed(0)} Score
+                  </span>
+                )}
               </div>
-              <p className="text-sm text-slate-700 leading-relaxed max-w-2xl">
-                TalentTap AI identifies this candidate as a strong prospect. 
-                {profile.years_of_experience > 0 && ` They bring ${profile.years_of_experience} years of professional experience, `}
-                {profile.skills?.length > 0 && `anchored by core competencies in ${profile.skills.slice(0, 3).map(s => typeof s === 'string' ? s : s.name).join(', ')}.`}
-                {profile.is_open_to_work && " Crucially, they are currently open to new opportunities and likely to respond quickly."}
+              <p className="text-sm text-slate-700 leading-relaxed max-w-2xl mb-4">
+                {profile.match_reason ? (
+                  profile.match_reason
+                ) : (
+                  <>
+                    TalentTap AI identifies this candidate as a strong prospect. 
+                    {profile.years_of_experience > 0 && ` They bring ${profile.years_of_experience} years of professional experience, `}
+                    {profile.skills?.length > 0 && `anchored by core competencies in ${profile.skills.slice(0, 3).map(s => typeof s === 'string' ? s : s.name).join(', ')}.`}
+                    {profile.is_open_to_work && " Crucially, they are currently open to new opportunities and likely to respond quickly."}
+                  </>
+                )}
               </p>
+              
+              {/* Detailed Context Factors */}
+              {((profile.relevance_factors && profile.relevance_factors.length > 0) || (profile.missing_factors && profile.missing_factors.length > 0)) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-ai/10">
+                  {profile.relevance_factors && profile.relevance_factors.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Matched Criteria</h3>
+                      <ul className="space-y-1">
+                        {profile.relevance_factors.map((factor, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
+                            <span className="text-emerald-500 mt-0.5">✓</span> {factor}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {profile.missing_factors && profile.missing_factors.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-xs font-bold text-red-700 uppercase tracking-wider">Missing Requirements</h3>
+                      <ul className="space-y-1">
+                        {profile.missing_factors.map((factor, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
+                            <span className="text-red-500 mt-0.5">✕</span> {factor}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

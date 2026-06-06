@@ -34,6 +34,6 @@ export const candidatesAPI = {
   addCertification: (data) => client.post('/candidates/certifications/', data),
   updateCertification: (id, data) => client.put(`/candidates/certifications/${id}/`, data),
   deleteCertification: (id) => client.delete(`/candidates/certifications/${id}/`),
-  search: (params) => client.get('/candidates/search/', { params }),
-  getPublicProfile: (id) => client.get(`/candidates/${id}/`),
+  search: (params) => client.get('/candidates/top/', { params }),
+  getPublicProfile: (id, params) => client.get(`/candidates/${id}/`, { params }),
 }

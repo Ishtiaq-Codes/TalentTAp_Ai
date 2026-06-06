@@ -48,6 +48,12 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.full_name', read_only=True)
     user_email = serializers.EmailField(source='user.email', read_only=True)
     avatar = serializers.ImageField(source='user.avatar', read_only=True)
+    
+    # AI Intelligence Fields (injected via annotations or service logic)
+    ranking_score = serializers.FloatField(read_only=True, required=False)
+    relevance_factors = serializers.JSONField(read_only=True, required=False)
+    missing_factors = serializers.JSONField(read_only=True, required=False)
+    match_reason = serializers.CharField(read_only=True, required=False)
 
     class Meta:
         model = CandidateProfile
@@ -60,6 +66,7 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
             'github_url', 'portfolio_url', 'resume', 'banner_image', 
             'is_open_to_work', 'profile_completion', 'skills', 'experiences', 
             'education', 'certifications', 'created_at', 'updated_at',
+            'ranking_score', 'relevance_factors', 'missing_factors', 'match_reason',
         ]
         read_only_fields = ['id', 'user', 'profile_completion', 'created_at', 'updated_at']
 
@@ -71,6 +78,12 @@ class CandidateSearchSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.full_name', read_only=True)
     avatar = serializers.ImageField(source='user.avatar', read_only=True)
     skills = CandidateSkillSerializer(many=True, read_only=True)
+    
+    # AI Intelligence Fields (injected via annotations or service logic)
+    ranking_score = serializers.FloatField(read_only=True, required=False)
+    relevance_factors = serializers.JSONField(read_only=True, required=False)
+    missing_factors = serializers.JSONField(read_only=True, required=False)
+    match_reason = serializers.CharField(read_only=True, required=False)
 
     class Meta:
         model = CandidateProfile
@@ -78,6 +91,7 @@ class CandidateSearchSerializer(serializers.ModelSerializer):
             'id', 'user_id', 'user_name', 'avatar', 'banner_image', 'headline', 'country', 'city',
             'years_of_experience', 'employment_status', 'availability',
             'employment_type_preferred', 'is_open_to_work', 'skills', 'is_shortlisted',
+            'ranking_score', 'relevance_factors', 'missing_factors', 'match_reason',
         ]
 
     def get_is_shortlisted(self, obj):

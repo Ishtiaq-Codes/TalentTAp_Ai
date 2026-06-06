@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { useDebounce } from '@/hooks/useDebounce'
 import { candidatesAPI } from '@/api/candidates'
+import { jobsAPI } from '@/api/jobs'
 import EmptyState from '@/components/common/EmptyState'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import ShortlistButton from '@/components/common/ShortlistButton'
@@ -51,11 +52,16 @@ export default function CandidateSearchPage() {
   const [filters, setFilters] = useState({})
   const [selectedId, setSelectedId] = useState(null)
   const [showFilters, setShowFilters] = useState(false)
+  const [selectedJobId, setSelectedJobId] = useState('')
   const debounced = useDebounce(search)
   const [focusedIndex, setFocusedIndex] = useState(-1)
+  
+  const { data: jobsResp } = useFetch(() => jobsAPI.list(), [])
+  const myJobs = jobsResp?.results || (Array.isArray(jobsResp) ? jobsResp : [])
+
   const { data: candidates, loading } = useFetch(
-    () => candidatesAPI.search({ search: debounced, ...filters }),
-    [debounced, filters],
+    () => candidatesAPI.search({ search: debounced, job_id: selectedJobId || undefined, ...filters }),
+    [debounced, filters, selectedJobId],
   )
 
   const list = Array.isArray(candidates) ? candidates : []
@@ -136,6 +142,22 @@ export default function CandidateSearchPage() {
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">{activeFilterCount}</span>
             )}
           </button>
+        </div>
+        
+        {/* Match Context Dropdown */}
+        <div className="mt-4 flex items-center gap-3">
+          <Sparkles className="h-4 w-4 text-ai" />
+          <span className="text-sm font-medium text-slate-700">AI Match Context:</span>
+          <select
+            value={selectedJobId}
+            onChange={(e) => setSelectedJobId(e.target.value)}
+            className="flex-1 max-w-xs rounded-lg border-slate-200 text-sm focus:border-ai focus:ring-ai shadow-sm"
+          >
+            <option value="">Global Organic Ranking</option>
+            {myJobs.map(job => (
+              <option key={job.id} value={job.id}>Match vs. {job.title}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -453,7 +475,7 @@ export default function CandidateSearchPage() {
                 {/* Quick actions */}
                 <div className="flex gap-2">
                   <Link
-                    to={`/recruiter/candidates/${selected.id}`}
+                    to={`/recruiter/candidates/${selected.id}${selectedJobId ? `?job_id=${selectedJobId}` : ''}`}
                     className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all"
                   >
                     View Full Profile <ArrowRight className="h-3.5 w-3.5" />

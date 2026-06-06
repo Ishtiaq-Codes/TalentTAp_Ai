@@ -28,5 +28,7 @@ urlpatterns = [
 
     # Search (recruiter)
     path('search/', views.CandidateSearchView.as_view(), name='search'),
+    path('top/', views.CandidateTopView.as_view(), name='top'),
+    path('recommended/', views.CandidateRecommendedView.as_view(), name='recommended'),
     path('<uuid:pk>/', views.CandidatePublicProfileView.as_view(), name='public-profile'),
 ]

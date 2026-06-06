@@ -100,7 +100,7 @@ export default function JobDetailPage() {
               <MatchScoreBadge score={match.overall_score} />
               <div className="flex-1">
                 <div className="flex items-start justify-between">
-                  <Link to={`/recruiter/candidates/${match.candidate_id}`} className="flex items-center gap-3 group">
+                  <Link to={`/recruiter/candidates/${match.candidate_id}?job_id=${job.id}`} className="flex items-center gap-3 group">
                     <ProfileAvatar src={match.candidate_avatar} name={match.candidate_name} size="md" />
                     <div>
                       <p className="font-semibold group-hover:text-primary transition-colors">{match.candidate_name}</p>
@@ -109,7 +109,7 @@ export default function JobDetailPage() {
                   </Link>
                   <div className="flex gap-2">
                     <Link
-                      to={`/recruiter/candidates/${match.candidate_id}`}
+                      to={`/recruiter/candidates/${match.candidate_id}?job_id=${job.id}`}
                       className="flex items-center justify-center gap-1.5 rounded-lg border px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                     >
                       <ExternalLink className="h-4 w-4" /> Profile
@@ -148,7 +148,7 @@ export default function JobDetailPage() {
           ) : appList.map((app) => (
             <div key={app.id} className="flex flex-col gap-4 rounded-xl border bg-card p-5">
               <div className="flex items-center justify-between">
-                <Link to={`/recruiter/candidates/${app.candidate}`} className="flex items-center gap-3 group">
+                <Link to={`/recruiter/candidates/${app.candidate}?job_id=${job.id}`} className="flex items-center gap-3 group">
                   <ProfileAvatar src={app.candidate_avatar} name={app.candidate_name} size="md" />
                   <div>
                     <p className="font-medium text-sm group-hover:text-primary transition-colors">{app.candidate_name}</p>
@@ -157,7 +157,7 @@ export default function JobDetailPage() {
                 </Link>
                 <div className="flex items-center gap-2">
                   <Link
-                    to={`/recruiter/candidates/${app.candidate}`}
+                    to={`/recruiter/candidates/${app.candidate}?job_id=${job.id}`}
                     className="flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors h-10"
                   >
                     <ExternalLink className="h-4 w-4" /> Profile
