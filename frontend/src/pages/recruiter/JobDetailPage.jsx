@@ -151,6 +151,24 @@ export default function JobDetailPage() {
 
           {tab === 'matches' && (
             <div className="space-y-4">
+              {/* Premium AI Explanation Box */}
+              <div className="relative overflow-hidden rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50/50 via-white to-blue-50/50 p-4 shadow-sm">
+                <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br from-indigo-500/10 to-blue-500/10 blur-2xl" />
+                <div className="flex items-start gap-3 relative z-10">
+                  <div className="mt-0.5 rounded-lg bg-indigo-100 p-1.5 text-indigo-600 shadow-sm">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900">How AI Matching Works</h4>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-600 max-w-[90%]">
+                      Our engine computes an exact match score out of 100% by analyzing 5 strict dimensions: 
+                      <span className="font-medium text-slate-700"> Skills, Semantic Experience, Location, Availability, and Employment Type. </span>
+                      Candidates scoring below 60% are automatically filtered out to ensure you only see highly qualified talent.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">{matchList.length} candidates ranked by AI score</p>
                 {job.status === 'active' && (

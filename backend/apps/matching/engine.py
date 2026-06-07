@@ -104,8 +104,10 @@ def compute_semantic_alignment(candidate_text, job_text):
         vectorizer = TfidfVectorizer(stop_words='english', max_features=500)
         tfidf_matrix = vectorizer.fit_transform([candidate_text, job_text])
         similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-        # Similarity is 0 to 1. Scale to 0-100.
-        return float(similarity * 100)
+        # In NLP, a cosine similarity of 0.3-0.4 between a 2-page resume and a 1-paragraph JD is considered excellent.
+        # We scale it by multiplying by 2.5, capping at 100.
+        score = min(100.0, float(similarity) * 250.0)
+        return score
     except Exception:
         return 50.0
 

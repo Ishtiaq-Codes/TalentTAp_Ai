@@ -20,6 +20,24 @@ export default function MatchesPage() {
         <p className="text-muted-foreground">Jobs ranked by AI compatibility score.</p>
       </div>
 
+      {/* Premium AI Explanation Box */}
+      <div className="relative overflow-hidden rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/50 p-5 shadow-sm">
+        <div className="absolute -right-4 -top-4 h-32 w-32 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 blur-2xl" />
+        <div className="flex items-start gap-3 relative z-10">
+          <div className="mt-0.5 rounded-lg bg-indigo-100 p-2 text-indigo-600 shadow-sm">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-slate-900">Maximize Your Match Score</h4>
+            <p className="mt-1 text-sm leading-relaxed text-slate-600 max-w-2xl">
+              TalentTap AI dynamically matches you to jobs by analyzing your holistic profile. To get the highest scores and appear at the top of recruiter search results, ensure your 
+              <span className="font-semibold text-slate-700"> Skills, Years of Experience, Location, and Work Preferences </span> 
+              are fully detailed and up-to-date!
+            </p>
+          </div>
+        </div>
+      </div>
+
       {matchList.length === 0 ? (
         <EmptyState icon={Sparkles} title="No matches yet" description="Complete your profile and add skills to get matched with jobs." />
       ) : (
