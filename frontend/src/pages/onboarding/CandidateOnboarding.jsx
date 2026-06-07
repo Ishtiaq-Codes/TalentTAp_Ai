@@ -14,11 +14,12 @@ const SKILL_OPTIONS = [
 export default function CandidateOnboarding() {
   const { user, completeOnboarding } = useAuth()
   const navigate = useNavigate()
-  const { addToast } = useToast()
+  const { success, error } = useToast()
   
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [customSkill, setCustomSkill] = useState('')
   
   const [form, setForm] = useState({
     headline: '',
@@ -68,16 +69,32 @@ export default function CandidateOnboarding() {
   const handlePrev = () => setStep(s => Math.max(s - 1, 1))
 
   const toggleSkill = (skill) => {
-    setForm(prev => {
-      if (prev.skills.includes(skill)) {
-        return { ...prev, skills: prev.skills.filter(s => s !== skill) }
+    if (!skill.trim()) return;
+    
+    // Check if removing
+    if (form.skills.includes(skill)) {
+      setForm(prev => ({ ...prev, skills: prev.skills.filter(s => s !== skill) }))
+      return
+    }
+    
+    // Check limit BEFORE state update to avoid React render crash
+    if (form.skills.length >= 10) {
+      error('You can select up to 10 skills.')
+      return
+    }
+    
+    setForm(prev => ({ ...prev, skills: [...prev.skills, skill] }))
+  }
+
+  const handleAddCustomSkill = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      const formatted = customSkill.trim()
+      if (formatted) {
+        toggleSkill(formatted)
+        setCustomSkill('')
       }
-      if (prev.skills.length >= 10) {
-        addToast('error', 'You can select up to 10 skills.')
-        return prev
-      }
-      return { ...prev, skills: [...prev.skills, skill] }
-    })
+    }
   }
 
   const handleSkip = async () => {
@@ -85,7 +102,7 @@ export default function CandidateOnboarding() {
     try {
       await completeOnboarding()
     } catch (err) {
-      addToast('error', 'Failed to skip onboarding.')
+      error('Failed to skip onboarding.')
     } finally {
       setSaving(false)
     }
@@ -106,11 +123,11 @@ export default function CandidateOnboarding() {
       // Complete onboarding
       await completeOnboarding()
       
-      addToast('success', 'Profile setup complete! Welcome to TalentTap.')
+      success('Profile setup complete! Welcome to TalentTap.')
     } catch (err) {
       console.error(err)
       const errorMsg = err.response?.data ? JSON.stringify(err.response.data) : err.message
-      addToast('error', `Failed to save profile: ${errorMsg}`)
+      error(`Failed to save profile: ${errorMsg}`)
     } finally {
       setSaving(false)
     }
@@ -173,23 +190,23 @@ export default function CandidateOnboarding() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Location</label>
-                <input
-                  type="text"
-                  value={form.location}
-                  onChange={e => setForm({...form, location: e.target.value})}
-                  placeholder="e.g. San Francisco, CA (or Remote)"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-
-              <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-700">Short Bio</label>
                 <textarea
                   rows={4}
                   value={form.bio}
                   onChange={e => setForm({...form, bio: e.target.value})}
                   placeholder="Tell companies a little bit about yourself..."
+                  className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Career Goals</label>
+                <textarea
+                  rows={4}
+                  value={form.career_goals}
+                  onChange={e => setForm({...form, career_goals: e.target.value})}
+                  placeholder="e.g. Looking to transition into a Team Lead role, open to learning Rust..."
                   className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -232,6 +249,7 @@ export default function CandidateOnboarding() {
                   Top Skills (Select up to 10)
                 </label>
                 <div className="flex flex-wrap gap-2">
+                  {/* Render standard skills */}
                   {SKILL_OPTIONS.map(skill => {
                     const isSelected = form.skills.includes(skill)
                     return (
@@ -248,7 +266,31 @@ export default function CandidateOnboarding() {
                       </button>
                     )
                   })}
+
+                  {/* Render custom skills not in SKILL_OPTIONS */}
+                  {form.skills.filter(s => !SKILL_OPTIONS.includes(s)).map(skill => (
+                    <button
+                      key={skill}
+                      onClick={() => toggleSkill(skill)}
+                      className="rounded-full border border-primary bg-primary text-white shadow-md shadow-primary/25 px-4 py-2 text-sm font-medium transition-all"
+                    >
+                      {skill} ✕
+                    </button>
+                  ))}
                 </div>
+                
+                {/* Custom Skill Input */}
+                <div className="mt-4 max-w-sm">
+                  <input
+                    type="text"
+                    value={customSkill}
+                    onChange={e => setCustomSkill(e.target.value)}
+                    onKeyDown={handleAddCustomSkill}
+                    placeholder="Type a custom skill and press Enter..."
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+
                 {form.skills.length > 0 && (
                   <p className="mt-3 text-xs font-medium text-primary">
                     {form.skills.length} / 10 selected
@@ -292,13 +334,13 @@ export default function CandidateOnboarding() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Career Goals</label>
-                <textarea
-                  rows={4}
-                  value={form.career_goals}
-                  onChange={e => setForm({...form, career_goals: e.target.value})}
-                  placeholder="e.g. Looking to transition into a Team Lead role, open to learning Rust..."
-                  className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Location (City)</label>
+                <input
+                  type="text"
+                  value={form.location}
+                  onChange={e => setForm({...form, location: e.target.value})}
+                  placeholder="Enter exact city name (e.g. Lahore, London)"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
             </div>
