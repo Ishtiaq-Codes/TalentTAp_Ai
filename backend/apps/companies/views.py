@@ -48,6 +48,12 @@ class CompanyProfileView(generics.RetrieveUpdateAPIView):
         company = _get_company_for_user(self.request.user)
         if not company and self.request.user.role == 'company_admin':
             company = Company.objects.create(name='New Company', created_by=self.request.user)
+            # Ensure the admin gets a profile immediately
+            from apps.companies.models import RecruiterProfile
+            RecruiterProfile.objects.get_or_create(
+                user=self.request.user,
+                defaults={'company': company, 'title': 'Company Admin', 'is_active': True}
+            )
         return company
 
 
@@ -110,7 +116,13 @@ class RecruiterListView(generics.ListAPIView):
     def get_queryset(self):
         company = _get_company_for_user(self.request.user)
         if company:
-            return RecruiterProfile.objects.filter(company=company).select_related('user')
+            # Ensure the company admin themselves has a RecruiterProfile so they appear in the team list
+            if self.request.user.role == 'company_admin':
+                RecruiterProfile.objects.get_or_create(
+                    user=self.request.user,
+                    defaults={'company': company, 'title': 'Company Admin', 'is_active': True}
+                )
+            return RecruiterProfile.objects.filter(company=company).select_related('user').order_by('created_at')
         return RecruiterProfile.objects.none()
 
 
