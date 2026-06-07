@@ -113,8 +113,8 @@ export default function RecruiterDashboard() {
   const [jobsPage, setJobsPage] = useState(1)
   const [appsPage, setAppsPage] = useState(1)
 
-  const { data: jobs, meta: jobsMeta, loading: jobsLoading } = useFetch(() => jobsAPI.list({ page: jobsPage }), [jobsPage])
-  const { data: applications, meta: appsMeta, loading: appsLoading } = useFetch(() => applicationsAPI.list({ page: appsPage }), [appsPage])
+  const { data: jobs, meta: jobsMeta, loading: jobsLoading } = useFetch(() => jobsAPI.list({ page: jobsPage, page_size: 5 }), [jobsPage])
+  const { data: applications, meta: appsMeta, loading: appsLoading } = useFetch(() => applicationsAPI.list({ page: appsPage, page_size: 5 }), [appsPage])
   const { data: activities, loading: activitiesLoading } = useFetch(() => analyticsAPI.getRecruiterActivities(), [])
 
   const jobList = Array.isArray(jobs) ? jobs : []
@@ -123,7 +123,7 @@ export default function RecruiterDashboard() {
   const totalJobsCount = jobsMeta?.count || jobList.length
   const totalAppsCount = appsMeta?.count || appList.length
 
-  if (jobsLoading && jobsPage === 1) {
+  if ((jobsLoading && !jobs) || (appsLoading && !applications)) {
     return (
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -165,7 +165,7 @@ export default function RecruiterDashboard() {
               <h2 className="text-base font-semibold text-slate-900">Recent Candidates</h2>
               <Link to="/recruiter/candidates" className="text-sm font-medium text-primary hover:text-primary/80">View all</Link>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto min-h-[400px]">
               <table className="min-w-full divide-y divide-slate-200">
                 <thead className="bg-white">
                   <tr>
@@ -213,7 +213,7 @@ export default function RecruiterDashboard() {
             {appsMeta && appsMeta.count > 0 && (
               <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-3">
                 <p className="text-xs text-slate-500">
-                  Showing <span className="font-medium">{(appsPage - 1) * 20 + 1}</span> to <span className="font-medium">{Math.min(appsPage * 20, appsMeta.count)}</span> of <span className="font-medium">{appsMeta.count}</span>
+                  Showing <span className="font-medium">{(appsPage - 1) * 5 + 1}</span> to <span className="font-medium">{Math.min(appsPage * 5, appsMeta.count)}</span> of <span className="font-medium">{appsMeta.count}</span>
                 </p>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setAppsPage(p => Math.max(1, p - 1))} disabled={!appsMeta.previous} className="rounded-md border p-1 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"><ChevronLeft className="h-4 w-4"/></button>
@@ -229,7 +229,7 @@ export default function RecruiterDashboard() {
               <h2 className="text-base font-semibold text-slate-900">Active Job Postings</h2>
               <Link to="/recruiter/jobs" className="text-sm font-medium text-primary hover:text-primary/80">View all</Link>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto min-h-[400px]">
               <table className="min-w-full divide-y divide-slate-200">
                 <thead className="bg-white">
                   <tr>
@@ -277,7 +277,7 @@ export default function RecruiterDashboard() {
             {jobsMeta && jobsMeta.count > 0 && (
               <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-3">
                 <p className="text-xs text-slate-500">
-                  Showing <span className="font-medium">{(jobsPage - 1) * 20 + 1}</span> to <span className="font-medium">{Math.min(jobsPage * 20, jobsMeta.count)}</span> of <span className="font-medium">{jobsMeta.count}</span>
+                  Showing <span className="font-medium">{(jobsPage - 1) * 5 + 1}</span> to <span className="font-medium">{Math.min(jobsPage * 5, jobsMeta.count)}</span> of <span className="font-medium">{jobsMeta.count}</span>
                 </p>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setJobsPage(p => Math.max(1, p - 1))} disabled={!jobsMeta.previous} className="rounded-md border p-1 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"><ChevronLeft className="h-4 w-4"/></button>
