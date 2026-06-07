@@ -135,21 +135,6 @@ class ApplicationStatusUpdateView(APIView):
                 action_url="/candidate/applications"
             )
             
-        # Notify company admin
-        company_admin = application.job.company.created_by if application.job.company else None
-        user = request.user
-        if company_admin and company_admin != user:
-            from apps.notifications.services import notify
-            from apps.notifications.models import Notification
-            notify(
-                user=company_admin,
-                notification_type=Notification.Type.SYSTEM,
-                title="Team Update: Application Status",
-                message=f"[{user.full_name}] moved {application.candidate.user.full_name} to {application.get_status_display()} for {application.job.title}.",
-                action_url=f"/recruiter/jobs/{application.job.id}",
-                is_rollup=True
-            )
-            
         return Response(ApplicationSerializer(application).data)
 
 
@@ -232,18 +217,4 @@ class ShortlistToggleView(APIView):
         else:
             Shortlist.objects.create(recruiter=profile, candidate_id=candidate_id, job_id=job_id)
             
-            # Notify admin directly (bypassing normal rollup since this is specifically for admin)
-            from apps.notifications.services import notify
-            from apps.notifications.models import Notification
-            company_admin = profile.company.created_by if profile.company else None
-            if company_admin and company_admin != user:
-                notify(
-                    user=company_admin,
-                    notification_type=Notification.Type.SYSTEM,
-                    title="Candidate Shortlisted",
-                    message=f"[{user.full_name}] shortlisted a new candidate.",
-                    action_url="/company/team",
-                    is_rollup=True
-                )
-                
             return Response({'status': 'added', 'is_shortlisted': True})

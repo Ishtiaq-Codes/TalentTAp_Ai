@@ -245,6 +245,8 @@ class CompanyDashboardView(APIView):
 
         # Messages are on User, annotate separately
         from django.db.models import OuterRef, Subquery
+        from apps.analytics.models import RecruiterActionLog
+        from apps.analytics.serializers import RecruiterActionLogSerializer
         recruiter_data = []
         for r in recruiters_annotated:
             avatar_url = None
@@ -253,6 +255,11 @@ class CompanyDashboardView(APIView):
                     avatar_url = request.build_absolute_uri(r.user.avatar.url)
                 except Exception:
                     pass
+            
+            # Fetch recent activities (increased from 5 to 100 to show more history while maintaining performance)
+            activities = RecruiterActionLog.objects.filter(recruiter=r.user).select_related('candidate__user', 'job').order_by('-timestamp')[:100]
+            recent_activities = RecruiterActionLogSerializer(activities, many=True, context={'request': request}).data
+
             recruiter_data.append({
                 'id': str(r.id),
                 'name': r.user.full_name,
@@ -263,6 +270,7 @@ class CompanyDashboardView(APIView):
                 'shortlists_count': r.shortlists_cnt,
                 'messages_count': Message.objects.filter(sender=r.user).count(),
                 'joined_at': r.created_at.isoformat(),
+                'recent_activities': recent_activities,
             })
 
         # Recent active jobs with application counts

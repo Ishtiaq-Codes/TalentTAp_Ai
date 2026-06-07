@@ -4,7 +4,7 @@ import { jobsAPI } from '@/api/jobs'
 import { applicationsAPI } from '@/api/applications'
 import { analyticsAPI } from '@/api/analytics'
 import { useAuth } from '@/contexts/AuthContext'
-import { Briefcase, Users, FileText, TrendingUp, Plus, ArrowRight, Activity, Clock, CheckCircle, ChevronLeft, ChevronRight, Eye, Bookmark, XCircle, Star, RefreshCw, Trash2 } from 'lucide-react'
+import { Briefcase, Users, FileText, TrendingUp, Plus, ArrowRight, Activity, Clock, CheckCircle, ChevronLeft, ChevronRight, Eye, Bookmark, XCircle, Star, RefreshCw, Trash2, Award } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
@@ -375,12 +375,33 @@ export default function RecruiterDashboard() {
                       subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
                       linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
                     } else if (activity.action_type === 'status_change') {
-                      Icon = RefreshCw;
-                      iconClass = "bg-indigo-100 text-indigo-600";
-                      const status = activity.details?.status || "a new stage";
-                      titleText = <span>Moved {activity.candidate_name} to <span className="font-medium">{status}</span></span>;
-                      subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
-                      linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
+                        let detailsObj = {};
+                        try { detailsObj = typeof activity.details === 'string' ? JSON.parse(activity.details) : (activity.details || {}); } catch(e) {}
+                        const status = (detailsObj.status || "a new stage").toLowerCase();
+                        
+                        if (status === 'rejected') {
+                          Icon = XCircle;
+                          iconClass = "bg-red-100 text-red-600";
+                          titleText = <span>You <span className="font-medium">rejected</span> {activity.candidate_name}</span>;
+                        } else if (status === 'offered') {
+                          Icon = Award;
+                          iconClass = "bg-emerald-100 text-emerald-600";
+                          titleText = <span>You <span className="font-medium">offered</span> a job to {activity.candidate_name}</span>;
+                        } else if (status === 'interview') {
+                          Icon = Clock;
+                          iconClass = "bg-indigo-100 text-indigo-600";
+                          titleText = <span>You scheduled an <span className="font-medium">interview</span> with {activity.candidate_name}</span>;
+                        } else if (status === 'shortlisted') {
+                          Icon = Star;
+                          iconClass = "bg-purple-100 text-purple-600";
+                          titleText = <span>You <span className="font-medium">shortlisted</span> {activity.candidate_name}</span>;
+                        } else {
+                          Icon = RefreshCw;
+                          iconClass = "bg-indigo-100 text-indigo-600";
+                          titleText = <span>Moved {activity.candidate_name} to <span className="font-medium capitalize">{status}</span></span>;
+                        }
+                        subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
+                        linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
                     } else if (activity.action_type === 'job_create') {
                       Icon = Briefcase;
                       iconClass = "bg-blue-100 text-blue-600";
