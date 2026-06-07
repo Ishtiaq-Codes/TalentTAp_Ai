@@ -23,6 +23,7 @@ urlpatterns = [
     
     # Copilot Chatbot
     path('api/v1/chat/stream/', __import__('apps.core.views').core.views.CopilotView.as_view(), name='chat-stream'),
+    path('api/v1/chat/public/stream/', __import__('apps.core.views').core.views.PublicChatView.as_view(), name='public-chat-stream'),
 
     # CKEditor image uploader
     path('ckeditor/', include('ckeditor_uploader.urls')),

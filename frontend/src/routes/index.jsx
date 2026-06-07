@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth, getDashboardPath, getRedirectPath } from '@/contexts/AuthContext'
 import AppShell from '@/components/layout/AppShell'
 import OnboardingLayout from '@/components/layout/OnboardingLayout'
+import PublicChatbot from '@/components/shared/PublicChatbot'
 
 // Auth
 const LandingPage = lazy(() => import('@/pages/landing/LandingPage'))
@@ -100,6 +101,18 @@ function RedirectIfAuth({ children }) {
 }
 
 /**
+ * Wrapper for public pages to inject the PublicChatbot
+ */
+function PublicRouteWrapper({ children }) {
+  return (
+    <>
+      {children}
+      <PublicChatbot />
+    </>
+  )
+}
+
+/**
  * Guard: requires authentication AND onboarding. Redirects if not.
  */
 function RequireOnboarded({ children }) {
@@ -119,17 +132,17 @@ export default function AppRouter() {
       <Suspense fallback={<Loading />}>
         <Routes>
           {/* Public routes — redirect to dashboard if logged in */}
-          <Route path="/" element={<RedirectIfAuth><LandingPage /></RedirectIfAuth>} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/features" element={<FeaturesPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/faq" element={<FAQPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/blog" element={<BlogListPage />} />
-          <Route path="/blog/:slug" element={<BlogDetailPage />} />
-          <Route path="/talent/:id" element={<TalentProfilePage />} />
+          <Route path="/" element={<RedirectIfAuth><PublicRouteWrapper><LandingPage /></PublicRouteWrapper></RedirectIfAuth>} />
+          <Route path="/about" element={<PublicRouteWrapper><AboutPage /></PublicRouteWrapper>} />
+          <Route path="/features" element={<PublicRouteWrapper><FeaturesPage /></PublicRouteWrapper>} />
+          <Route path="/pricing" element={<PublicRouteWrapper><PricingPage /></PublicRouteWrapper>} />
+          <Route path="/faq" element={<PublicRouteWrapper><FAQPage /></PublicRouteWrapper>} />
+          <Route path="/contact" element={<PublicRouteWrapper><ContactPage /></PublicRouteWrapper>} />
+          <Route path="/privacy" element={<PublicRouteWrapper><PrivacyPage /></PublicRouteWrapper>} />
+          <Route path="/terms" element={<PublicRouteWrapper><TermsPage /></PublicRouteWrapper>} />
+          <Route path="/blog" element={<PublicRouteWrapper><BlogListPage /></PublicRouteWrapper>} />
+          <Route path="/blog/:slug" element={<PublicRouteWrapper><BlogDetailPage /></PublicRouteWrapper>} />
+          <Route path="/talent/:id" element={<PublicRouteWrapper><TalentProfilePage /></PublicRouteWrapper>} />
           <Route path="/login" element={<RedirectIfAuth><LoginPage /></RedirectIfAuth>} />
           <Route path="/register" element={<RedirectIfAuth><RegisterPage /></RedirectIfAuth>} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
