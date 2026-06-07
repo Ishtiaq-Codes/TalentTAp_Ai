@@ -112,6 +112,17 @@ class ApplicationStatusUpdateView(APIView):
         application.status = serializer.validated_data['status']
         application.save(update_fields=['status', 'updated_at'])
         
+        # Asynchronously log the view action
+        from apps.analytics.signals import log_action_async
+        from apps.analytics.models import RecruiterActionLog
+        log_action_async(
+            recruiter_id=request.user.id,
+            candidate_id=application.candidate.id,
+            action_type=RecruiterActionLog.ActionType.STATUS_CHANGE,
+            job_id=application.job.id,
+            details={"status": application.status}
+        )
+        
         # Notify the candidate
         if application.status in ['interview', 'offered', 'rejected']:
             from apps.notifications.services import notify

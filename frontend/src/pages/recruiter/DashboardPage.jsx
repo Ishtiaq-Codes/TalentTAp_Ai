@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { useFetch } from '@/hooks/useFetch'
 import { jobsAPI } from '@/api/jobs'
 import { applicationsAPI } from '@/api/applications'
+import { analyticsAPI } from '@/api/analytics'
 import { useAuth } from '@/contexts/AuthContext'
-import { Briefcase, Users, FileText, TrendingUp, Plus, ArrowRight, Activity, Clock, CheckCircle, ChevronLeft, ChevronRight, Eye } from 'lucide-react'
+import { Briefcase, Users, FileText, TrendingUp, Plus, ArrowRight, Activity, Clock, CheckCircle, ChevronLeft, ChevronRight, Eye, Bookmark, XCircle, Star, RefreshCw, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatDateTime } from '@/lib/utils'
 
 function DashboardStat({ icon: Icon, label, value, trend, trendLabel }) {
   return (
@@ -114,6 +115,7 @@ export default function RecruiterDashboard() {
 
   const { data: jobs, meta: jobsMeta, loading: jobsLoading } = useFetch(() => jobsAPI.list({ page: jobsPage }), [jobsPage])
   const { data: applications, meta: appsMeta, loading: appsLoading } = useFetch(() => applicationsAPI.list({ page: appsPage }), [appsPage])
+  const { data: activities, loading: activitiesLoading } = useFetch(() => analyticsAPI.getRecruiterActivities(), [])
 
   const jobList = Array.isArray(jobs) ? jobs : []
   const appList = Array.isArray(applications) ? applications : []
@@ -322,6 +324,106 @@ export default function RecruiterDashboard() {
                     <p className="text-xs text-slate-500 mt-0.5">Collaborate on hiring by adding recruiters.</p>
                   </div>
                 </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Recent Activity Feed */}
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col max-h-[500px]">
+            <div className="p-5 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+              <h3 className="font-semibold text-slate-900 text-sm">Recent Activity</h3>
+              <Activity className="h-4 w-4 text-slate-400" />
+            </div>
+            <div className="p-2 overflow-y-auto overflow-x-hidden flex-1">
+              {activitiesLoading ? (
+                <div className="p-4 flex justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div></div>
+              ) : (!activities || activities.length === 0) ? (
+                <div className="py-8 text-center px-4">
+                  <Activity className="h-8 w-8 text-slate-300 mx-auto mb-3" />
+                  <p className="text-sm text-slate-500">Your recent actions will appear here.</p>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {activities.map((activity) => {
+                    let Icon = Eye;
+                    let iconClass = "bg-blue-100 text-blue-600";
+                    
+                    let titleText = "";
+                    let subtitleText = "";
+                    let linkTo = "#";
+
+                    if (activity.action_type === 'view') {
+                      titleText = <span>You <span className="font-medium">viewed</span> {activity.candidate_name}'s profile</span>;
+                      subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
+                      linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
+                    } else if (activity.action_type === 'shortlist') {
+                      Icon = Star;
+                      iconClass = "bg-purple-100 text-purple-600";
+                      titleText = <span>You <span className="font-medium">shortlisted</span> {activity.candidate_name}</span>;
+                      subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
+                      linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
+                    } else if (activity.action_type === 'reject') {
+                      Icon = XCircle;
+                      iconClass = "bg-red-100 text-red-600";
+                      titleText = <span>You <span className="font-medium">rejected</span> {activity.candidate_name}</span>;
+                      subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
+                      linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
+                    } else if (activity.action_type === 'save') {
+                      Icon = Bookmark;
+                      iconClass = "bg-emerald-100 text-emerald-600";
+                      titleText = <span>You <span className="font-medium">saved</span> {activity.candidate_name}</span>;
+                      subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
+                      linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
+                    } else if (activity.action_type === 'status_change') {
+                      Icon = RefreshCw;
+                      iconClass = "bg-indigo-100 text-indigo-600";
+                      const status = activity.details?.status || "a new stage";
+                      titleText = <span>Moved {activity.candidate_name} to <span className="font-medium">{status}</span></span>;
+                      subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
+                      linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
+                    } else if (activity.action_type === 'job_create') {
+                      Icon = Briefcase;
+                      iconClass = "bg-blue-100 text-blue-600";
+                      titleText = <span>You <span className="font-medium">posted</span> a new job</span>;
+                      subtitleText = activity.details?.title || "Job Posting";
+                      linkTo = `/recruiter/jobs/${activity.job_title ? activity.job_id : ''}`;
+                    } else if (activity.action_type === 'job_delete') {
+                      Icon = Trash2;
+                      iconClass = "bg-slate-100 text-slate-600";
+                      titleText = <span>You <span className="font-medium">deleted</span> a job post</span>;
+                      subtitleText = activity.details?.title || "Job Posting";
+                      linkTo = `/recruiter/jobs`;
+                    } else if (activity.action_type === 'talent_pool') {
+                      Icon = Users;
+                      iconClass = "bg-amber-100 text-amber-600";
+                      const poolName = activity.details?.pool_name || "a talent pool";
+                      titleText = <span>Added {activity.candidate_name} to <span className="font-medium">{poolName}</span></span>;
+                      subtitleText = "Talent Pool Activity";
+                      linkTo = `/company/talent-pools`;
+                    }
+
+                    return (
+                      <Link 
+                        key={activity.id} 
+                        to={linkTo} 
+                        className="flex items-start gap-3 p-3 hover:bg-slate-50 transition-colors rounded-lg group"
+                      >
+                        <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${iconClass}`}>
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-slate-900 truncate">
+                            {titleText}
+                          </p>
+                          <p className="text-xs text-slate-500 mt-0.5 flex items-center justify-between gap-2">
+                            <span className="truncate flex-1">{subtitleText}</span>
+                            <span className="shrink-0 whitespace-nowrap text-slate-400">{formatDateTime(activity.timestamp)}</span>
+                          </p>
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
               )}
             </div>
           </div>

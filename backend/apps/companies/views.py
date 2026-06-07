@@ -436,6 +436,16 @@ class TalentPoolMembersView(_CompanyMixin, APIView):
         )
         if not created:
             return Response({'detail': 'Already in pool.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        from apps.analytics.signals import log_action_async
+        from apps.analytics.models import RecruiterActionLog
+        log_action_async(
+            recruiter_id=request.user.id,
+            candidate_id=candidate.id,
+            action_type=RecruiterActionLog.ActionType.TALENT_POOL,
+            details={"pool_name": pool.name}
+        )
+            
         return Response(TalentPoolMemberSerializer(member).data, status=status.HTTP_201_CREATED)
 
 

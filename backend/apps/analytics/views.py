@@ -82,3 +82,17 @@ class AdminJobListView(APIView):
             'is_remote', 'country', 'city', 'created_at',
         ).annotate(application_count=Count('applications'))
         return Response(list(jobs))
+
+from rest_framework import generics
+from apps.accounts.permissions import IsRecruiter
+from .models import RecruiterActionLog
+from .serializers import RecruiterActionLogSerializer
+
+class RecruiterActivityListView(generics.ListAPIView):
+    serializer_class = RecruiterActionLogSerializer
+    permission_classes = [IsAuthenticated, IsRecruiter]
+    
+    def get_queryset(self):
+        return RecruiterActionLog.objects.filter(
+            recruiter=self.request.user
+        ).select_related('candidate__user', 'job').order_by('-timestamp')[:50]

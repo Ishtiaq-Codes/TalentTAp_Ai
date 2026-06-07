@@ -2,7 +2,7 @@
 from django.urls import path
 from . import views
 
-# These are included under /api/v1/admin/ — but we need to update core/urls.py
+# These are included under /api/v1/admin/ - but we need to update core/urls.py
 # For now, we register them in the analytics app
 
 app_name = 'analytics'

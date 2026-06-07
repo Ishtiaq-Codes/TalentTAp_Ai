@@ -18,6 +18,7 @@ urlpatterns = [
     path('api/v1/messages/', include('apps.messaging.urls')),
     path('api/v1/notifications/', include('apps.notifications.urls')),
     path('api/v1/admin/', include('apps.analytics.urls')),
+    path('api/v1/analytics/activities/', __import__('apps.analytics.views').analytics.views.RecruiterActivityListView.as_view(), name='recruiter-activities'),
     path('api/v1/blog/', include('apps.blog.urls')),
     
     # Copilot Chatbot

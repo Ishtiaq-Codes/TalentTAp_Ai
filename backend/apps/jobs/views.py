@@ -69,6 +69,17 @@ class JobListCreateView(generics.ListCreateAPIView):
                     is_rollup=True
                 )
                 
+            # Log action
+            from apps.analytics.signals import log_action_async
+            from apps.analytics.models import RecruiterActionLog
+            log_action_async(
+                recruiter_id=user.id,
+                candidate_id=None,
+                action_type=RecruiterActionLog.ActionType.JOB_CREATE,
+                job_id=job.id,
+                details={"title": job.title}
+            )
+                
             # Run matching engine automatically
             if job.status == 'active':
                 try:
@@ -102,6 +113,18 @@ class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
                 run_matching_for_job(job)
             except Exception as e:
                 pass
+
+    def perform_destroy(self, instance):
+        from apps.analytics.signals import log_action_async
+        from apps.analytics.models import RecruiterActionLog
+        log_action_async(
+            recruiter_id=self.request.user.id,
+            candidate_id=None,
+            action_type=RecruiterActionLog.ActionType.JOB_DELETE,
+            job_id=None,
+            details={"title": instance.title}
+        )
+        instance.delete()
 
 
 class JobStatusView(APIView):

@@ -11,6 +11,13 @@ export function formatDate(dateString) {
   })
 }
 
+export function formatDateTime(dateString) {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', hour12: true
+  })
+}
+
 export function timeAgo(dateString) {
   const seconds = Math.floor((Date.now() - new Date(dateString)) / 1000)
   const intervals = [
