@@ -2,10 +2,16 @@ import { useState, useRef, useEffect } from 'react'
 import { MessageSquare, X, Send, Sparkles, Bot, User } from 'lucide-react'
 import client from '@/api/client'
 
-export default function RecruiterChatbot() {
+export default function CopilotChatbot({ user }) {
   const [isOpen, setIsOpen] = useState(false)
+  const initialMessage = user?.role === 'recruiter' 
+    ? "Hi! I'm your AI Copilot. How can I help you with recruiting today?" 
+    : user?.role === 'company_admin'
+    ? "Hi! I'm your AI Admin Copilot. How can I help you manage your company profile and settings today?"
+    : "Hi! I'm your AI Career Copilot. How can I help you optimize your profile or find jobs today?";
+
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hi! I'm your AI Copilot. How can I help you with recruiting today?" }
+    { role: 'assistant', content: initialMessage }
   ])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -57,7 +63,8 @@ export default function RecruiterChatbot() {
           const chunk = decoder.decode(value, { stream: true })
           setMessages(prev => {
             const newMessages = [...prev]
-            newMessages[newMessages.length - 1].content += chunk
+            const lastMsg = newMessages[newMessages.length - 1]
+            newMessages[newMessages.length - 1] = { ...lastMsg, content: lastMsg.content + chunk }
             return newMessages
           })
         }
@@ -95,7 +102,9 @@ export default function RecruiterChatbot() {
             </div>
             <div>
               <h3 className="font-bold text-sm">TalentTap AI</h3>
-              <p className="text-[10px] text-slate-300">Recruiter Copilot</p>
+              <p className="text-[10px] text-slate-300">
+                {user?.role === 'recruiter' ? 'Recruiter Copilot' : user?.role === 'company_admin' ? 'Admin Copilot' : 'Career Copilot'}
+              </p>
             </div>
           </div>
           <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition-colors">

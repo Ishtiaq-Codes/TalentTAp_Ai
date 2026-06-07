@@ -428,6 +428,16 @@ def parse_resume(candidate_id):
                 pass
         profile.save()
         
+        import re
+        def _parse_date(d):
+            if not d: return None
+            d = str(d).strip().lower()
+            if d in ('present', 'current', 'now'): return None
+            if re.match(r'^\d{4}-\d{2}-\d{2}$', d): return d
+            if re.match(r'^\d{4}-\d{2}$', d): return f"{d}-01"
+            if re.match(r'^\d{4}$', d): return f"{d}-01-01"
+            return None
+        
         for skill in data.get('skills', []):
             if not skill.get('name'): continue
             CandidateSkill.objects.get_or_create(
@@ -438,8 +448,8 @@ def parse_resume(candidate_id):
             
         for exp in data.get('experiences', []):
             if not exp.get('title') or not exp.get('company_name'): continue
-            sd = exp.get('start_date') if exp.get('start_date') else '2000-01-01'
-            ed = exp.get('end_date') if exp.get('end_date') else None
+            sd = _parse_date(exp.get('start_date')) or '2000-01-01'
+            ed = _parse_date(exp.get('end_date'))
             try:
                 Experience.objects.get_or_create(
                     candidate=profile,
@@ -452,8 +462,8 @@ def parse_resume(candidate_id):
             
         for edu in data.get('education', []):
             if not edu.get('degree') or not edu.get('institution_name'): continue
-            sd = edu.get('start_date') if edu.get('start_date') else '2000-01-01'
-            ed = edu.get('end_date') if edu.get('end_date') else None
+            sd = _parse_date(edu.get('start_date')) or '2000-01-01'
+            ed = _parse_date(edu.get('end_date'))
             try:
                 Education.objects.get_or_create(
                     candidate=profile,
@@ -466,8 +476,8 @@ def parse_resume(candidate_id):
             
         for cert in data.get('certifications', []):
             if not cert.get('name') or not cert.get('issuing_organization'): continue
-            issue = cert.get('issue_date') if cert.get('issue_date') else None
-            expir = cert.get('expiration_date') if cert.get('expiration_date') else None
+            issue = _parse_date(cert.get('issue_date'))
+            expir = _parse_date(cert.get('expiration_date'))
             try:
                 Certification.objects.get_or_create(
                     candidate=profile,

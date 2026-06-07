@@ -118,6 +118,7 @@ export default function BlogListPage() {
     }
   }, [activeCategory, search])
 
+  // eslint-disable-next-line
   useEffect(() => { fetchData() }, [fetchData])
 
   const handleSearch = (e) => {

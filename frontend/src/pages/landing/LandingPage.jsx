@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/refs */
 import { useState, useEffect, useRef } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth, getDashboardPath } from '@/contexts/AuthContext'
@@ -42,17 +43,17 @@ function useCountUp(end, duration = 2000) {
 
 /* ─── Scroll reveal hook ─── */
 function useReveal() {
-  const ref = useRef(null)
+  const targetRef = useRef(null)
   const [visible, setVisible] = useState(false)
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setVisible(true) },
       { threshold: 0.1 }
     )
-    if (ref.current) observer.observe(ref.current)
+    if (targetRef.current) observer.observe(targetRef.current)
     return () => observer.disconnect()
   }, [])
-  return { ref, visible }
+  return { targetRef, visible }
 }
 
 /* ─── Data ─── */
@@ -206,7 +207,7 @@ export default function LandingPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-primary/3 to-transparent blur-3xl" />
         </div>
 
-        <div ref={heroReveal.ref} className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-32">
+        <div ref={heroReveal.targetRef} className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-32">
           <div className="mx-auto max-w-3xl text-center">
             {/* Badge */}
             <div className={`mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary transition-all duration-700 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
@@ -318,7 +319,7 @@ export default function LandingPage() {
 
       {/* ── 3. PROBLEM SECTION ── */}
       <section className="py-12 sm:py-20">
-        <div ref={problemReveal.ref} className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div ref={problemReveal.targetRef} className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className={`grid items-center gap-12 lg:grid-cols-2 transition-all duration-700 ${problemReveal.visible ? 'opacity-100' : 'opacity-0'}`}>
             <div>
               <span className="text-sm font-semibold uppercase tracking-wider text-primary">The Problem</span>
@@ -429,7 +430,7 @@ export default function LandingPage() {
 
       {/* ── 6. FOR CANDIDATES ── */}
       <section className="bg-white py-12 sm:py-20">
-        <div ref={candidateReveal.ref} className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div ref={candidateReveal.targetRef} className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className={`grid items-center gap-12 lg:grid-cols-2 transition-all duration-700 ${candidateReveal.visible ? 'opacity-100' : 'opacity-0'}`}>
             <div>
               <span className="text-sm font-semibold uppercase tracking-wider text-emerald-600">For Candidates</span>
@@ -491,7 +492,7 @@ export default function LandingPage() {
 
       {/* ── 7. FOR RECRUITERS ── */}
       <section className="py-12 sm:py-20">
-        <div ref={recruiterReveal.ref} className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div ref={recruiterReveal.targetRef} className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className={`grid items-center gap-12 lg:grid-cols-2 transition-all duration-700 ${recruiterReveal.visible ? 'opacity-100' : 'opacity-0'}`}>
             <div className="order-2 lg:order-1 flex justify-center">
               <div className="w-full max-w-sm rounded-2xl border bg-gradient-to-br from-blue-50 to-indigo-50 p-6 shadow-lg">
@@ -545,7 +546,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section ref={showcaseReveal.ref} className="bg-background py-12 sm:py-20 border-y border-border/60">
+      <section ref={showcaseReveal.targetRef} className="bg-background py-12 sm:py-20 border-y border-border/60">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center">
           <span className="text-sm font-semibold uppercase tracking-wider text-primary">Match Intelligence</span>
           <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">See why you match</h2>

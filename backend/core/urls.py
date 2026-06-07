@@ -20,8 +20,8 @@ urlpatterns = [
     path('api/v1/admin/', include('apps.analytics.urls')),
     path('api/v1/blog/', include('apps.blog.urls')),
     
-    # Recruiter Chatbot
-    path('api/v1/chat/stream/', __import__('apps.core.views').core.views.RecruiterCopilotView.as_view(), name='chat-stream'),
+    # Copilot Chatbot
+    path('api/v1/chat/stream/', __import__('apps.core.views').core.views.CopilotView.as_view(), name='chat-stream'),
 
     # CKEditor image uploader
     path('ckeditor/', include('ckeditor_uploader.urls')),

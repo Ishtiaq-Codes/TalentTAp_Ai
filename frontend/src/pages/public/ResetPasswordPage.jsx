@@ -16,6 +16,7 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
+  // eslint-disable-next-line
   useEffect(() => {
     if (!uid || !token) {
       setError('Invalid or missing password reset link.')

@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 import MobileNav from './MobileNav'
-import RecruiterChatbot from '@/components/shared/RecruiterChatbot'
+import CopilotChatbot from '@/components/shared/CopilotChatbot'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function AppShell() {
@@ -26,7 +26,7 @@ export default function AppShell() {
         </main>
       </div>
 
-      {user?.role === 'recruiter' && <RecruiterChatbot />}
+      {user && <CopilotChatbot user={user} />}
     </div>
   )
 }
