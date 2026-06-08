@@ -1,20 +1,28 @@
-import { Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Logo({ collapsed = false, linkTo = '/' }) {
   const content = (
     <div className="flex items-center gap-2.5">
-      <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue-700 text-white shadow-md shadow-primary/25">
-        <Sparkles className="h-4.5 w-4.5" />
+      {/* Custom TT Monogram Symbol (Imported from Figma) */}
+      <div className="relative flex h-8 w-12 items-center justify-center shrink-0">
+        <img
+          src="/monogram.svg"
+          alt="TalentTap Monogram"
+          className="absolute max-w-none h-[250%] w-auto object-contain mix-blend-multiply"
+        />
       </div>
+
+      {/* Figma Wordmark */}
       {!collapsed && (
-        <span className="text-lg font-bold tracking-tight text-foreground">
-          Talent<span className="text-primary">Tap</span>
-          <span className="ml-0.5 text-xs font-medium text-muted-foreground">AI</span>
-        </span>
+        <img
+          src="/talenttap-wordmark.svg"
+          alt="TalentTap Wordmark"
+          className="h-12 w-auto object-contain shrink-0"
+          style={{ marginLeft: '-0.75rem' }}
+        />
       )}
     </div>
   )
 
-  return linkTo ? <Link to={linkTo}>{content}</Link> : content
+  return linkTo ? <Link to={linkTo} className="hover:opacity-90 transition-opacity">{content}</Link> : content
 }
