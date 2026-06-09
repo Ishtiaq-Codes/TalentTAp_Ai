@@ -1,17 +1,97 @@
 """
-AI Matching Engine — Advanced NLP & Fuzzy Scoring.
+AI Matching Engine — Advanced NLP & Cognitive Scoring.
 
-Computes a weighted score across 5 dimensions:
-  Skills (40%), Experience (25%), Location (15%),
-  Availability (10%), Employment Type (10%).
-
-Uses TF-IDF Cosine Similarity for Experience Alignment and
-Fuzzy matching for Skill overlap.
+Powered by Gemini LLM for deep semantic reasoning, with a 
+TF-IDF/Fuzzy fallback for offline environments.
 """
 import re
+import logging
 from thefuzz import fuzz
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from apps.core.llm import HAS_GEMINI, generate_json
+
+logger = logging.getLogger(__name__)
+
+# -------------------------------------------------------------------------
+# TRUE AI MATCHING (GEMINI)
+# -------------------------------------------------------------------------
+
+def compute_match_llm(candidate, job):
+    """Compute cognitive match score using Gemini 2.5."""
+    candidate_skills = ", ".join([s.name for s in candidate.skills.all()])
+    job_skills = ", ".join([s.name for s in job.skills.all()])
+    
+    candidate_exps = "\n".join([
+        f"- {e.title} at {e.company_name} ({e.start_date} to {e.end_date}): {e.description}"
+        for e in candidate.experiences.all()
+    ])
+    
+    prompt = f"""
+You are an elite Senior Executive Technical Recruiter. Your task is to deeply analyze the fit between a Candidate Profile and a Job Description.
+Do not just look for exact keyword matches. Use semantic reasoning. If they know 'Next.js', they inherently know 'React'. Evaluate their seniority, trajectory, and soft skills based on their bio and experience descriptions.
+
+JOB PROFILE:
+Title: {job.title}
+Employment Type: {job.employment_type}
+Location: {job.city}, {job.country} ({'Remote' if job.is_remote else 'On-site'})
+Required Experience: {job.experience_min} to {job.experience_max} years
+Skills Needed: {job_skills}
+Description: {job.description}
+
+CANDIDATE PROFILE:
+Name: {candidate.user.first_name} {candidate.user.last_name}
+Headline: {candidate.headline}
+Bio: {candidate.about}
+Location: {candidate.city}, {candidate.country}
+Availability: {candidate.availability}
+Preferred Emp Type: {candidate.employment_type_preferred}
+Total Experience: {candidate.years_of_experience} years
+Skills: {candidate_skills}
+
+EXPERIENCE HISTORY:
+{candidate_exps}
+
+OUTPUT STRICT JSON MATCHING THIS EXACT SCHEMA:
+{{
+  "overall_score": 0.0 to 100.0,
+  "skills_score": 0.0 to 100.0,
+  "experience_score": 0.0 to 100.0,
+  "location_score": 0.0 to 100.0,
+  "availability_score": 0.0 to 100.0,
+  "employment_type_score": 0.0 to 100.0,
+  "breakdown": {{
+    "match_reason": "A highly tailored, human-like paragraph explaining why they are or aren't a fit.",
+    "relevance_factors": [
+       "Strong match: ...",
+       "Implied skill: ..."
+    ],
+    "missing_factors": [
+       "Missing requirement: ..."
+    ]
+  }}
+}}
+"""
+    result = generate_json(prompt, model_name="gemini-2.5-flash", temperature=0.1)
+    
+    if not result or 'overall_score' not in result:
+        logger.error("LLM matching failed, falling back to legacy algorithm.")
+        return compute_match_fallback(candidate, job)
+        
+    return {
+        'overall_score': round(float(result.get('overall_score', 0)), 2),
+        'skills_score': round(float(result.get('skills_score', 0)), 2),
+        'experience_score': round(float(result.get('experience_score', 0)), 2),
+        'location_score': round(float(result.get('location_score', 0)), 2),
+        'availability_score': round(float(result.get('availability_score', 0)), 2),
+        'employment_type_score': round(float(result.get('employment_type_score', 0)), 2),
+        'breakdown': result.get('breakdown', {})
+    }
+
+
+# -------------------------------------------------------------------------
+# LEGACY FALLBACK (TF-IDF + FUZZY)
+# -------------------------------------------------------------------------
 
 WEIGHTS = {
     'skills': 0.40,
@@ -29,211 +109,85 @@ AVAILABILITY_SCORES = {
     'not_available': 0,
 }
 
-# Common country/city aliases for location normalization
 LOCATION_ALIASES = {
-    'us': 'united states',
-    'usa': 'united states',
-    'uk': 'united kingdom',
-    'uae': 'united arab emirates',
-    'nyc': 'new york',
-    'sf': 'san francisco',
+    'us': 'united states', 'usa': 'united states', 'uk': 'united kingdom',
+    'uae': 'united arab emirates', 'nyc': 'new york', 'sf': 'san francisco',
 }
 
 def normalize_text(text):
-    """Normalize text by lowering, stripping, and mapping aliases."""
-    if not text:
-        return ""
+    if not text: return ""
     text = str(text).lower().strip()
-    # Remove basic punctuation
     text = re.sub(r'[^\w\s]', '', text)
     return LOCATION_ALIASES.get(text, text)
 
-
-def score_skills(candidate_skills, job_skills):
-    """Score skill overlap using Fuzzy matching to handle typos and variants.
-    
-    Returns:
-        dict with score, matched, missing, and details.
-    """
-    candidate_names = [s.name for s in candidate_skills]
-    required = [s for s in job_skills if s.is_required]
-    nice_to_have = [s for s in job_skills if not s.is_required]
-
-    if not required and not nice_to_have:
-        return {'score': 50, 'matched': [], 'missing': [], 'detail': 'No skills specified'}
-
-    matched_required = []
-    missing_required = []
-    
-    # Fuzzy match required skills (Threshold 80)
-    for req in required:
-        best_ratio = max([fuzz.token_sort_ratio(req.name.lower(), c.lower()) for c in candidate_names], default=0)
-        if best_ratio >= 80:
-            matched_required.append(req.name)
-        else:
-            missing_required.append(req.name)
-
-    required_score = (len(matched_required) / len(required) * 80) if required else 40
-
-    # Fuzzy match nice-to-have
-    matched_nice = []
-    for nice in nice_to_have:
-        best_ratio = max([fuzz.token_sort_ratio(nice.name.lower(), c.lower()) for c in candidate_names], default=0)
-        if best_ratio >= 80:
-            matched_nice.append(nice.name)
-
-    nice_score = (len(matched_nice) / len(nice_to_have) * 20) if nice_to_have else 10
-
-    # Bias mitigation: Boost score slightly if they have tons of other skills
-    bonus = min(5, len(candidate_names) * 0.5) 
-    final_score = min(100, required_score + nice_score + bonus)
-
-    return {
-        'score': round(final_score, 2),
-        'matched': matched_required + matched_nice,
-        'missing': missing_required,
-    }
-
-
 def compute_semantic_alignment(candidate_text, job_text):
-    """Compute TF-IDF cosine similarity between candidate bio and job desc."""
-    if not candidate_text.strip() or not job_text.strip():
-        return 50.0  # Neutral baseline if missing text
-        
+    if not candidate_text.strip() or not job_text.strip(): return 50.0
     try:
         vectorizer = TfidfVectorizer(stop_words='english', max_features=500)
         tfidf_matrix = vectorizer.fit_transform([candidate_text, job_text])
         similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-        # In NLP, a cosine similarity of 0.3-0.4 between a 2-page resume and a 1-paragraph JD is considered excellent.
-        # We scale it by multiplying by 2.5, capping at 100.
-        score = min(100.0, float(similarity) * 250.0)
-        return score
+        return min(100.0, float(similarity) * 250.0)
     except Exception:
         return 50.0
 
+def compute_match_fallback(candidate, job):
+    """Compute full match score using basic AI/NLP heuristics (Fallback)."""
+    # 1. Skills
+    candidate_names = [s.name for s in candidate.skills.all()]
+    required = [s.name for s in job.skills.all() if s.is_required]
+    matched_req = [r for r in required if max([fuzz.token_sort_ratio(r.lower(), c.lower()) for c in candidate_names], default=0) >= 80]
+    missing_req = [r for r in required if r not in matched_req]
+    skills_score = (len(matched_req) / len(required) * 100) if required else 50.0
 
-def score_experience(candidate, job):
-    """Score candidate experience combining raw years and NLP semantic alignment."""
+    # 2. Experience
     candidate_years = candidate.years_of_experience or 0
     exp_min = job.experience_min or 0
     exp_max = job.experience_max or 0
     
-    # 1. Base Years Score
-    if exp_min == 0 and exp_max == 0:
-        years_score = 80
-    elif exp_min <= candidate_years <= exp_max:
-        years_score = 100
-    elif candidate_years > exp_max:
-        years_score = max(70, 100 - (candidate_years - exp_max) * 5)
-    else:
-        # Bias mitigation: don't penalize as harshly for being slightly under
-        years_score = max(0, (candidate_years / exp_min * 85)) if exp_min else 60
+    if exp_min == 0 and exp_max == 0: years_score = 80
+    elif exp_min <= candidate_years <= exp_max: years_score = 100
+    elif candidate_years > exp_max: years_score = max(70, 100 - (candidate_years - exp_max) * 5)
+    else: years_score = max(0, (candidate_years / exp_min * 85)) if exp_min else 60
 
-    # 2. Semantic Alignment Score (NLP)
-    candidate_text = f"{candidate.headline or ''} {candidate.about or ''}"
-    for exp in candidate.experiences.all():
-        candidate_text += f" {exp.title} {exp.description}"
-        
+    candidate_text = f"{candidate.headline or ''} {candidate.about or ''} " + " ".join([f"{e.title} {e.description}" for e in candidate.experiences.all()])
     job_text = f"{job.title} {job.description}"
-    
     semantic_score = compute_semantic_alignment(candidate_text, job_text)
-    
-    # 3. Combine (Years = 40%, Semantic Context = 60%)
-    # This prevents candidates with 10 years of irrelevant experience from scoring 100%
-    final_score = (years_score * 0.4) + (semantic_score * 0.6)
-    
-    # Boost if semantic alignment is very high but years are slightly short
-    if semantic_score > 80 and candidate_years < exp_min:
-        final_score = min(100, final_score + 15)
+    experience_score = (years_score * 0.4) + (semantic_score * 0.6)
 
-    return {
-        'score': round(final_score, 2),
-        'candidate_years': candidate_years,
-        'semantic_alignment': round(semantic_score, 2),
-        'required': f'{exp_min}-{exp_max} years',
-    }
+    # 3. Location
+    if job.is_remote == 'remote': location_score = 100.0
+    else:
+        cc, jc = normalize_text(candidate.country), normalize_text(job.country)
+        location_score = 100.0 if cc == jc and normalize_text(candidate.city) == normalize_text(job.city) else (70.0 if cc == jc else 30.0)
 
+    # 4. Availability & Emp Type
+    availability_score = AVAILABILITY_SCORES.get(candidate.availability, 50)
+    employment_type_score = 100.0 if candidate.employment_type_preferred == job.employment_type else 50.0
 
-def score_location(candidate_country, candidate_city, job_country, job_city, job_remote):
-    """Score location using advanced text normalization."""
-    if job_remote == 'remote':
-        return {'score': 100, 'reason': 'Remote position'}
-
-    c_country = normalize_text(candidate_country)
-    c_city = normalize_text(candidate_city)
-    j_country = normalize_text(job_country)
-    j_city = normalize_text(job_city)
-
-    if not j_country and not j_city:
-        return {'score': 100, 'reason': 'No location required'}
-
-    # Exact normalized match
-    if c_country == j_country and c_city == j_city:
-        return {'score': 100, 'reason': 'Same city'}
-
-    # Country match
-    if c_country == j_country:
-        return {'score': 70, 'reason': 'Same country, different city'}
-
-    # Fuzzy Country Match (in case of weird aliases)
-    if fuzz.ratio(c_country, j_country) > 85:
-        return {'score': 65, 'reason': 'Similar country'}
-
-    return {'score': 30, 'reason': 'Different country'}
-
-
-def score_availability(candidate_availability):
-    """Score candidate availability."""
-    score = AVAILABILITY_SCORES.get(candidate_availability, 50)
-    return {'score': score, 'candidate': candidate_availability}
-
-
-def score_employment_type(candidate_pref, job_type):
-    """Score employment type match."""
-    if not candidate_pref:
-        return {'score': 50, 'match': 'No preference'}
-    if candidate_pref == job_type:
-        return {'score': 100, 'match': job_type}
-    return {'score': 40, 'candidate_pref': candidate_pref, 'job_type': job_type}
-
-
-def compute_match(candidate, job):
-    """Compute full match score using AI/NLP heuristics.
-
-    Args:
-        candidate: CandidateProfile instance
-        job: Job instance
-
-    Returns:
-        dict with overall_score and per-dimension breakdown.
-    """
-    candidate_skills = candidate.skills.all()
-    job_skills = job.skills.all()
+    overall = (skills_score * WEIGHTS['skills']) + (experience_score * WEIGHTS['experience']) + \
+              (location_score * WEIGHTS['location']) + (availability_score * WEIGHTS['availability']) + \
+              (employment_type_score * WEIGHTS['employment_type'])
 
     breakdown = {
-        'skills': score_skills(candidate_skills, job_skills),
-        'experience': score_experience(candidate, job),
-        'location': score_location(
-            candidate.country or '', candidate.city or '',
-            job.country or '', job.city or '', job.is_remote,
-        ),
-        'availability': score_availability(candidate.availability),
-        'employment_type': score_employment_type(
-            candidate.employment_type_preferred, job.employment_type,
-        ),
+        'match_reason': f"Matched with a fallback organic score of {overall:.1f}%.",
+        'relevance_factors': [f"Matches {m}" for m in matched_req[:3]],
+        'missing_factors': [f"Missing {m}" for m in missing_req[:3]]
     }
-
-    for key in breakdown:
-        breakdown[key]['weight'] = WEIGHTS[key]
-
-    overall = sum(breakdown[key]['score'] * WEIGHTS[key] for key in WEIGHTS)
 
     return {
         'overall_score': round(overall, 2),
-        'skills_score': breakdown['skills']['score'],
-        'experience_score': breakdown['experience']['score'],
-        'location_score': breakdown['location']['score'],
-        'availability_score': breakdown['availability']['score'],
-        'employment_type_score': breakdown['employment_type']['score'],
+        'skills_score': round(skills_score, 2),
+        'experience_score': round(experience_score, 2),
+        'location_score': round(location_score, 2),
+        'availability_score': round(availability_score, 2),
+        'employment_type_score': round(employment_type_score, 2),
         'breakdown': breakdown,
     }
+
+
+def compute_match(candidate, job):
+    """Main entrypoint: Uses LLM if available, otherwise falls back to TF-IDF."""
+    if HAS_GEMINI:
+        return compute_match_llm(candidate, job)
+    return compute_match_fallback(candidate, job)
+

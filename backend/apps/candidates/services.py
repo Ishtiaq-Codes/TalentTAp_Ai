@@ -71,7 +71,16 @@ def generate_relevance_data(candidate, job_id=None):
             breakdown = match_record.breakdown
             score = match_record.overall_score
             
-            # Extract skills from TF-IDF/Fuzzy engine breakdown
+            # Check if it's the new LLM format
+            if 'match_reason' in breakdown:
+                return {
+                    "ranking_score": score,
+                    "relevance_factors": breakdown.get('relevance_factors', []),
+                    "missing_factors": breakdown.get('missing_factors', []),
+                    "match_reason": breakdown.get('match_reason')
+                }
+            
+            # Extract skills from old TF-IDF/Fuzzy engine breakdown
             skills_data = breakdown.get('skills', {})
             matched = skills_data.get('matched', [])
             missing = skills_data.get('missing', [])

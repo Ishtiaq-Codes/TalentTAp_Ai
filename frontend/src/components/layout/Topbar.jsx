@@ -27,7 +27,7 @@ export default function Topbar({ onToggleMobile }) {
   const isDashboard = pathParts.length > 0 && pathParts[1] === 'dashboard'
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-white/95 px-4 backdrop-blur-xl sm:px-6">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-white/50 bg-white/60 px-4 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.04)] sm:px-6">
       <div className="flex items-center gap-4">
         <button
           onClick={onToggleMobile}

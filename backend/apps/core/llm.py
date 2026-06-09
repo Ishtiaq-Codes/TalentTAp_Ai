@@ -65,3 +65,26 @@ def generate_text_stream(prompt: str, model_name: str = "gemini-flash-lite-lates
     except Exception as e:
         logger.error(f"Gemini Streaming API Error: {e}")
         yield "\n\n[An error occurred while generating the rest of the content.]"
+
+def generate_json(prompt: str, model_name: str = "gemini-2.5-flash", temperature: float = 0.2) -> dict:
+    """
+    Generates structured JSON using Google Gemini.
+    """
+    if not HAS_GEMINI:
+        logger.warning("Gemini API not configured. Returning fallback JSON.")
+        return {}
+
+    try:
+        import json
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=temperature,
+                response_mime_type="application/json"
+            )
+        )
+        return json.loads(response.text)
+    except Exception as e:
+        logger.error(f"Gemini API JSON Error: {e}")
+        return {}

@@ -112,7 +112,7 @@
     @apply bg-white/50 backdrop-blur-xl border border-white/40 shadow-sm transition-all duration-300 hover:bg-white/80 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1;
   }
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-indigo-600 to-blue-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-ai to-blue-500;
   }
   .animate-float {
     animation: float 6s ease-in-out infinite;

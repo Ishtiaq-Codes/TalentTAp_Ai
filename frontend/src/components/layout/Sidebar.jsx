@@ -105,10 +105,10 @@ export default function Sidebar() {
   const sections = getNavSections()
 
   return (
-    <aside className="hidden lg:flex w-[260px] flex-col border-r border-slate-800 bg-sidebar text-slate-300">
+    <aside className="hidden lg:flex w-[260px] flex-col border-r border-slate-800/50 bg-sidebar/95 backdrop-blur-xl text-slate-300 shadow-2xl">
       {/* Logo Area */}
       <div className="flex h-16 items-center px-6 border-b border-slate-800">
-        <Logo />
+        <Logo theme="dark" />
       </div>
 
       {/* Navigation Links */}

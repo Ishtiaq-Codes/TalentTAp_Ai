@@ -202,9 +202,9 @@ export default function LandingPage() {
       <section className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-24 bg-slate-50">
         {/* Animated Mesh Background */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-[20%] -right-[10%] h-[70vw] w-[70vw] max-w-[800px] animate-pulse-soft rounded-full bg-gradient-to-br from-indigo-400/20 to-purple-400/20 blur-[100px]" />
-          <div className="absolute -bottom-[20%] -left-[10%] h-[70vw] w-[70vw] max-w-[800px] animate-pulse-soft rounded-full bg-gradient-to-tr from-blue-400/20 to-cyan-400/20 blur-[100px]" style={{ animationDelay: '2s' }} />
-          <div className="absolute top-1/2 left-1/2 h-[80vw] w-[80vw] max-w-[1000px] -translate-x-1/2 -translate-y-1/2 animate-pulse-soft rounded-full bg-gradient-to-r from-primary/5 to-indigo-500/5 blur-[120px]" style={{ animationDelay: '4s' }} />
+          <div className="absolute -top-[20%] -right-[10%] h-[70vw] w-[70vw] max-w-[800px] animate-pulse-soft rounded-full bg-gradient-to-br from-primary/20 to-ai/20 blur-[100px]" />
+          <div className="absolute -bottom-[20%] -left-[10%] h-[70vw] w-[70vw] max-w-[800px] animate-pulse-soft rounded-full bg-gradient-to-tr from-blue-500/20 to-primary/20 blur-[100px]" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 left-1/2 h-[80vw] w-[80vw] max-w-[1000px] -translate-x-1/2 -translate-y-1/2 animate-pulse-soft rounded-full bg-gradient-to-r from-primary/5 to-ai/5 blur-[120px]" style={{ animationDelay: '4s' }} />
         </div>
 
         <div ref={heroReveal.targetRef} className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20">
@@ -218,7 +218,7 @@ export default function LandingPage() {
             {/* Headline */}
             <h1 className={`text-[3.5rem] font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-[5.5rem] transition-all duration-700 delay-100 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               Stop Applying.<br />
-              <span className="text-gradient animate-gradient">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-ai to-blue-500 animate-gradient">
                 Start Getting Discovered.
               </span>
             </h1>
