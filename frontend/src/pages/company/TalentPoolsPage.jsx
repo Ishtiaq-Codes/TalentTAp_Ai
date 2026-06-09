@@ -68,7 +68,7 @@ function PoolMembersView({ pool, onBack }) {
     try {
       await companiesAPI.removePoolMember(pool.id, confirmRemove.candidate_id)
       success('Candidate removed from pool.')
-      refetch()
+      refetch(true)
     } catch {
       error('Failed to remove candidate.')
     } finally {
@@ -262,7 +262,7 @@ export default function TalentPoolsPage() {
 
   const handlePoolCreated = (pool) => {
     setShowCreate(false)
-    refetch()
+    refetch(true)
     setSelectedPool(pool)
   }
 
@@ -271,7 +271,7 @@ export default function TalentPoolsPage() {
     setDeleting(true)
     try {
       await companiesAPI.deletePool(confirmDelete.id)
-      refetch()
+      refetch(true)
       if (selectedPool?.id === confirmDelete.id) setSelectedPool(null)
     } catch {
       error('Failed to delete pool.')
@@ -286,7 +286,7 @@ export default function TalentPoolsPage() {
       <div className="max-w-4xl mx-auto">
         <PoolMembersView
           pool={selectedPool}
-          onBack={() => { setSelectedPool(null); refetch() }}
+          onBack={() => { setSelectedPool(null); refetch(true) }}
         />
       </div>
     )

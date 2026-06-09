@@ -1,15 +1,21 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { Bell, LogOut, Menu, Search, Settings, User } from 'lucide-react'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 import NotificationDropdown from '@/components/common/NotificationDropdown'
+import { useOnClickOutside } from '@/hooks/useOnClickOutside'
 
 export default function Topbar({ onToggleMobile }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [showMenu, setShowMenu] = useState(false)
+  const menuRef = useRef(null)
+
+  useOnClickOutside(menuRef, () => {
+    if (showMenu) setShowMenu(false)
+  })
 
   const handleLogout = () => {
     logout()
@@ -67,7 +73,7 @@ export default function Topbar({ onToggleMobile }) {
         <NotificationDropdown />
 
         {/* User Dropdown */}
-        <div className="relative">
+        <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowMenu(!showMenu)}
             className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-slate-100 transition-colors"
@@ -79,11 +85,7 @@ export default function Topbar({ onToggleMobile }) {
           </button>
 
           {showMenu && (
-            <>
-              {/* Backdrop */}
-              <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-
-              <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border bg-white py-2 shadow-xl animate-fade-in-up origin-top-right">
+            <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border bg-white py-2 shadow-xl animate-fade-in-up origin-top-right">
                 <div className="px-4 py-2 border-b mb-2">
                   <p className="text-sm font-semibold">{user?.first_name} {user?.last_name}</p>
                   <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
@@ -118,7 +120,6 @@ export default function Topbar({ onToggleMobile }) {
                   </button>
                 </div>
               </div>
-            </>
           )}
         </div>
       </div>

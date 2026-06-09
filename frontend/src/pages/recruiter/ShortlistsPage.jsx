@@ -20,7 +20,7 @@ export default function ShortlistsPage() {
   const handleConfirmRemove = async () => {
     if (confirmModal.shortlistId) {
       await applicationsAPI.removeFromShortlist(confirmModal.shortlistId)
-      refetch()
+      refetch(true)
     }
   }
 

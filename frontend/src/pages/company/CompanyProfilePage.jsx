@@ -36,7 +36,7 @@ export default function CompanyProfilePage() {
         await companiesAPI.createCompany(form)
         setMessage('Company profile created!')
       }
-      refetch()
+      refetch(true)
     } catch (err) {
       console.error(err)
       setMessage(err.response?.data?.detail || 'Error saving profile')
@@ -51,7 +51,7 @@ export default function CompanyProfilePage() {
     try {
       await companiesAPI.uploadImages(file, null)
       setMessage('Logo uploaded successfully!')
-      refetch()
+      refetch(true)
     } catch {
       setMessage('Error uploading logo')
     }
@@ -63,7 +63,7 @@ export default function CompanyProfilePage() {
     try {
       await companiesAPI.uploadImages(null, file)
       setMessage('Banner uploaded successfully!')
-      refetch()
+      refetch(true)
     } catch {
       setMessage('Error uploading banner')
     }

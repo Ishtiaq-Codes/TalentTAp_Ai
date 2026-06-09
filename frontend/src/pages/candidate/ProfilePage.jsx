@@ -109,7 +109,7 @@ export default function ProfilePage() {
       const { skills, experiences, education, certifications, user_name, user_email, avatar, resume, ...data } = form
       await candidatesAPI.updateProfile(data)
       setMessage('Profile saved!')
-      refetch()
+      refetch(true)
     } catch (err) {
       setMessage('Error saving profile')
     } finally {
@@ -123,13 +123,13 @@ export default function ProfilePage() {
       await candidatesAPI.addSkill({ name: skillInput.trim(), proficiency: skillProficiency })
       setSkillInput('')
       setSkillProficiency('intermediate')
-      refetch()
+      refetch(true)
     } catch { /* skill may already exist */ }
   }
 
   const handleDeleteSkill = async (id) => {
     await candidatesAPI.deleteSkill(id)
-    refetch()
+    refetch(true)
   }
 
   const handleAddExperience = async (e) => {
@@ -138,7 +138,7 @@ export default function ProfilePage() {
       await candidatesAPI.addExperience(expForm)
       setExpForm({ company_name: '', title: '', start_date: '', end_date: '', is_current: false, description: '' })
       setShowExpForm(false)
-      refetch()
+      refetch(true)
     } catch {
       setMessage('Error adding experience')
     }
@@ -146,7 +146,7 @@ export default function ProfilePage() {
 
   const handleDeleteExperience = async (id) => {
     await candidatesAPI.deleteExperience(id)
-    refetch()
+    refetch(true)
   }
 
   const handleAddEducation = async (e) => {
@@ -155,7 +155,7 @@ export default function ProfilePage() {
       await candidatesAPI.addEducation(eduForm)
       setEduForm({ institution_name: '', degree: '', field_of_study: '', start_date: '', end_date: '', description: '' })
       setShowEduForm(false)
-      refetch()
+      refetch(true)
     } catch {
       setMessage('Error adding education')
     }
@@ -163,7 +163,7 @@ export default function ProfilePage() {
 
   const handleDeleteEducation = async (id) => {
     await candidatesAPI.deleteEducation(id)
-    refetch()
+    refetch(true)
   }
 
   const handleAddCertification = async (e) => {
@@ -172,7 +172,7 @@ export default function ProfilePage() {
       await candidatesAPI.addCertification(certForm)
       setCertForm({ name: '', issuing_organization: '', issue_date: '', expiration_date: '', credential_id: '', credential_url: '' })
       setShowCertForm(false)
-      refetch()
+      refetch(true)
     } catch {
       setMessage('Error adding certification')
     }
@@ -180,7 +180,7 @@ export default function ProfilePage() {
 
   const handleDeleteCertification = async (id) => {
     await candidatesAPI.deleteCertification(id)
-    refetch()
+    refetch(true)
   }
 
   const handleResumeUpload = async (e) => {
@@ -194,7 +194,7 @@ export default function ProfilePage() {
       setForm(res.data)
       setIsParsing(false)
       setMessage('Resume parsed! All sections are updated.')
-      refetch()
+      refetch(true)
     } catch {
       setIsParsing(false)
       setMessage('Error uploading resume')
@@ -207,7 +207,7 @@ export default function ProfilePage() {
     try {
       await authAPI.uploadAvatar(file)
       setMessage('Avatar uploaded successfully!')
-      refetch()
+      refetch(true)
       await fetchUser()
     } catch {
       setMessage('Error uploading avatar')
@@ -220,7 +220,7 @@ export default function ProfilePage() {
     try {
       await candidatesAPI.uploadBanner(file)
       setMessage('Banner uploaded successfully!')
-      refetch()
+      refetch(true)
     } catch {
       setMessage('Error uploading banner')
     }

@@ -45,7 +45,7 @@ export default function ApplicationsPage() {
       await applicationsAPI.update(editingApp.id, { cover_letter: coverLetter })
       success('Application updated successfully')
       setEditingApp(null)
-      refetch()
+      refetch(true)
     } catch (err) {
       error('Failed to update application')
     } finally {
@@ -58,7 +58,7 @@ export default function ApplicationsPage() {
     try {
       await applicationsAPI.delete(id)
       success('Application withdrawn successfully')
-      refetch()
+      refetch(true)
     } catch (err) {
       error('Failed to withdraw application')
     } finally {

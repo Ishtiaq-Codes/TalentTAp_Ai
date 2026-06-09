@@ -32,7 +32,7 @@ export default function MessagesPage() {
       const { data } = await messagingAPI.sendMessage(activeConvo.id, input.trim())
       setMessages([...messages, data])
       setInput('')
-      refetch()
+      refetch(true)
     } catch { }
   }
 

@@ -5,7 +5,7 @@ import SkeletonCard from '@/components/common/SkeletonCard'
 import { formatDate } from '@/lib/utils'
 import { Link } from 'react-router-dom'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
-import { Briefcase, Plus, Eye, MapPin, Clock, Users, ArrowRight, Edit2, Trash2, Repeat, Archive } from 'lucide-react'
+import { Briefcase, Plus, Eye, MapPin, Clock, Users, ArrowRight, Edit2, Trash2, Repeat, Archive, Loader2 } from 'lucide-react'
 import ConfirmModal from '@/components/common/ConfirmModal'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -25,13 +25,14 @@ export default function JobsListPage() {
   const { success, error: showError } = useToast()
   
   const [jobToDelete, setJobToDelete] = useState(null)
+  const [updatingId, setUpdatingId] = useState(null)
 
   const handleDelete = async () => {
     if (!jobToDelete) return
     try {
       await jobsAPI.delete(jobToDelete)
       success('Job deleted successfully')
-      refetch()
+      refetch(true)
     } catch (err) {
       showError('Failed to delete job')
     }
@@ -39,6 +40,7 @@ export default function JobsListPage() {
   }
 
   const handleStatusChange = async (id, newStatus) => {
+    setUpdatingId(id)
     try {
       if (newStatus === 'repost') {
         await jobsAPI.repost(id)
@@ -47,9 +49,11 @@ export default function JobsListPage() {
         await jobsAPI.updateStatus(id, newStatus)
         success(`Job marked as ${newStatus}`)
       }
-      refetch()
+      refetch(true)
     } catch (err) {
       showError('Failed to update job status')
+    } finally {
+      setUpdatingId(null)
     }
   }
 
@@ -112,12 +116,12 @@ export default function JobsListPage() {
                   </div>
                   <div className="flex items-center gap-1 pointer-events-auto">
                     {(job.status === 'closed' || job.status === 'archived') ? (
-                      <button onClick={(e) => { e.preventDefault(); handleStatusChange(job.id, 'repost') }} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Repost Job">
-                        <Repeat className="h-4 w-4" />
+                      <button disabled={updatingId === job.id} onClick={(e) => { e.preventDefault(); handleStatusChange(job.id, 'repost') }} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50" title="Repost Job">
+                        {updatingId === job.id ? <Loader2 className="h-4 w-4 animate-spin text-emerald-600" /> : <Repeat className="h-4 w-4" />}
                       </button>
                     ) : (
-                      <button onClick={(e) => { e.preventDefault(); handleStatusChange(job.id, 'closed') }} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Close Job">
-                        <Archive className="h-4 w-4" />
+                      <button disabled={updatingId === job.id} onClick={(e) => { e.preventDefault(); handleStatusChange(job.id, 'closed') }} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors disabled:opacity-50" title="Close Job">
+                        {updatingId === job.id ? <Loader2 className="h-4 w-4 animate-spin text-amber-600" /> : <Archive className="h-4 w-4" />}
                       </button>
                     )}
                     <button onClick={(e) => { e.preventDefault(); navigate(`/recruiter/jobs/${job.id}/edit`) }} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Job">

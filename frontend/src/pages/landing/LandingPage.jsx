@@ -199,60 +199,63 @@ export default function LandingPage() {
       <PublicNavbar />
 
       {/* ── 1. HERO ── */}
-      <section className="relative overflow-hidden pt-16">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-blue-400/5 blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-primary/3 to-transparent blur-3xl" />
+      <section className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-24 bg-slate-50">
+        {/* Animated Mesh Background */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-[20%] -right-[10%] h-[70vw] w-[70vw] max-w-[800px] animate-pulse-soft rounded-full bg-gradient-to-br from-indigo-400/20 to-purple-400/20 blur-[100px]" />
+          <div className="absolute -bottom-[20%] -left-[10%] h-[70vw] w-[70vw] max-w-[800px] animate-pulse-soft rounded-full bg-gradient-to-tr from-blue-400/20 to-cyan-400/20 blur-[100px]" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 left-1/2 h-[80vw] w-[80vw] max-w-[1000px] -translate-x-1/2 -translate-y-1/2 animate-pulse-soft rounded-full bg-gradient-to-r from-primary/5 to-indigo-500/5 blur-[120px]" style={{ animationDelay: '4s' }} />
         </div>
 
-        <div ref={heroReveal.targetRef} className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-32">
-          <div className="mx-auto max-w-3xl text-center">
+        <div ref={heroReveal.targetRef} className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20">
+          <div className="mx-auto max-w-4xl text-center">
             {/* Badge */}
-            <div className={`mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary transition-all duration-700 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <div className={`mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/60 backdrop-blur-sm px-4 py-1.5 text-sm font-semibold text-primary shadow-sm transition-all duration-700 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <Sparkles className="h-4 w-4" />
-              AI-Powered Talent Marketplace
+              Next-Generation AI Talent Platform
             </div>
 
             {/* Headline */}
-            <h1 className={`text-5xl font-bold leading-tight tracking-tight sm:text-6xl lg:text-7xl transition-all duration-700 delay-100 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              Stop Applying.{' '}
-              <br className="hidden sm:block" />
-              <span className="bg-gradient-to-r from-primary via-blue-600 to-blue-800 bg-clip-text text-transparent">
+            <h1 className={`text-[3.5rem] font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-[5.5rem] transition-all duration-700 delay-100 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              Stop Applying.<br />
+              <span className="text-gradient animate-gradient">
                 Start Getting Discovered.
               </span>
             </h1>
 
             {/* Subheadline */}
-            <p className={`mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl transition-all duration-700 delay-200 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <p className={`mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl transition-all duration-700 delay-200 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               TalentTap AI matches candidates with the right companies automatically
               — no more endless applications, no more filtering thousands of resumes.
             </p>
 
             {/* CTAs */}
             <div className={`mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row transition-all duration-700 delay-300 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <div className="relative group w-full sm:w-auto">
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-blue-500 rounded-full blur opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse-soft"></div>
+                <Link
+                  to="/register"
+                  className="relative flex items-center justify-center gap-2 rounded-full bg-slate-900 px-8 py-4 text-sm font-semibold text-white shadow-xl transition-all hover:bg-slate-800 hover:scale-[1.02] w-full"
+                >
+                  Start Hiring Top Talent
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </div>
               <Link
                 to="/register"
-                className="group inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 transition-all w-full sm:w-auto justify-center"
-              >
-                Start Hiring
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-              <Link
-                to="/register"
-                className="group inline-flex items-center gap-2 rounded-full border-2 border-slate-200 bg-white px-8 py-3.5 text-sm font-semibold text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all w-full sm:w-auto justify-center"
+                className="group flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white/60 backdrop-blur-md px-8 py-4 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:bg-white transition-all hover:scale-[1.02] w-full sm:w-auto shadow-sm"
               >
                 I'm a Candidate
-                <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
+                <ArrowUpRight className="h-4 w-4 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
               </Link>
             </div>
           </div>
 
           {/* Hero visual — mock dashboard */}
-          <div className={`mx-auto mt-12 max-w-4xl transition-all duration-1000 delay-500 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="rounded-2xl border border-slate-200/60 bg-white p-2 shadow-2xl shadow-slate-200/50">
-              <div className="rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 p-5 sm:p-6">
+          <div className={`mx-auto mt-16 max-w-5xl transition-all duration-1000 delay-500 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+            <div className="animate-float">
+              <div className="glass-panel rounded-2xl p-2 sm:p-3">
+                <div className="rounded-xl bg-white/90 backdrop-blur-xl p-5 sm:p-6 border border-slate-100 shadow-inner">
                 {/* Mock dashboard header */}
                 <div className="flex items-center justify-between mb-5">
                   <div>
@@ -306,7 +309,8 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* ── 2. TRUST BAR ── */}
       <section className="border-y bg-white">
@@ -373,7 +377,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── 4. HOW IT WORKS ── */}
-      <section className="bg-white py-12 sm:py-20">
+      <section className="bg-slate-50/50 py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center">
             <span className="text-sm font-semibold uppercase tracking-wider text-primary">How It Works</span>
@@ -386,15 +390,15 @@ export default function LandingPage() {
               { step: '02', icon: Brain, title: 'AI Finds Matches', desc: 'Our engine scores every candidate-job pair across 5 dimensions and ranks them in real-time.' },
               { step: '03', icon: Zap, title: 'Connect & Hire', desc: 'Review detailed match breakdowns, shortlist top talent, and start conversations directly.' },
             ].map(({ step, icon: Icon, title, desc }, i) => (
-              <div key={step} className="group relative rounded-2xl border bg-white p-8 transition-all hover:shadow-lg hover:border-primary/20 hover:-translate-y-1">
+              <div key={step} className="glass-card group relative rounded-2xl p-8">
                 <div className="flex items-center gap-4 mb-4">
-                  <span className="text-4xl font-bold text-primary/10 group-hover:text-primary/20 transition-colors">{step}</span>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <span className="text-4xl font-bold text-slate-200 group-hover:text-primary/20 transition-colors">{step}</span>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-indigo-100 text-primary shadow-inner">
                     <Icon className="h-6 w-6" />
                   </div>
                 </div>
                 <h3 className="text-lg font-semibold">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">{desc}</p>
                 {i < 2 && (
                   <div className="absolute -right-4 top-1/2 hidden -translate-y-1/2 md:block">
                     <ArrowRight className="h-5 w-5 text-slate-300" />
@@ -407,21 +411,23 @@ export default function LandingPage() {
       </section>
 
       {/* ── 5. FEATURES ── */}
-      <section className="py-12 sm:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <section className="py-16 sm:py-24 bg-white relative">
+        <div className="absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-blue-500/5 blur-3xl pointer-events-none" />
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
           <div className="text-center">
             <span className="text-sm font-semibold uppercase tracking-wider text-primary">Features</span>
             <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Everything you need for modern hiring</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">A complete platform built from the ground up to make talent discovery effortless.</p>
+            <p className="mx-auto mt-4 max-w-2xl text-slate-600">A complete platform built from the ground up to make talent discovery effortless.</p>
           </div>
           <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {features.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="group rounded-2xl border bg-white p-6 transition-all duration-300 hover:shadow-lg hover:border-primary/20 hover:-translate-y-1">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-blue-100 text-primary transition-all group-hover:shadow-md group-hover:shadow-primary/10">
+              <div key={title} className="glass-card group rounded-2xl p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 h-32 w-32 bg-primary/5 rounded-bl-full transition-transform duration-500 group-hover:scale-110" />
+                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-blue-100 text-primary transition-all group-hover:shadow-md group-hover:shadow-primary/10 border border-white/50">
                   <Icon className="h-6 w-6" />
                 </div>
-                <h3 className="mt-4 text-base font-semibold">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p>
+                <h3 className="mt-5 text-base font-semibold text-slate-900">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">{desc}</p>
               </div>
             ))}
           </div>
@@ -429,59 +435,62 @@ export default function LandingPage() {
       </section>
 
       {/* ── 6. FOR CANDIDATES ── */}
-      <section className="bg-white py-12 sm:py-20">
-        <div ref={candidateReveal.targetRef} className="mx-auto max-w-7xl px-4 sm:px-6">
+      <section className="bg-slate-50/50 py-16 sm:py-24 relative overflow-hidden">
+        <div className="absolute top-1/4 left-0 h-[400px] w-[400px] rounded-full bg-emerald-500/5 blur-[100px] pointer-events-none" />
+        <div ref={candidateReveal.targetRef} className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <div className={`grid items-center gap-12 lg:grid-cols-2 transition-all duration-700 ${candidateReveal.visible ? 'opacity-100' : 'opacity-0'}`}>
             <div>
               <span className="text-sm font-semibold uppercase tracking-wider text-emerald-600">For Candidates</span>
               <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
                 Build your profile once.{' '}
-                <span className="text-primary">Get discovered.</span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-500">Get discovered.</span>
               </h2>
-              <p className="mt-4 text-muted-foreground">
+              <p className="mt-4 text-slate-600 text-lg">
                 No more submitting hundreds of applications into the void. Create your professional profile and let top companies come to you.
               </p>
-              <ul className="mt-8 space-y-3">
+              <ul className="mt-8 space-y-4">
                 {candidateBenefits.map((b) => (
-                  <li key={b} className="flex items-center gap-3 text-sm">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                  <li key={b} className="flex items-center gap-3 text-sm font-medium text-slate-700">
+                    <CheckCircle className="h-5 w-5 text-emerald-500 flex-shrink-0 drop-shadow-sm" />
                     {b}
                   </li>
                 ))}
               </ul>
               <Link
                 to="/register"
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 transition-all"
+                className="mt-10 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 hover:bg-emerald-500 hover:-translate-y-0.5 transition-all"
               >
                 Create Free Profile <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            <div className="flex justify-center">
-              <div className="w-full max-w-sm rounded-2xl border bg-gradient-to-br from-emerald-50 to-blue-50 p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="John Doe" className="h-14 w-14 rounded-full object-cover border-2 border-white shadow-sm" />
+            <div className="flex justify-center perspective-1000">
+              <div className="w-full max-w-sm rounded-3xl border border-white/60 bg-white/40 p-6 backdrop-blur-2xl shadow-[0_20px_40px_rgba(0,0,0,0.08)] animate-float" style={{ animationDelay: '1s' }}>
+                <div className="flex items-center gap-4 mb-5">
+                  <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="John Doe" className="h-16 w-16 rounded-full object-cover border-4 border-white shadow-md" />
                   <div>
-                    <div className="font-bold text-slate-900">John Doe</div>
-                    <div className="text-sm font-medium text-slate-600">Senior React Engineer</div>
+                    <div className="font-bold text-slate-900 text-lg">John Doe</div>
+                    <div className="text-sm font-medium text-slate-500">Senior React Engineer</div>
                   </div>
                 </div>
-                <div className="space-y-3 mt-4">
+                <div className="space-y-4 mt-4">
                   <div className="flex gap-2">
                     {['React', 'Python', 'AWS'].map(s => (
-                      <span key={s} className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">{s}</span>
+                      <span key={s} className="rounded-full bg-emerald-100/80 border border-emerald-200/50 px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm">{s}</span>
                     ))}
                   </div>
-                  <div className="rounded-xl bg-white p-3 shadow-sm">
-                    <p className="text-xs text-muted-foreground mb-1">Match Score</p>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full w-[92%] bg-gradient-to-r from-primary to-emerald-500 rounded-full"></div>
+                  <div className="rounded-2xl bg-white/80 p-4 shadow-sm border border-white">
+                    <p className="text-xs text-slate-500 mb-2 font-medium">Match Score to TechVault</p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                        <div className="h-full w-[92%] bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full relative">
+                          <div className="absolute inset-0 bg-white/20 animate-shimmer"></div>
+                        </div>
                       </div>
-                      <span className="text-sm font-bold text-emerald-600">92%</span>
+                      <span className="text-sm font-black text-emerald-600">92%</span>
                     </div>
                   </div>
-                  <div className="rounded-xl bg-emerald-500/10 p-3">
-                    <p className="text-xs font-medium text-emerald-700">🎯 3 new companies interested in your profile</p>
+                  <div className="rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/5 p-3.5 border border-emerald-100">
+                    <p className="text-xs font-semibold text-emerald-700">🎯 3 new companies interested in your profile</p>
                   </div>
                 </div>
               </div>
@@ -491,53 +500,54 @@ export default function LandingPage() {
       </section>
 
       {/* ── 7. FOR RECRUITERS ── */}
-      <section className="py-12 sm:py-20">
-        <div ref={recruiterReveal.targetRef} className="mx-auto max-w-7xl px-4 sm:px-6">
+      <section className="py-16 sm:py-24 bg-white relative overflow-hidden">
+        <div className="absolute bottom-1/4 right-0 h-[400px] w-[400px] rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
+        <div ref={recruiterReveal.targetRef} className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <div className={`grid items-center gap-12 lg:grid-cols-2 transition-all duration-700 ${recruiterReveal.visible ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="order-2 lg:order-1 flex justify-center">
-              <div className="w-full max-w-sm rounded-2xl border bg-gradient-to-br from-blue-50 to-indigo-50 p-6 shadow-lg">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="font-semibold text-slate-900 text-sm">Top AI Matches</div>
-                  <div className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary flex items-center gap-1">
-                    <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></div> LIVE
+            <div className="order-2 lg:order-1 flex justify-center perspective-1000">
+              <div className="w-full max-w-sm rounded-3xl border border-slate-200/50 bg-white/60 p-6 shadow-[0_20px_40px_rgba(0,0,0,0.06)] backdrop-blur-2xl animate-float">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="font-bold text-slate-900 text-base">Top AI Matches</div>
+                  <div className="rounded-full bg-indigo-100 border border-indigo-200 px-3 py-1 text-[10px] font-black text-indigo-700 flex items-center gap-1.5 shadow-sm">
+                    <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse"></div> LIVE
                   </div>
                 </div>
                 {[
-                  { name: 'Alex Johnson', score: 95, skill: 'Full-Stack', pic: 'https://randomuser.me/api/portraits/men/85.jpg' },
-                  { name: 'Bob Williams', score: 88, skill: 'Backend', pic: 'https://randomuser.me/api/portraits/men/11.jpg' },
-                  { name: 'Charlie Davis', score: 82, skill: 'Frontend', pic: 'https://randomuser.me/api/portraits/men/29.jpg' },
+                  { name: 'Alex Johnson', score: 95, skill: 'Full-Stack Lead', pic: 'https://randomuser.me/api/portraits/men/85.jpg' },
+                  { name: 'Bob Williams', score: 88, skill: 'Backend Engineer', pic: 'https://randomuser.me/api/portraits/men/11.jpg' },
+                  { name: 'Charlie Davis', score: 82, skill: 'Frontend Developer', pic: 'https://randomuser.me/api/portraits/men/29.jpg' },
                 ].map((c, i) => (
-                  <div key={i} className="flex items-center gap-3 rounded-lg bg-white p-3 mb-2 shadow-sm">
-                    <img src={c.pic} alt={c.name} className="h-9 w-9 rounded-full object-cover border border-slate-200" />
+                  <div key={i} className="flex items-center gap-3 rounded-xl bg-white/90 p-3 mb-3 shadow-sm border border-slate-100 transition-transform hover:-translate-y-0.5">
+                    <img src={c.pic} alt={c.name} className="h-10 w-10 rounded-full object-cover border-2 border-white shadow-sm" />
                     <div className="flex-1">
-                      <p className="text-xs font-medium">{c.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{c.skill}</p>
+                      <p className="text-sm font-semibold text-slate-900">{c.name}</p>
+                      <p className="text-xs text-slate-500 font-medium">{c.skill}</p>
                     </div>
-                    <span className={`text-xs font-bold ${c.score >= 90 ? 'text-emerald-600' : 'text-primary'}`}>{c.score}%</span>
+                    <span className={`px-2 py-1 rounded-md text-xs font-black ${c.score >= 90 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>{c.score}%</span>
                   </div>
                 ))}
               </div>
             </div>
             <div className="order-1 lg:order-2">
-              <span className="text-sm font-semibold uppercase tracking-wider text-primary">For Recruiters</span>
+              <span className="text-sm font-semibold uppercase tracking-wider text-indigo-600">For Recruiters</span>
               <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
                 Find the perfect candidate in{' '}
-                <span className="text-primary">seconds, not weeks.</span>
+                <span className="text-gradient">seconds, not weeks.</span>
               </h2>
-              <p className="mt-4 text-muted-foreground">
+              <p className="mt-4 text-slate-600 text-lg">
                 Stop sifting through hundreds of irrelevant applications. Let AI surface the candidates who actually match your requirements.
               </p>
-              <ul className="mt-8 space-y-3">
+              <ul className="mt-8 space-y-4">
                 {recruiterBenefits.map((b) => (
-                  <li key={b} className="flex items-center gap-3 text-sm">
-                    <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                  <li key={b} className="flex items-center gap-3 text-sm font-medium text-slate-700">
+                    <CheckCircle className="h-5 w-5 text-indigo-500 flex-shrink-0 drop-shadow-sm" />
                     {b}
                   </li>
                 ))}
               </ul>
               <Link
                 to="/register"
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 transition-all"
+                className="mt-10 inline-flex items-center gap-2 rounded-full bg-slate-900 px-8 py-3.5 text-sm font-semibold text-white shadow-xl hover:bg-slate-800 hover:-translate-y-0.5 transition-all"
               >
                 Start Hiring Free <ArrowRight className="h-4 w-4" />
               </Link>
@@ -546,44 +556,46 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section ref={showcaseReveal.targetRef} className="bg-background py-12 sm:py-20 border-y border-border/60">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center">
+      <section ref={showcaseReveal.targetRef} className="bg-slate-50/50 py-16 sm:py-24 border-y border-border/60 relative overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center relative z-10">
           <span className="text-sm font-semibold uppercase tracking-wider text-primary">Match Intelligence</span>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">See why you match</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Our AI doesn't just give you a score. It breaks down exactly why a candidate is the perfect fit.
+          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">See exactly why you match</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-slate-600 text-lg">
+            Our AI doesn't just give you a black-box score. It breaks down exactly why a candidate is the perfect fit.
           </p>
-          <div className={`mx-auto mt-12 max-w-3xl transition-all duration-1000 ${showcaseReveal.visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-            <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xl text-left">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                 <div className="flex items-center gap-4">
-                   <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="David Smith" className="h-12 w-12 rounded-full object-cover border border-slate-200" />
+          <div className={`mx-auto mt-16 max-w-3xl transition-all duration-1000 ${showcaseReveal.visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+            <div className="glass-panel rounded-3xl p-8 sm:p-10 text-left border-white/80">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+                 <div className="flex items-center gap-5">
+                   <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="David Smith" className="h-16 w-16 rounded-full object-cover border-2 border-white shadow-md" />
                    <div>
-                     <h3 className="text-xl font-bold text-slate-900">David Smith</h3>
-                     <p className="text-sm text-slate-500 font-medium">Applied for Senior Backend Engineer</p>
+                     <h3 className="text-2xl font-black text-slate-900">David Smith</h3>
+                     <p className="text-sm text-slate-500 font-medium mt-0.5">Applied for Senior Backend Engineer</p>
                    </div>
                  </div>
                 <div className="flex flex-col sm:items-end">
-                  <span className="text-sm font-semibold text-slate-500 mb-1">Overall Match</span>
-                  <span className="text-3xl font-bold text-emerald-600 bg-emerald-50 px-4 py-1 rounded-lg inline-block w-fit">94%</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Overall Match</span>
+                  <span className="text-4xl font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-5 py-2 rounded-xl inline-block w-fit shadow-sm">94%</span>
                 </div>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {[
                   { label: 'Skills Match', score: 98, note: 'Matches all required skills (Python, Django, AWS)' },
                   { label: 'Experience Level', score: 95, note: '6 years experience (Role requires 5+)' },
                   { label: 'Location Fit', score: 100, note: 'Open to Remote (Role is Remote)' },
                 ].map((item, i) => (
-                  <div key={i} className="flex flex-col gap-2 p-4 rounded-xl bg-background border border-border">
+                  <div key={i} className="flex flex-col gap-3 p-5 rounded-2xl bg-white/70 border border-white shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-slate-700">{item.label}</span>
-                      <span className="font-bold text-slate-900">{item.score}%</span>
+                      <span className="font-bold text-slate-800">{item.label}</span>
+                      <span className="font-black text-slate-900">{item.score}%</span>
                     </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
-                      <div className="w-full sm:flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full" style={{ width: `${item.score}%` }}></div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5 mt-1">
+                      <div className="w-full sm:flex-1 h-3 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                        <div className="h-full bg-gradient-to-r from-primary to-blue-500 rounded-full relative transition-all duration-1000" style={{ width: `${item.score}%` }}>
+                           <div className="absolute inset-0 bg-white/20 animate-shimmer"></div>
+                        </div>
                       </div>
-                      <span className="text-xs text-slate-500 sm:min-w-[250px] leading-relaxed">{item.note}</span>
+                      <span className="text-sm text-slate-500 sm:min-w-[280px] font-medium">{item.note}</span>
                     </div>
                   </div>
                 ))}
@@ -594,22 +606,24 @@ export default function LandingPage() {
       </section>
 
       {/* ── 9. TESTIMONIALS ── */}
-      <section className="py-12 sm:py-20">
+      <section className="py-16 sm:py-24 bg-white relative">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center">
             <span className="text-sm font-semibold uppercase tracking-wider text-primary">Testimonials</span>
             <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Loved by teams and talent</h2>
           </div>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <div className="mt-16 grid gap-8 md:grid-cols-3">
             {testimonials.map(({ name, role, company, quote, pic }) => (
-              <div key={name} className="rounded-2xl border bg-white p-6 transition-all hover:shadow-lg">
-                <Quote className="h-8 w-8 text-primary/20 mb-4" />
-                <p className="text-sm leading-relaxed text-muted-foreground italic">"{quote}"</p>
-                <div className="mt-6 flex items-center gap-3 border-t pt-4">
-                  <img src={pic} alt={name} className="h-10 w-10 rounded-full object-cover border border-slate-200" />
+              <div key={name} className="glass-card rounded-2xl p-8 flex flex-col justify-between h-full">
+                <div>
+                  <Quote className="h-8 w-8 text-primary/30 mb-6" />
+                  <p className="text-base leading-relaxed text-slate-700 italic font-medium">"{quote}"</p>
+                </div>
+                <div className="mt-8 flex items-center gap-4 pt-6 border-t border-slate-100">
+                  <img src={pic} alt={name} className="h-12 w-12 rounded-full object-cover border-2 border-white shadow-sm" />
                   <div>
-                    <p className="text-sm font-semibold">{name}</p>
-                    <p className="text-xs text-muted-foreground">{role} at {company}</p>
+                    <p className="text-sm font-bold text-slate-900">{name}</p>
+                    <p className="text-xs text-slate-500 font-medium">{role} at {company}</p>
                   </div>
                 </div>
               </div>
