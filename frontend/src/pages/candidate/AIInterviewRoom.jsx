@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Mic, MicOff, AlertTriangle, CheckCircle, ShieldAlert, BrainCircuit, Loader2 } from 'lucide-react';
 import { interviewsApi } from '../../api/interviews';
-import { FaceDetector, FilesetResolver } from '@mediapipe/tasks-vision';
+import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -21,6 +21,10 @@ const AIInterviewRoom = () => {
   const [cheatingFlags, setCheatingFlags] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [faceCount, setFaceCount] = useState(1);
+  const [isCheating, setIsCheating] = useState(false);
+  const [isWarningActive, setIsWarningActive] = useState(false);
+  const [cheatTimeStr, setCheatTimeStr] = useState("0.0s / 30.0s");
+  const cheatingFramesRef = useRef(0);
 
   const videoRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -54,15 +58,18 @@ const AIInterviewRoom = () => {
         const vision = await FilesetResolver.forVisionTasks(
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
         );
-        const faceDetector = await FaceDetector.createFromOptions(vision, {
+        const faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
           baseOptions: {
-            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite",
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
             delegate: "GPU"
           },
-          runningMode: "VIDEO"
+          runningMode: "VIDEO",
+          numFaces: 5,
+          outputFacialTransformationMatrixes: true,
+          outputFaceBlendshapes: true
         });
         
-        faceDetectorRef.current = faceDetector;
+        faceDetectorRef.current = faceLandmarker;
 
         let lastVideoTime = -1;
         
@@ -72,14 +79,60 @@ const AIInterviewRoom = () => {
           if (videoRef.current.readyState >= 2 && videoRef.current.currentTime !== lastVideoTime) {
             lastVideoTime = videoRef.current.currentTime;
             try {
-              const detections = faceDetectorRef.current.detectForVideo(videoRef.current, performance.now());
-              setFaceCount(detections.detections.length);
+              const result = faceDetectorRef.current.detectForVideo(videoRef.current, performance.now());
+              const count = result.faceLandmarks ? result.faceLandmarks.length : 0;
+              setFaceCount(count);
+              
+              let isLookingAway = false;
+              if (count === 1) {
+                  // 1. Head Pose (Yaw & Pitch)
+                  if (result.facialTransformationMatrixes && result.facialTransformationMatrixes.length > 0) {
+                      const matrix = result.facialTransformationMatrixes[0].data;
+                      const yaw = Math.atan2(matrix[8], Math.sqrt(matrix[9]*matrix[9] + matrix[10]*matrix[10])) * (180 / Math.PI);
+                      const pitch = Math.atan2(-matrix[9], matrix[10]) * (180 / Math.PI); 
+                      
+                      if (Math.abs(yaw) > 25 || pitch < -20 || pitch > 25) { 
+                          isLookingAway = true;
+                      }
+                  }
+
+                  // 2. Eye Gaze Tracking (Blendshapes)
+                  if (!isLookingAway && result.faceBlendshapes && result.faceBlendshapes.length > 0) {
+                      const shapes = result.faceBlendshapes[0].categories;
+                      const lookDown = shapes.find(s => s.categoryName === 'eyeLookDownLeft')?.score || 0;
+                      const lookUp = shapes.find(s => s.categoryName === 'eyeLookUpLeft')?.score || 0;
+                      const lookOut = shapes.find(s => s.categoryName === 'eyeLookOutLeft')?.score || 0;
+                      const lookIn = shapes.find(s => s.categoryName === 'eyeLookInLeft')?.score || 0;
+                      
+                      // 0.35 will catch them looking at the edges of the screen instead of the camera
+                      if (lookDown > 0.35 || lookUp > 0.35 || lookOut > 0.35 || lookIn > 0.35) {
+                          isLookingAway = true;
+                      }
+                  }
+              }
+              
+              if (isRecordingRef.current) {
+                  if (count !== 1 || isLookingAway) {
+                      setIsWarningActive(true);
+                      cheatingFramesRef.current += 1;
+                      // 60 frames at 2 FPS = 30 seconds total across ALL questions.
+                      if (cheatingFramesRef.current >= 60) {
+                          setIsCheating(true);
+                          setIsRecording(false);
+                          isRecordingRef.current = false;
+                      }
+                  } else {
+                      setIsWarningActive(false);
+                      // User requested no decay; time is strictly cumulative
+                  }
+                  setCheatTimeStr((cheatingFramesRef.current / 2).toFixed(1) + "s / 30.0s");
+              }
+
             } catch (e) {
               console.error(e);
             }
           }
           
-          // Throttle to roughly 2 FPS (every 500ms) to free up CPU for microphone!
           setTimeout(() => {
             if (active) {
               animationFrameRef.current = requestAnimationFrame(detectFace);
@@ -170,11 +223,20 @@ const AIInterviewRoom = () => {
     };
   }, [id, navigate, isCompleted, showResults]);
 
+  useEffect(() => {
+    if (isCheating && !isCompleted) {
+      interviewsApi.flagCheating(id, 'face_violation_auto_cancel').catch(e=>console.log(e));
+      if (recognitionRef.current) recognitionRef.current.stop();
+    }
+  }, [isCheating, id, isCompleted]);
+
   const startRecording = () => {
     if (recognitionRef.current) {
       setTranscript('');
       setInterimTranscript('');
       startTimeRef.current = Date.now();
+      // Notice: We NO LONGER reset cheatingFramesRef here! 
+      // It accumulates across all 10 questions.
       try {
         recognitionRef.current.start();
       } catch(e) {}
@@ -228,6 +290,22 @@ const AIInterviewRoom = () => {
       setSubmitting(false);
     }
   };
+
+  if (isCheating) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-8 text-center text-white">
+        <ShieldAlert className="w-24 h-24 text-red-500 mb-6 animate-pulse" />
+        <h1 className="text-4xl font-bold mb-4 text-red-500">Interview Cancelled</h1>
+        <p className="text-slate-300 max-w-lg mb-8 text-lg">
+          We detected severe rule violations (e.g., looking away from the screen, face obscured, or multiple people in frame). 
+          Your interview has been automatically cancelled.
+        </p>
+        <button onClick={() => navigate('/candidate/dashboard')} className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold py-3 px-8 rounded-full transition-all">
+          Return to Dashboard
+        </button>
+      </div>
+    );
+  }
 
   if (loading || !session) {
     return (
@@ -380,13 +458,26 @@ const AIInterviewRoom = () => {
               className="w-full h-full object-cover rounded-2xl"
             />
             {isRecording && (
-              <div className="absolute top-8 right-8 flex items-center gap-2 bg-red-500/20 backdrop-blur-md text-red-100 px-3 py-1 rounded-full text-sm font-bold border border-red-500/50">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                REC
+              <div className="absolute top-8 right-8 flex flex-col items-end gap-2 z-30">
+                <div className="flex items-center gap-2 bg-red-500/20 backdrop-blur-md text-red-100 px-3 py-1 rounded-full text-sm font-bold border border-red-500/50">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                  REC
+                </div>
+                {/* Debug Cheat Timer: Uncomment this block to see real-time cheat limits while testing */}
+                {/* <div className="flex items-center gap-2 bg-orange-500/20 backdrop-blur-md text-orange-100 px-3 py-1 rounded-full text-xs font-mono font-bold border border-orange-500/50">
+                  Cheat Time: {cheatTimeStr}
+                </div> */}
               </div>
             )}
             
             {/* Face Detection Overlays */}
+            {isWarningActive && faceCount === 1 && !showResults && !isCompleted && (
+              <div className="absolute inset-0 bg-orange-900/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-20 rounded-2xl border-4 border-orange-500 animate-pulse">
+                <ShieldAlert className="w-16 h-16 text-white mb-4" />
+                <h3 className="text-2xl font-bold text-white mb-2">Looking Away Detected</h3>
+                <p className="text-orange-100">Please look directly at the camera. The interview will be cancelled if you continue to look away.</p>
+              </div>
+            )}
             {faceCount === 0 && !showResults && !isCompleted && (
               <div className="absolute inset-0 bg-red-900/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-20 rounded-2xl border-4 border-red-500 animate-pulse">
                 <AlertTriangle className="w-16 h-16 text-white mb-4" />
@@ -412,10 +503,11 @@ const AIInterviewRoom = () => {
             ) : !isRecording ? (
               <button
                 onClick={startRecording}
-                className="w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+                disabled={faceCount !== 1}
+                className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${faceCount !== 1 ? 'bg-slate-600 text-slate-400 cursor-not-allowed' : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)]'}`}
               >
                 <Mic className="w-5 h-5" />
-                Start Answering
+                {faceCount === 0 ? 'Face not detected' : faceCount > 1 ? 'Multiple faces' : 'Start Answering'}
               </button>
             ) : (
               <button

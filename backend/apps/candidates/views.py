@@ -29,9 +29,7 @@ class CandidateProfileView(generics.RetrieveUpdateAPIView):
         return profile
         
     def perform_update(self, serializer):
-        profile = serializer.save()
-        from apps.matching.services import run_matching_for_candidate
-        run_matching_for_candidate(profile)
+        serializer.save()
 
 
 class CandidateResumeUploadView(generics.UpdateAPIView):
@@ -54,12 +52,16 @@ class CandidateResumeUploadView(generics.UpdateAPIView):
         profile.resume = resume
         profile.save()
         
-        from .services import parse_resume
-        parse_resume(profile.id)
-        
-        from apps.matching.services import run_matching_for_candidate
-        profile.refresh_from_db()
-        run_matching_for_candidate(profile)
+        import threading
+        def _process_resume(profile_id):
+            from .services import parse_resume
+            parse_resume(profile_id)
+            from apps.candidates.models import CandidateProfile
+            from apps.matching.services import run_matching_for_candidate
+            p = CandidateProfile.objects.get(id=profile_id)
+            run_matching_for_candidate(p)
+
+        threading.Thread(target=_process_resume, args=(profile.id,)).start()
         
         return Response(CandidateProfileSerializer(profile).data)
 
@@ -220,12 +222,9 @@ class CandidateTopView(generics.ListAPIView):
         if job_id:
             from apps.candidates.services import get_job_match_ranking_queryset
             from apps.jobs.models import Job
-            from apps.matching.services import run_matching_for_job
             job = Job.objects.filter(id=job_id).first()
             if job:
-                # Pre-calculate semantic match scores for all open candidates against this job
-                # Note: In a large production app, this would be queued asynchronously.
-                run_matching_for_job(job)
+                # Pre-calculation loop removed. Relies on organic scores saved in background.
                 return get_job_match_ranking_queryset(job.id).select_related('user').prefetch_related('skills')
             
         from apps.candidates.services import get_organic_ranking_queryset
@@ -233,7 +232,6 @@ class CandidateTopView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
-        from .services import generate_relevance_data
         
         job_id = self.request.query_params.get('job_id')
         data = response.data.get('results', response.data) if isinstance(response.data, dict) and 'results' in response.data else response.data
@@ -242,13 +240,35 @@ class CandidateTopView(generics.ListAPIView):
         page = self.paginate_queryset(queryset)
         objs = page if page is not None else queryset
         
-        for i, item in enumerate(data):
-            try:
-                candidate_obj = objs[i]
-                ai_data = generate_relevance_data(candidate_obj, job_id=job_id)
-                item.update(ai_data)
-            except IndexError:
-                pass
+        if job_id:
+            from apps.jobs.models import Job
+            from apps.matching.engine import batch_evaluate_candidates_llm
+            job = Job.objects.filter(id=job_id).first()
+            
+            top_candidates = list(objs)[:10]
+            if job and top_candidates:
+                ai_results = batch_evaluate_candidates_llm(job, top_candidates)
+                
+                for i, item in enumerate(data[:10]):
+                    try:
+                        c_id = str(objs[i].id)
+                        if c_id in ai_results:
+                            item.update(ai_results[c_id])
+                        else:
+                            from apps.candidates.services import generate_relevance_data
+                            item.update(generate_relevance_data(objs[i], job_id=job_id))
+                    except IndexError:
+                        pass
+                
+                # Re-sort the Top 10 using their new AI-generated scores before sending to frontend!
+                data[:10] = sorted(data[:10], key=lambda x: x.get('ranking_score', 0), reverse=True)
+        else:
+            from apps.candidates.services import generate_relevance_data
+            for i, item in enumerate(data):
+                try:
+                    item.update(generate_relevance_data(objs[i], job_id=job_id))
+                except IndexError:
+                    pass
                 
         return response
 

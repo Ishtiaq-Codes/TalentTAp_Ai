@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useFetch } from '@/hooks/useFetch'
 import { candidatesAPI } from '@/api/candidates'
 import { authAPI } from '@/api/auth'
 import { useAuth } from '@/contexts/AuthContext'
+import { useNotifications } from '@/hooks/useNotifications'
+import { notificationsAPI } from '@/api/notifications'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import { getImageUrl } from '@/lib/utils'
 import { EMPLOYMENT_STATUS, AVAILABILITY, EMPLOYMENT_TYPE, REMOTE_PREFERENCES } from '@/lib/constants'
@@ -77,25 +79,62 @@ const TABS = [
  { id: 'links', label: 'Links', icon: Globe },
 ]
 
-export default function ProfilePage() {
- const { user, fetchUser } = useAuth()
- const { data: profile, loading, refetch } = useFetch(() => candidatesAPI.getProfile())
- const [form, setForm] = useState(null)
- const [saving, setSaving] = useState(false)
- const [isParsing, setIsParsing] = useState(false)
- const [skillInput, setSkillInput] = useState('')
- const [skillProficiency, setSkillProficiency] = useState('intermediate')
- const [message, setMessage] = useState('')
- const [activeTab, setActiveTab] = useState('basic')
- const [showExpForm, setShowExpForm] = useState(false)
- const [expForm, setExpForm] = useState({ company_name: '', title: '', start_date: '', end_date: '', is_current: false, description: '' })
- const [showEduForm, setShowEduForm] = useState(false)
- const [eduForm, setEduForm] = useState({ institution_name: '', degree: '', field_of_study: '', start_date: '', end_date: '', description: '' })
- const [showCertForm, setShowCertForm] = useState(false)
- const [certForm, setCertForm] = useState({ name: '', issuing_organization: '', issue_date: '', expiration_date: '', credential_id: '', credential_url: '' })
+ export default function ProfilePage() {
+  const { user, fetchUser } = useAuth()
+  const { data: profile, loading, refetch } = useFetch(() => candidatesAPI.getProfile())
+  const { unreadCount } = useNotifications()
+  
+  const [form, setForm] = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [isParsing, setIsParsing] = useState(false)
+  const [skillInput, setSkillInput] = useState('')
+  const [skillProficiency, setSkillProficiency] = useState('intermediate')
+  const [message, setMessage] = useState('')
+  const [activeTab, setActiveTab] = useState('basic')
+  const [showExpForm, setShowExpForm] = useState(false)
+  const [expForm, setExpForm] = useState({ company_name: '', title: '', start_date: '', end_date: '', is_current: false, description: '' })
+  const [showEduForm, setShowEduForm] = useState(false)
+  const [eduForm, setEduForm] = useState({ institution_name: '', degree: '', field_of_study: '', start_date: '', end_date: '', description: '' })
+  const [showCertForm, setShowCertForm] = useState(false)
+  const [certForm, setCertForm] = useState({ name: '', issuing_organization: '', issue_date: '', expiration_date: '', credential_id: '', credential_url: '' })
 
- // Initialize form when profile loads
- if (profile && !form) setForm({ ...profile })
+  const [prevUnreadCount, setPrevUnreadCount] = useState(unreadCount)
+
+  // Auto-refresh the profile data when a new notification arrives (e.g. AI parsing finished)
+  useEffect(() => {
+    if (unreadCount > prevUnreadCount) {
+      refetch(true).then((newData) => {
+        if (newData) setForm({ ...newData })
+        setIsParsing(false)
+        
+        // Check the newest notification to see if parsing succeeded or failed
+        notificationsAPI.list().then(res => {
+           const latest = (res.data.results || res.data || [])[0]
+           if (latest && (latest.title.includes('Failed') || latest.title.includes('Delayed'))) {
+               setMessage('AI Analysis failed: AI servers are extremely busy right now. Please try again later.')
+           } else if (latest && latest.title.includes('Analyzed')) {
+               setMessage('AI Analysis complete! Your profile has been auto-updated.')
+           } else {
+               setMessage('Profile auto-updated from background task.')
+           }
+        }).catch(() => {
+           setMessage('Background process completed. Check your notifications.')
+        })
+      })
+    }
+    setPrevUnreadCount(unreadCount)
+  }, [unreadCount, prevUnreadCount, refetch])
+
+  // Auto-hide messages after 7 seconds
+  useEffect(() => {
+    if (message && !isParsing) {
+      const timer = setTimeout(() => setMessage(''), 7000)
+      return () => clearTimeout(timer)
+    }
+  }, [message, isParsing])
+
+  // Initialize form when profile loads
+  if (profile && !form) setForm({ ...profile })
 
  if (loading && !form) return <div className="space-y-4">{[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}</div>
  if (!form) return null
@@ -193,7 +232,7 @@ export default function ProfilePage() {
    
    setForm(res.data)
    setIsParsing(false)
-   setMessage('Resume parsed! All sections are updated.')
+   setMessage('Resume uploaded! AI is analyzing your profile in the background. Please refresh the page in a few moments.')
    refetch(true)
   } catch {
    setIsParsing(false)

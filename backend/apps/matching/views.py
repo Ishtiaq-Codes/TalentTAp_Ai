@@ -60,11 +60,44 @@ class CandidateMatchesView(generics.ListAPIView):
             
         matches = MatchScore.objects.filter(candidate=profile)
         
-        # Auto-run matching if they have 0 matches (e.g. newly created profile)
         if not matches.exists() and profile.is_open_to_work:
             from apps.matching import services
             services.run_matching_for_candidate(profile)
             matches = MatchScore.objects.filter(candidate=profile)
             
-        # Only return high-quality matches (score >= 60%)
-        return matches.filter(overall_score__gte=60).select_related('job__company', 'candidate__user').order_by('-overall_score')
+        return matches.filter(overall_score__gte=50).select_related('job__company', 'candidate__user').order_by('-overall_score')
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        profile = CandidateProfile.objects.filter(user=self.request.user).first()
+        
+        if profile and response.data:
+            from apps.matching.engine import batch_evaluate_jobs_llm
+            from apps.jobs.models import Job
+            
+            # Limit to top 10
+            top_matches = response.data[:10]
+            job_ids = []
+            for m in top_matches:
+                j = m.get('job')
+                if isinstance(j, dict):
+                    job_ids.append(j.get('id'))
+                elif j:
+                    job_ids.append(j)
+            
+            if job_ids:
+                jobs = list(Job.objects.filter(id__in=job_ids))
+                ai_results = batch_evaluate_jobs_llm(profile, jobs)
+                
+                for item in response.data[:10]:
+                    j = item.get('job')
+                    jid = str(j.get('id')) if isinstance(j, dict) else str(j)
+                    
+                    if jid in ai_results:
+                        item['overall_score'] = ai_results[jid]['ranking_score']
+                        item['breakdown'] = ai_results[jid]
+                        
+                # Re-sort the Top 10 using their new AI-generated scores before sending to frontend!
+                response.data[:10] = sorted(response.data[:10], key=lambda x: x.get('overall_score', 0), reverse=True)
+                        
+        return response

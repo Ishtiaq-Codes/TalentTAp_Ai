@@ -72,7 +72,7 @@ OUTPUT STRICT JSON MATCHING THIS EXACT SCHEMA:
   }}
 }}
 """
-    result = generate_json(prompt, model_name="gemini-2.5-flash", temperature=0.1)
+    result = generate_json(prompt, model_name="llama-3.1-8b-instant", temperature=0.1)
     
     if not result or 'overall_score' not in result:
         logger.error("LLM matching failed, falling back to legacy algorithm.")
@@ -186,8 +186,116 @@ def compute_match_fallback(candidate, job):
 
 
 def compute_match(candidate, job):
-    """Main entrypoint: Uses LLM if available, otherwise falls back to TF-IDF."""
-    if HAS_GEMINI:
-        return compute_match_llm(candidate, job)
+    """Main entrypoint: Uses TF-IDF fallback for background processing."""
     return compute_match_fallback(candidate, job)
+
+# -------------------------------------------------------------------------
+# BATCH AI MATCHING (ON-DEMAND)
+# -------------------------------------------------------------------------
+
+def batch_evaluate_candidates_llm(job, candidates):
+    """Batch evaluate multiple candidates for a single job."""
+    if not candidates or not HAS_GEMINI:
+        return {}
+        
+    job_skills = ", ".join([s.name for s in job.skills.all()])
+    
+    candidates_text = ""
+    for c in candidates:
+        candidate_skills = ", ".join([s.name for s in c.skills.all()])
+        candidate_exps = " | ".join([f"{e.title} at {e.company_name} ({e.start_date} to {e.end_date}): {e.description}" for e in c.experiences.all()[:3]])
+        candidates_text += f"\n--- CANDIDATE ID: {c.id} ---\nName: {c.user.first_name}\nHeadline: {c.headline}\nYears Exp: {c.years_of_experience}\nSkills: {candidate_skills}\nExperience: {candidate_exps}\n"
+
+    prompt = f"""
+You are an elite Senior Executive Technical Recruiter. You must evaluate the fit between ONE Job and MULTIPLE Candidates.
+Use semantic reasoning. Evaluate their seniority, trajectory, and soft skills based on their bio and experience descriptions.
+
+JOB PROFILE:
+Title: {job.title}
+Employment Type: {job.employment_type}
+Required Experience: {job.experience_min} to {job.experience_max} years
+Skills Needed: {job_skills}
+Description: {job.description}
+
+CANDIDATES:{candidates_text}
+
+OUTPUT STRICT JSON MATCHING THIS EXACT SCHEMA (Array of objects):
+[
+  {{
+    "candidate_id": "UUID string here",
+    "ranking_score": 0.0 to 100.0,
+    "match_reason": "A tailored, 2-sentence paragraph explaining why they are or aren't a fit.",
+    "relevance_factors": ["Strong match: ...", "Implied skill: ..."]
+  }}
+]
+"""
+    result_list = generate_json(prompt, model_name="llama-3.1-8b-instant", temperature=0.1)
+    
+    if not result_list or not isinstance(result_list, list):
+        return {}
+        
+    mapping = {}
+    for item in result_list:
+        cid = item.get("candidate_id")
+        if cid:
+            mapping[str(cid)] = {
+                "ranking_score": round(float(item.get("ranking_score", 0)), 2),
+                "match_reason": item.get("match_reason", ""),
+                "relevance_factors": item.get("relevance_factors", [])
+            }
+    return mapping
+
+
+def batch_evaluate_jobs_llm(candidate, jobs):
+    """Batch evaluate multiple jobs for a single candidate."""
+    if not jobs or not HAS_GEMINI:
+        return {}
+        
+    candidate_skills = ", ".join([s.name for s in candidate.skills.all()])
+    candidate_exps = " | ".join([f"{e.title} at {e.company_name}" for e in candidate.experiences.all()[:3]])
+    
+    jobs_text = ""
+    for j in jobs:
+        job_skills = ", ".join([s.name for s in j.skills.all()])
+        company_name = j.company.name if getattr(j, 'company', None) else ""
+        jobs_text += f"\n--- JOB ID: {j.id} ---\nTitle: {j.title}\nCompany: {company_name}\nRequired Exp: {j.experience_min}-{j.experience_max} years\nSkills: {job_skills}\nDescription: {j.description[:200]}...\n"
+
+    prompt = f"""
+You are an elite Senior Executive Technical Recruiter. You must evaluate the fit between ONE Candidate and MULTIPLE Jobs.
+Use semantic reasoning. Evaluate their seniority and skills.
+
+CANDIDATE PROFILE:
+Name: {candidate.user.first_name}
+Headline: {candidate.headline}
+Total Experience: {candidate.years_of_experience} years
+Skills: {candidate_skills}
+Experience: {candidate_exps}
+
+JOBS:{jobs_text}
+
+OUTPUT STRICT JSON MATCHING THIS EXACT SCHEMA (Array of objects):
+[
+  {{
+    "job_id": "UUID string here",
+    "ranking_score": 0.0 to 100.0,
+    "match_reason": "A tailored, 2-sentence paragraph explaining why this job is a good fit.",
+    "relevance_factors": ["Matches skill: ...", "Experience aligns: ..."]
+  }}
+]
+"""
+    result_list = generate_json(prompt, model_name="llama-3.1-8b-instant", temperature=0.1)
+    
+    if not result_list or not isinstance(result_list, list):
+        return {}
+        
+    mapping = {}
+    for item in result_list:
+        jid = item.get("job_id")
+        if jid:
+            mapping[str(jid)] = {
+                "ranking_score": round(float(item.get("ranking_score", 0)), 2),
+                "match_reason": item.get("match_reason", ""),
+                "relevance_factors": item.get("relevance_factors", [])
+            }
+    return mapping
 

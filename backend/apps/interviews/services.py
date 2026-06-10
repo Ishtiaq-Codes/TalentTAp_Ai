@@ -25,7 +25,7 @@ def generate_interview_questions(session: AIInterviewSession) -> bool:
         job_context = f"Job Title: {job.title}\nDescription: {job.description}\nRequirements: {job.requirements}"
 
     prompt = f"""
-    You are an elite Senior Engineering Manager and HR Director. 
+    You are an elite Hiring Manager and HR Director. 
     You are interviewing a candidate for a position.
     
     Candidate Context:
@@ -34,8 +34,21 @@ def generate_interview_questions(session: AIInterviewSession) -> bool:
     Job Context:
     {job_context}
     
-    Generate exactly 10 interview questions tailored specifically to the candidate's resume and the job's demands.
-    - 7 should be 'technical' (deep dives into their claimed skills, scenario-based architecture or coding questions).
+    Generate exactly 10 interview questions tailored STRICTLY to the candidate's actual profile, skills, and field.
+    
+    CRITICAL DIFFICULTY CALIBRATION:
+    - You MUST look at their "Experience" (years). Calibrate the difficulty of your questions accordingly:
+      * Fresher/Junior (0-2 years): Ask fundamental concepts, basic tool usage, and simple academic/entry-level scenarios. DO NOT ask deep architectural questions.
+      * Mid-Level (3-5 years): Ask practical problem-solving, execution, and intermediate scenario-based questions.
+      * Senior/Expert (6+ years): Ask deep, complex architectural, strategic, and high-level leadership scenarios.
+      
+    - If the candidate's profile indicates a specific field (e.g., Marketing, HR, Design, Business, Engineering), ask domain-specific questions relevant ONLY to their field.
+    - If their field is completely unknown or empty, ask general professional, problem-solving, and situational questions.
+    - DO NOT ask software engineering or coding questions UNLESS the candidate's profile or job explicitly indicates they are in software/tech.
+    
+    - 7 should be 'technical':
+      * At least 3 of these technical questions MUST test Core Fundamentals of their field (e.g., for Software Engineers: OOP, DSA, Databases. For Designers: Color theory, UX principles. For SEO: Indexing, ranking factors). Core fundamentals must be tested for ALL experience levels, but scale the depth of the fundamental question based on their experience.
+      * The remaining technical questions should test specific hard skills, tools, or professional scenarios tailored to their experience level.
     - 3 should be 'soft_skill' (behavioral, leadership, conflict resolution).
     
     Format the output as a strict JSON array of objects:
@@ -50,7 +63,7 @@ def generate_interview_questions(session: AIInterviewSession) -> bool:
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            result = generate_json(prompt, model_name="gemini-2.5-flash", temperature=0.7)
+            result = generate_json(prompt, model_name="llama-3.1-8b-instant", temperature=0.7)
             
             if not result:
                 raise Exception("Empty result from LLM")
@@ -92,12 +105,12 @@ def evaluate_interview(session: AIInterviewSession) -> bool:
         len(str(q.answer_transcript).strip().split()) 
         for q in questions if q.answer_transcript
     )
-    if total_words < 5:
-        logger.warning(f"Candidate {session.candidate.user.email} submitted empty or near-empty answers.")
+    if total_words < 150:
+        logger.warning(f"Candidate {session.candidate.user.email} submitted extremely short answers. Total words: {total_words}")
         session.status = AIInterviewSession.Status.FAILED_CHEATING
         session.overall_score = 0
         session.passed = False
-        session.ai_feedback_summary = "Your interview has been failed due to empty or insufficient responses. You must speak clearly and provide detailed answers."
+        session.ai_feedback_summary = "Your interview has been failed due to extremely short or insufficient responses. A comprehensive interview requires detailed answers."
         session.save()
         return True
         
@@ -116,11 +129,13 @@ def evaluate_interview(session: AIInterviewSession) -> bool:
         
     prompt = f"""
     You are an elite Senior Engineering Manager evaluating a candidate's recorded interview.
-    You must score them strictly. 
+    You must score them extremely strictly.
     
-    Evaluate the answers based on:
-    1. Technical Accuracy (for technical questions).
-    2. Communication & Confidence (for all questions). Note: 130-160 Words Per Minute (WPM) is a confident speaking rate. Very low WPM or extremely long time_to_answer_seconds indicates hesitation or searching for answers. High use of filler words in the transcript indicates low confidence.
+    CRITICAL GRADING RULES:
+    1. If the transcript for an answer is very short (e.g. under 15 words) or nonsensical, you MUST give a score of exactly 0 for that question. Do not give partial credit.
+    2. If the answer does not accurately and comprehensively address the question, score it below 20%.
+    3. Evaluate Technical Accuracy and Soft Skills rigorously. Filler words, hesitation, or lack of deep detail should severely lower the score.
+    4. Note: 130-160 WPM is a confident speaking rate. Very low WPM or extremely long time_to_answer indicates hesitation.
     
     Interview Data:
     {json.dumps(interview_data)}
@@ -145,7 +160,7 @@ def evaluate_interview(session: AIInterviewSession) -> bool:
     for attempt in range(max_retries):
         try:
             logger.info(f"Attempting evaluation for session {session.id} (Attempt {attempt+1}/{max_retries})")
-            result = generate_json(prompt, model_name="gemini-2.5-flash", temperature=0.1)
+            result = generate_json(prompt, model_name="llama-3.1-8b-instant", temperature=0.1)
             
             # If result is empty dict due to fallback
             if not result:
