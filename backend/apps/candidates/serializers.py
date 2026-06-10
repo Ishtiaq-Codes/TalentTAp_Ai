@@ -55,6 +55,8 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
     missing_factors = serializers.JSONField(read_only=True, required=False)
     match_reason = serializers.CharField(read_only=True, required=False)
     is_flight_risk = serializers.BooleanField(read_only=True)
+    verified_expert = serializers.SerializerMethodField()
+    interviews_summary = serializers.SerializerMethodField()
 
     class Meta:
         model = CandidateProfile
@@ -68,10 +70,27 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
             'is_open_to_work', 'profile_completion', 'skills', 'experiences', 
             'education', 'certifications', 'created_at', 'updated_at',
             'ranking_score', 'relevance_factors', 'missing_factors', 'match_reason',
-            'is_flight_risk',
+            'is_flight_risk', 'verified_expert', 'interviews_summary',
         ]
         read_only_fields = ['id', 'user', 'profile_completion', 'created_at', 'updated_at']
 
+    def get_verified_expert(self, obj):
+        # Return true if candidate passed any AI interview
+        return obj.interviews.filter(passed=True).exists()
+
+    def get_interviews_summary(self, obj):
+        qs = obj.interviews.filter(status='completed')
+        return [
+            {
+                "id": str(i.id),
+                "technical_score": i.technical_score,
+                "soft_skills_score": i.soft_skills_score,
+                "overall_score": i.overall_score,
+                "passed": i.passed,
+                "completed_at": i.completed_at,
+                "ai_feedback_summary": i.ai_feedback_summary
+            } for i in qs
+        ]
 
 class CandidateSearchSerializer(serializers.ModelSerializer):
     """Lightweight serializer for search results."""
@@ -87,6 +106,7 @@ class CandidateSearchSerializer(serializers.ModelSerializer):
     missing_factors = serializers.JSONField(read_only=True, required=False)
     match_reason = serializers.CharField(read_only=True, required=False)
     is_flight_risk = serializers.BooleanField(read_only=True)
+    verified_expert = serializers.SerializerMethodField()
 
     class Meta:
         model = CandidateProfile
@@ -95,8 +115,11 @@ class CandidateSearchSerializer(serializers.ModelSerializer):
             'years_of_experience', 'employment_status', 'availability',
             'employment_type_preferred', 'is_open_to_work', 'skills', 'is_shortlisted',
             'ranking_score', 'relevance_factors', 'missing_factors', 'match_reason',
-            'is_flight_risk',
+            'is_flight_risk', 'verified_expert',
         ]
+
+    def get_verified_expert(self, obj):
+        return obj.interviews.filter(passed=True).exists()
 
     def get_is_shortlisted(self, obj):
         request = self.context.get('request')

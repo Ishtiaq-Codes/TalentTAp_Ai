@@ -8,7 +8,7 @@ import { messagingAPI } from '@/api/messaging'
 import {
  MapPin, Briefcase, Calendar, User, ArrowLeft, FileText,
  Clock, Award, Globe, ExternalLink, Sparkles, X,
- Mail, Phone, CheckCircle, MessageSquare, ClipboardList,
+ Mail, Phone, CheckCircle, MessageSquare, ClipboardList, BrainCircuit
 } from 'lucide-react'
 import { useToast } from '@/contexts/ToastContext'
 import SkeletonCard from '@/components/common/SkeletonCard'
@@ -190,6 +190,12 @@ export default function CandidateDetailPage() {
            🚀 Passive Talent
           </span>
          )}
+         {profile.verified_expert && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-600/20 shadow-sm border border-blue-200">
+           <CheckCircle className="w-3 h-3 text-blue-600" />
+           AI Verified Expert
+          </span>
+         )}
         </div>
         <p className="text-lg text-muted-foreground mt-1 font-medium">{profile.headline || 'Professional'}</p>
         </div>
@@ -258,6 +264,57 @@ export default function CandidateDetailPage() {
    <div className="grid gap-6 lg:grid-cols-3">
     {/* ─── Main Content ─── */}
     <div className="lg:col-span-2 space-y-6">
+
+     {/* AI Interview Results Section */}
+     {profile.interviews_summary && profile.interviews_summary.length > 0 && (
+      <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative overflow-hidden">
+       <div className="absolute top-0 right-0 p-6 opacity-10">
+        <BrainCircuit className="w-24 h-24 text-blue-500" />
+       </div>
+       <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+        <BrainCircuit className="w-5 h-5 text-blue-500" /> AI Video Interview Results
+       </h3>
+       <div className="space-y-6 relative z-10">
+        {profile.interviews_summary.map((interview, index) => (
+         <div key={interview.id} className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+          <div className="flex items-center justify-between mb-4">
+           <div className="flex items-center gap-2">
+            <span className={`px-3 py-1 rounded-full text-xs font-bold ${interview.passed ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-rose-100 text-rose-700 border border-rose-200'}`}>
+             {interview.passed ? 'PASSED' : 'DID NOT PASS'}
+            </span>
+            <span className="text-xs text-slate-500 font-medium">
+             {new Date(interview.completed_at).toLocaleDateString()}
+            </span>
+           </div>
+           <div className="text-right">
+            <span className="text-2xl font-extrabold text-slate-900">{interview.overall_score}%</span>
+            <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Overall</span>
+           </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+           <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
+            <span className="text-sm font-bold text-slate-600">Technical</span>
+            <span className="text-lg font-bold text-blue-600">{interview.technical_score}%</span>
+           </div>
+           <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
+            <span className="text-sm font-bold text-slate-600">Soft Skills</span>
+            <span className="text-lg font-bold text-purple-600">{interview.soft_skills_score}%</span>
+           </div>
+          </div>
+
+          <div>
+           <h4 className="text-sm font-bold text-slate-700 mb-2">AI Feedback</h4>
+           <p className="text-sm text-slate-600 leading-relaxed bg-white p-4 rounded-xl border border-slate-100">
+            {interview.ai_feedback_summary}
+           </p>
+          </div>
+         </div>
+        ))}
+       </div>
+      </div>
+     )}
+
      {/* AI Decision Layer Insight */}
      {(profile.match_reason || profile.skills?.length > 0 || profile.years_of_experience > 0) && (
       <div className="rounded-2xl border border-ai/20 bg-gradient-to-r from-ai/5 to-transparent p-6 shadow-sm relative overflow-hidden">

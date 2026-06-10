@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { useAuth, getDashboardPath, getRedirectPath } from '@/contexts/AuthContext'
 import AppShell from '@/components/layout/AppShell'
 import OnboardingLayout from '@/components/layout/OnboardingLayout'
@@ -33,6 +33,8 @@ const CandidateJobDetailPage = lazy(() => import('@/pages/candidate/JobDetailPag
 const CandidateApplications = lazy(() => import('@/pages/candidate/ApplicationsPage'))
 const CandidateMatches = lazy(() => import('@/pages/candidate/MatchesPage'))
 const CandidateSettingsPage = lazy(() => import('@/pages/candidate/CandidateSettingsPage'))
+const AIInterviewLobby = lazy(() => import('@/pages/candidate/AIInterviewLobby'))
+const AIInterviewRoom = lazy(() => import('@/pages/candidate/AIInterviewRoom'))
 
 // Recruiter
 const RecruiterDashboard = lazy(() => import('@/pages/recruiter/DashboardPage'))
@@ -153,6 +155,12 @@ export default function AppRouter() {
           <Route element={<RequireAuth><OnboardingLayout /></RequireAuth>}>
             <Route path="/onboarding/candidate" element={<CandidateOnboarding />} />
             <Route path="/onboarding/company" element={<CompanyOnboarding />} />
+          </Route>
+
+          {/* Protected routes without AppShell (Fullscreen experiences) */}
+          <Route element={<RequireOnboarded><div className="min-h-screen bg-slate-900"><Outlet /></div></RequireOnboarded>}>
+             <Route path="/candidate/interviews/lobby" element={<AIInterviewLobby />} />
+             <Route path="/candidate/interviews/:id/room" element={<AIInterviewRoom />} />
           </Route>
 
           {/* Protected routes with AppShell layout */}

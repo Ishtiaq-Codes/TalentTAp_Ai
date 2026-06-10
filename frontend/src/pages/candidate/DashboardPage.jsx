@@ -56,20 +56,23 @@ export default function CandidateDashboard() {
     <div className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-primary/20 blur-3xl"/>
     <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl"/>
 
-    <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
-     <div>
-      <h1 className="text-3xl font-bold text-white">Welcome back, {user?.first_name}! 👋</h1>
-      <p className="mt-2 text-slate-400 max-w-xl">
-       You have {matchCount} new job matches waiting for your review. Complete your profile to boost your visibility to top employers.
-      </p>
-     </div>
-     <div className="shrink-0 flex gap-3">
-      <Link to="/candidate/matches"className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 transition-all">
-       View Matches <ArrowRight className="ml-2 h-4 w-4"/>
-      </Link>
+     <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
+      <div>
+       <h1 className="text-3xl font-bold text-white">Welcome back, {user?.first_name}! 👋</h1>
+       <p className="mt-2 text-slate-400 max-w-xl">
+        You have {matchCount} new job matches waiting for your review. Take an AI Video Interview to boost your profile and earn the Verified Expert badge!
+       </p>
+      </div>
+      <div className="shrink-0 flex flex-col sm:flex-row gap-3">
+       <Link to="/candidate/interviews/lobby"className="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-blue-600/25 hover:bg-blue-500 transition-all">
+        Take AI Interview
+       </Link>
+       <Link to="/candidate/matches"className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 transition-all">
+        View Matches <ArrowRight className="ml-2 h-4 w-4"/>
+       </Link>
+      </div>
      </div>
     </div>
-   </div>
 
    {/* Profile strength alert */}
    {completion < 80 && (() => {
