@@ -96,6 +96,10 @@ const AIInterviewLobby = () => {
                 <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 Your answers will be transcribed and graded on Technical Accuracy, Confidence (WPM), and Soft Skills.
               </li>
+              <li className="flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                Time Limit: You have exactly 15 minutes to complete the interview. If the timer runs out, the interview will automatically fail.
+              </li>
             </ul>
           </div>
 

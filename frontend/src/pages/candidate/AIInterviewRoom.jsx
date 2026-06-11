@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Mic, MicOff, AlertTriangle, CheckCircle, ShieldAlert, BrainCircuit, Loader2 } from 'lucide-react';
+import { Mic, MicOff, AlertTriangle, CheckCircle, ShieldAlert, BrainCircuit, Loader2, Clock } from 'lucide-react';
 import { interviewsApi } from '../../api/interviews';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
@@ -26,6 +26,8 @@ const AIInterviewRoom = () => {
   const [instructionsRead, setInstructionsRead] = useState(false);
   const instructionsReadRef = useRef(false);
   const [cheatTimeStr, setCheatTimeStr] = useState("0.0s / 30.0s");
+  const [timeLeft, setTimeLeft] = useState(15 * 60);
+  const [isTimeout, setIsTimeout] = useState(false);
   const cheatingFramesRef = useRef(0);
 
   const videoRef = useRef(null);
@@ -262,6 +264,46 @@ const AIInterviewRoom = () => {
     }
   }, [isCheating, id, isCompleted, showResults]);
 
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  useEffect(() => {
+    let timer;
+    if (instructionsRead && !isCompleted && !showResults && !isCheating && !isTimeout && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            handleTimeout();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [instructionsRead, isCompleted, showResults, isCheating, isTimeout, timeLeft, id]);
+
+  const handleTimeout = async () => {
+    try {
+      await interviewsApi.flagCheating(id, 'timeout_auto_cancel');
+      await interviewsApi.completeInterview(id).catch(e => console.log(e));
+      setIsTimeout(true);
+      if (isRecordingRef.current) {
+        setIsRecording(false);
+        isRecordingRef.current = false;
+        if (recognitionRef.current) {
+          try { recognitionRef.current.stop(); } catch(e) {}
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const startRecording = () => {
     if (recognitionRef.current) {
       setTranscript('');
@@ -331,6 +373,21 @@ const AIInterviewRoom = () => {
         <p className="text-slate-300 max-w-lg mb-8 text-lg">
           We detected severe rule violations (e.g., looking away from the screen, face obscured, or multiple people in frame). 
           Your interview has been automatically cancelled.
+        </p>
+        <button onClick={() => navigate('/candidate/dashboard')} className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold py-3 px-8 rounded-full transition-all">
+          Return to Dashboard
+        </button>
+      </div>
+    );
+  }
+
+  if (isTimeout) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-8 text-center text-white">
+        <AlertTriangle className="w-24 h-24 text-orange-500 mb-6 animate-pulse" />
+        <h1 className="text-4xl font-bold mb-4 text-orange-500">Time's Up!</h1>
+        <p className="text-slate-300 max-w-lg mb-8 text-lg">
+          You did not complete the interview within the allocated 15 minutes. The interview has been automatically terminated and marked as failed.
         </p>
         <button onClick={() => navigate('/candidate/dashboard')} className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold py-3 px-8 rounded-full transition-all">
           Return to Dashboard
@@ -455,6 +512,10 @@ const AIInterviewRoom = () => {
                   <span className="text-amber-400 mt-1">•</span>
                   <span><strong>Face Detection:</strong> Only one face is allowed in the frame. If your face is obscured or multiple faces appear, it will be flagged.</span>
                 </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-blue-400 mt-1">•</span>
+                  <span><strong>Time Limit:</strong> You have exactly 15 minutes to complete the interview. If the timer runs out, you will fail automatically.</span>
+                </li>
               </ul>
             </div>
             
@@ -481,6 +542,10 @@ const AIInterviewRoom = () => {
         </div>
         
         <div className="flex items-center gap-4">
+          <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-bold border ${timeLeft < 180 ? 'bg-red-500/20 text-red-400 border-red-500/30 animate-pulse' : 'bg-slate-800 text-slate-300 border-slate-700'}`}>
+            <Clock className="w-4 h-4" />
+            {formatTime(timeLeft)}
+          </div>
           <div className="text-slate-400 font-medium">
             Question {currentQuestionIndex + 1} of {session.questions.length}
           </div>

@@ -43,7 +43,8 @@ def generate_interview_questions(session: AIInterviewSession) -> bool:
       * Senior/Expert (6+ years): Ask deep, complex architectural, strategic, and high-level leadership scenarios.
       
     - If the candidate's profile indicates a specific field (e.g., Marketing, HR, Design, Business, Engineering), ask domain-specific questions relevant ONLY to their field.
-    - If their field is completely unknown or empty, ask general professional, problem-solving, and situational questions.
+    - If their field is completely unknown, missing, or empty, ask general professional, problem-solving, and situational questions (e.g., communication, critical thinking, logic, workplace scenarios). 
+    - CRITICAL: NEVER use placeholders like "[Candidate's Field]", "[Field]", or "[Industry]" in your output. Always phrase questions naturally as a human interviewer would.
     - DO NOT ask software engineering or coding questions UNLESS the candidate's profile or job explicitly indicates they are in software/tech.
     
     - 7 should be 'technical':

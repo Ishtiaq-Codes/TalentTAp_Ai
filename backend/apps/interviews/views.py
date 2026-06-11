@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from datetime import timedelta
 
 from apps.jobs.models import Job
 from apps.interviews.models import AIInterviewSession, AIInterviewQuestion
@@ -29,6 +30,21 @@ class AIInterviewViewSet(viewsets.ModelViewSet):
     def start(self, request):
         if not hasattr(request.user, 'candidate_profile'):
             return Response({"error": "Only candidates can start interviews."}, status=status.HTTP_403_FORBIDDEN)
+            
+        # Check 48 hour cooldown
+        forty_eight_hours_ago = timezone.now() - timedelta(hours=48)
+        recent_interview = AIInterviewSession.objects.filter(
+            candidate=request.user.candidate_profile,
+            started_at__gte=forty_eight_hours_ago
+        ).order_by('-started_at').first()
+
+        if recent_interview:
+            time_since = timezone.now() - recent_interview.started_at
+            hours_left = 48 - (time_since.total_seconds() / 3600)
+            return Response(
+                {"error": f"You must wait 48 hours between interview attempts to ensure fairness. Please try again in {int(hours_left)} hours."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS
+            )
             
         serializer = StartInterviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
