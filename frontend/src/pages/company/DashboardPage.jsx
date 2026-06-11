@@ -55,33 +55,52 @@ function PipelineBar({ label, count, total, color }) {
 }
 
 /* ─── Recruiter Row ─── */
-function RecruiterRow({ recruiter }) {
+function RecruiterRow({ recruiter, index }) {
+ const isTop = index === 0;
  return (
-  <div className="flex items-center gap-4 py-3 border-b last:border-0">
-   <ProfileAvatar name={recruiter.name} src={recruiter.avatar} size="md"/>
+  <div className="flex items-center gap-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors px-2 rounded-lg group">
+   <div className="relative">
+    <ProfileAvatar name={recruiter.name} src={recruiter.avatar} size="md"/>
+    {isTop && (
+     <div className="absolute -top-2 -right-2 bg-amber-400 text-white rounded-full p-0.5 shadow-sm border-2 border-white"title="Top Performer">
+      <Trophy className="h-3 w-3" />
+     </div>
+    )}
+   </div>
    <div className="flex-1 min-w-0">
-    <p className="font-semibold text-slate-900 truncate">{recruiter.name}</p>
-    <p className="text-xs text-slate-400 truncate">{recruiter.title}</p>
+    <div className="flex items-center gap-2">
+     <p className="font-semibold text-slate-900 truncate group-hover:text-primary transition-colors">{recruiter.name}</p>
+     {isTop && <span className="text-[10px] font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider">Top Recruiter</span>}
+    </div>
+    <p className="text-xs text-slate-400 truncate mt-0.5">{recruiter.title}</p>
    </div>
    <div className="hidden sm:flex items-center gap-6 shrink-0 text-center">
-    <div>
-     <p className="text-sm font-bold text-slate-900">{recruiter.jobs_count}</p>
+    <div className="flex flex-col items-center">
+     <div className="flex items-center gap-1.5">
+      <p className="text-sm font-bold text-slate-900">{recruiter.jobs_count}</p>
+     </div>
      <p className="text-[10px] text-slate-400 uppercase tracking-wide">Jobs</p>
     </div>
-    <div>
-     <p className="text-sm font-bold text-slate-900">{recruiter.shortlists_count}</p>
+    <div className="w-px h-8 bg-slate-100"></div>
+    <div className="flex flex-col items-center">
+     <div className="flex items-center gap-1.5">
+      <p className="text-sm font-bold text-slate-900">{recruiter.shortlists_count}</p>
+     </div>
      <p className="text-[10px] text-slate-400 uppercase tracking-wide">Saved</p>
     </div>
-    <div>
-     <p className="text-sm font-bold text-slate-900">{recruiter.messages_count}</p>
+    <div className="w-px h-8 bg-slate-100"></div>
+    <div className="flex flex-col items-center">
+     <div className="flex items-center gap-1.5">
+      <p className="text-sm font-bold text-slate-900">{recruiter.messages_count}</p>
+     </div>
      <p className="text-[10px] text-slate-400 uppercase tracking-wide">Msgs</p>
     </div>
    </div>
-   <div className="shrink-0">
+   <div className="shrink-0 ml-2">
     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
      recruiter.is_active
-      ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-      : 'bg-slate-100 text-slate-500 border border-slate-200'
+      ? 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20'
+      : 'bg-slate-100 text-slate-500 ring-1 ring-inset ring-slate-400/20'
     }`}>
      {recruiter.is_active ? <CheckCircle2 className="h-3 w-3"/> : null}
      {recruiter.is_active ? 'Active' : 'Suspended'}
@@ -195,18 +214,18 @@ function RecruiterActivityCard({ recruiter }) {
         <Link 
          key={activity.id} 
          to={linkTo} 
-         className="flex items-start gap-3 p-3 hover:bg-slate-50 transition-colors rounded-lg group"
+         className="flex items-start gap-3 p-3 hover:bg-slate-50 hover:shadow-sm hover:-translate-y-0.5 transition-all rounded-lg group border border-transparent hover:border-slate-100"
         >
-         <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${iconClass}`}>
+         <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform group-hover:scale-110 ${iconClass}`}>
           <Icon className="h-4 w-4"/>
          </div>
          <div className="flex-1 min-w-0">
-          <p className="text-sm text-slate-900 truncate">
+          <p className="text-sm text-slate-900 truncate group-hover:text-primary transition-colors">
            {titleText}
           </p>
           <p className="text-xs text-slate-500 mt-0.5 flex items-center justify-between gap-2">
            <span className="truncate flex-1">{subtitleText}</span>
-           <span className="shrink-0 whitespace-nowrap text-slate-400">{formatDateTime(activity.timestamp)}</span>
+           <span className="shrink-0 whitespace-nowrap text-slate-400 text-[10px] uppercase tracking-wider">{formatDateTime(activity.timestamp)}</span>
           </p>
          </div>
         </Link>

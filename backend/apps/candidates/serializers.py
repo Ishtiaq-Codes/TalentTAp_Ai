@@ -79,7 +79,7 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
         return obj.interviews.filter(passed=True).exists()
 
     def get_interviews_summary(self, obj):
-        qs = obj.interviews.filter(status='completed')
+        qs = obj.interviews.filter(status__in=['completed', 'failed_cheating'])
         return [
             {
                 "id": str(i.id),
@@ -87,7 +87,10 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
                 "soft_skills_score": i.soft_skills_score,
                 "overall_score": i.overall_score,
                 "passed": i.passed,
+                "status": i.status,
                 "completed_at": i.completed_at,
+                "started_at": i.started_at,
+                "created_at": i.created_at,
                 "ai_feedback_summary": i.ai_feedback_summary
             } for i in qs
         ]

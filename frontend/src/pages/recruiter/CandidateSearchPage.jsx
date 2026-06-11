@@ -232,21 +232,21 @@ export default function CandidateSearchPage() {
       {/* Availability */}
       <div className="p-4 border-b">
        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Availability</label>
-       <div className="mt-2 space-y-1.5">
+       <div className="mt-3 flex flex-wrap gap-2">
         {[
          { value: '', label: 'Any' },
          { value: 'immediate', label: 'Immediate' },
-         { value: '2_weeks', label: 'Within 2 Weeks' },
-         { value: '1_month', label: 'Within 1 Month' },
-         { value: '3_months', label: 'Within 3 Months' },
+         { value: '2_weeks', label: 'In 2 Weeks' },
+         { value: '1_month', label: 'In 1 Month' },
+         { value: '3_months', label: 'In 3 Months' },
         ].map(opt => (
          <button
           key={opt.value}
           onClick={() => setFilters({ ...filters, availability: opt.value || undefined })}
-          className={`w-full text-left rounded-lg px-3 py-2 text-sm transition-colors ${
+          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
            (filters.availability || '') === opt.value
-            ? 'bg-primary/10 text-primary font-medium'
-            : 'text-slate-600 hover:bg-slate-50'
+            ? 'bg-primary text-white shadow-md ring-2 ring-primary ring-offset-1'
+            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
          >
           {opt.label}
@@ -258,7 +258,7 @@ export default function CandidateSearchPage() {
       {/* Employment Type */}
       <div className="p-4 border-b">
        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Employment Type</label>
-       <div className="mt-2 space-y-1.5">
+       <div className="mt-3 flex flex-wrap gap-2">
         {[
          { value: '', label: 'Any' },
          { value: 'full_time', label: 'Full Time' },
@@ -269,10 +269,10 @@ export default function CandidateSearchPage() {
          <button
           key={opt.value}
           onClick={() => setFilters({ ...filters, employment_type_preferred: opt.value || undefined })}
-          className={`w-full text-left rounded-lg px-3 py-2 text-sm transition-colors ${
+          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
            (filters.employment_type_preferred || '') === opt.value
-            ? 'bg-primary/10 text-primary font-medium'
-            : 'text-slate-600 hover:bg-slate-50'
+            ? 'bg-primary text-white shadow-md ring-2 ring-primary ring-offset-1'
+            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
          >
           {opt.label}
@@ -284,7 +284,7 @@ export default function CandidateSearchPage() {
       {/* Employment Status */}
       <div className="p-4">
        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</label>
-       <div className="mt-2 space-y-1.5">
+       <div className="mt-3 flex flex-wrap gap-2">
         {[
          { value: '', label: 'Any' },
          { value: 'employed', label: 'Employed' },
@@ -295,10 +295,10 @@ export default function CandidateSearchPage() {
          <button
           key={opt.value}
           onClick={() => setFilters({ ...filters, employment_status: opt.value || undefined })}
-          className={`w-full text-left rounded-lg px-3 py-2 text-sm transition-colors ${
+          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
            (filters.employment_status || '') === opt.value
-            ? 'bg-primary/10 text-primary font-medium'
-            : 'text-slate-600 hover:bg-slate-50'
+            ? 'bg-primary text-white shadow-md ring-2 ring-primary ring-offset-1'
+            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
          >
           {opt.label}
@@ -380,11 +380,15 @@ export default function CandidateSearchPage() {
            {c.is_open_to_work && (
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 shrink-0"title="Open to work"/>
            )}
-           {(c.years_of_experience >= 5 || c.is_recommended) && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-ai/10 px-2 py-0.5 text-[9px] font-bold text-ai uppercase tracking-wider">
+           {c.match_score ? (
+            <div className="ml-2 scale-90 origin-left">
+             <MatchScoreBadge score={c.match_score} size="sm" />
+            </div>
+           ) : (c.years_of_experience >= 5 || c.is_recommended) ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-ai/10 px-2 py-0.5 text-[9px] font-bold text-ai uppercase tracking-wider ring-1 ring-inset ring-ai/20 shadow-[0_0_8px_rgba(124,58,237,0.15)]">
              <Sparkles className="h-2.5 w-2.5"/> Top Match
             </span>
-           )}
+           ) : null}
           </div>
           <p className="text-xs text-slate-500 truncate mt-0.5">{c.headline || 'Professional'}</p>
           <div className="flex items-center gap-3 mt-1.5">

@@ -11,19 +11,28 @@ import ShortlistButton from '@/components/common/ShortlistButton'
 import MessageButton from '@/components/common/MessageButton'
 import { formatDate } from '@/lib/utils'
 import ConfirmModal from '@/components/common/ConfirmModal'
-import { ArrowLeft, Sparkles, Users, RefreshCw, ExternalLink, Edit2, Trash2, Repeat } from 'lucide-react'
+import { ArrowLeft, Sparkles, Users, RefreshCw, ExternalLink, Edit2, Trash2, Repeat, GripVertical } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useToast } from '@/contexts/ToastContext'
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 export default function JobDetailPage() {
  const { id } = useParams()
  const { data: job, loading } = useFetch(() => jobsAPI.get(id), [id])
  const { data: matches, loading: matchLoading, refetch: refetchMatches } = useFetch(() => matchingAPI.getJobResults(id), [id])
- const { data: applications } = useFetch(() => applicationsAPI.list({ job: id }), [id])
+ const { data: applications, refetch: refetchApps } = useFetch(() => applicationsAPI.list({ job: id }), [id])
  const { data: shortlists } = useFetch(() => applicationsAPI.getShortlists())
  const [runningMatch, setRunningMatch] = useState(false)
  const [tab, setTab] = useState('matches')
  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+ const [localApps, setLocalApps] = useState([])
+
+ useEffect(() => {
+  if (applications) {
+   const appList = Array.isArray(applications) ? applications : (applications.results || [])
+   setLocalApps(Array.from(new Map(appList.map(app => [app.candidate, app])).values()))
+  }
+ }, [applications])
  
  const navigate = useNavigate()
  const { success, error: showError } = useToast()
@@ -55,6 +64,34 @@ export default function JobDetailPage() {
   ? Array.from(new Map(applications.map(app => [app.candidate, app])).values()) 
   : []
  const shortlistsArray = Array.isArray(shortlists) ? shortlists : []
+
+ const COLUMNS = [
+  { id: 'applied', title: 'Applied', color: 'bg-slate-100', borderColor: 'border-slate-200' },
+  { id: 'reviewing', title: 'Reviewing', color: 'bg-blue-50', borderColor: 'border-blue-200' },
+  { id: 'shortlisted', title: 'Shortlisted', color: 'bg-purple-50', borderColor: 'border-purple-200' },
+  { id: 'interview', title: 'Interviewing', color: 'bg-indigo-50', borderColor: 'border-indigo-200' },
+  { id: 'offered', title: 'Offered', color: 'bg-emerald-50', borderColor: 'border-emerald-200' },
+  { id: 'rejected', title: 'Rejected', color: 'bg-red-50', borderColor: 'border-red-200' },
+ ]
+
+ const onDragEnd = async (result) => {
+  if (!result.destination) return;
+  const sourceStatus = result.source.droppableId;
+  const destStatus = result.destination.droppableId;
+  const appId = result.draggableId;
+  
+  if (sourceStatus === destStatus) return;
+
+  // Optimistic update
+  setLocalApps(prev => prev.map(app => app.id === appId ? { ...app, status: destStatus } : app));
+
+  try {
+   await applicationsAPI.updateStatus(appId, destStatus);
+  } catch (err) {
+   showError("Failed to update candidate status");
+   refetchApps(); // rollback
+  }
+ }
 
  const handleDelete = async () => {
   try {
@@ -236,43 +273,79 @@ export default function JobDetailPage() {
    )}
 
    {tab === 'applications' && (
-    <div className="space-y-3">
-     {appList.length === 0 ? (
-      <p className="py-8 text-center text-sm text-muted-foreground">No applications yet.</p>
-     ) : appList.map((app) => (
-      <div key={app.id} className="flex flex-col gap-4 rounded-xl border bg-card p-5">
-       <div className="flex items-center justify-between">
-        <Link to={`/recruiter/candidates/${app.candidate}?job_id=${job.id}`} className="flex items-center gap-3 group">
-         <ProfileAvatar src={app.candidate_avatar} name={app.candidate_name} size="md"/>
-         <div>
-          <p className="font-medium text-sm group-hover:text-primary transition-colors">{app.candidate_name}</p>
-          <p className="text-xs text-muted-foreground">Applied {formatDate(app.created_at)}</p>
+    <div className="mt-6">
+     <DragDropContext onDragEnd={onDragEnd}>
+      <div className="grid grid-cols-6 gap-2 pb-2">
+       {COLUMNS.map((col) => {
+        const columnApps = localApps.filter(app => app.status === col.id)
+        return (
+         <div key={col.id} className="flex flex-col min-w-0">
+          <div className={`flex items-center justify-between px-2.5 py-2 rounded-t-lg border-t border-x ${col.color} ${col.borderColor}`}>
+           <h3 className="text-[11px] font-bold text-slate-800 uppercase tracking-wide truncate pr-2">{col.title}</h3>
+           <span className="bg-white text-slate-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full border shadow-sm shrink-0">
+            {columnApps.length}
+           </span>
+          </div>
+          <Droppable droppableId={col.id}>
+           {(provided, snapshot) => (
+            <div
+             ref={provided.innerRef}
+             {...provided.droppableProps}
+             className={`flex-1 min-h-[500px] p-2 rounded-b-lg border-x border-b transition-colors ${
+              snapshot.isDraggingOver ? 'bg-slate-50 border-blue-300' : 'bg-slate-50/50 border-slate-200'
+             }`}
+            >
+             {columnApps.map((app, index) => (
+              <Draggable key={app.id} draggableId={app.id} index={index}>
+               {(provided, snapshot) => (
+                <div
+                 ref={provided.innerRef}
+                 {...provided.draggableProps}
+                 {...provided.dragHandleProps}
+                 className={`mb-2 flex flex-col gap-1.5 rounded border bg-white p-2 shadow-sm transition-all ${
+                  snapshot.isDragging ? 'shadow-lg ring-2 ring-primary ring-offset-1 rotate-2' : 'hover:shadow-md hover:border-slate-300'
+                 }`}
+                >
+                 <div className="flex items-start justify-between gap-1">
+                  <div className="flex items-center gap-1.5 group min-w-0">
+                   <div className="shrink-0 scale-75 -ml-2 -mt-1">
+                    <ProfileAvatar src={app.candidate_avatar} name={app.candidate_name} size="sm" />
+                   </div>
+                   <div className="min-w-0 -ml-1">
+                    <Link to={`/recruiter/candidates/${app.candidate}?job_id=${job.id}`} className="font-semibold text-[11px] text-slate-900 group-hover:text-primary transition-colors truncate block leading-tight">
+                     {app.candidate_name}
+                    </Link>
+                    <p className="text-[8px] text-muted-foreground truncate">{formatDate(app.created_at)}</p>
+                   </div>
+                  </div>
+                  <div className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 p-0 shrink-0 -mr-1">
+                   <GripVertical className="h-3 w-3" />
+                  </div>
+                 </div>
+                 
+                 <div className="flex items-center gap-1 pt-1 mt-0.5 border-t border-slate-100">
+                  <MessageButton recipientId={app.candidate_user_id} name={app.candidate_name} showText={false} className="h-6 w-6 !px-0 bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-none rounded" />
+                  <Link
+                   to={`/recruiter/candidates/${app.candidate}?job_id=${job.id}`}
+                   className="h-6 w-6 flex items-center justify-center rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+                   title="View Profile"
+                  >
+                   <ExternalLink className="h-3 w-3"/>
+                  </Link>
+                 </div>
+                </div>
+               )}
+              </Draggable>
+             ))}
+             {provided.placeholder}
+            </div>
+           )}
+          </Droppable>
          </div>
-        </Link>
-        <div className="flex items-center gap-2">
-         <Link
-          to={`/recruiter/candidates/${app.candidate}?job_id=${job.id}`}
-          className="flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors h-10"
-         >
-          <ExternalLink className="h-4 w-4"/> Profile
-         </Link>
-         <MessageButton recipientId={app.candidate_user_id} name={app.candidate_name} />
-         <ShortlistButton 
-          candidateId={app.candidate} 
-          jobId={job.id} 
-          initialIsShortlisted={shortlistsArray.some(s => s.candidate === app.candidate)}
-         />
-         <span className="ml-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 capitalize">{app.status}</span>
-        </div>
-       </div>
-       {app.cover_letter && (
-        <div className="rounded-lg bg-slate-50 p-4 border text-sm text-slate-700">
-         <p className="font-semibold text-slate-900 mb-1">Cover Letter / Note</p>
-         <p className="whitespace-pre-wrap">{app.cover_letter}</p>
-        </div>
-       )}
+        )
+       })}
       </div>
-     ))}
+     </DragDropContext>
     </div>
    )}
    </>

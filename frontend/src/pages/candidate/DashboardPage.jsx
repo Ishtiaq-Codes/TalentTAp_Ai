@@ -64,7 +64,7 @@ export default function CandidateDashboard() {
        </p>
       </div>
       <div className="shrink-0 flex flex-col sm:flex-row gap-3">
-       <Link to="/candidate/interviews/lobby"className="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-blue-600/25 hover:bg-blue-500 transition-all">
+       <Link to="/candidate/interviews/lobby" className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 hover:bg-indigo-500 transition-all">
         Take AI Interview
        </Link>
        <Link to="/candidate/matches"className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 transition-all">

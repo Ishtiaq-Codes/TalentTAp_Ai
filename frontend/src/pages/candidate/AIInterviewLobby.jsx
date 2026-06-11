@@ -79,7 +79,7 @@ const AIInterviewLobby = () => {
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
           <h1 className="text-3xl font-bold text-white mb-2">Technical AI Interview</h1>
           <p className="text-slate-400 mb-8">
-            You are about to begin a 10-question adaptive technical interview conducted by Gemini AI.
+            You are about to begin a 10-question adaptive technical interview conducted by Elite AI.
           </p>
 
           <div className="bg-red-950/30 border border-red-900/50 rounded-xl p-4 mb-8">

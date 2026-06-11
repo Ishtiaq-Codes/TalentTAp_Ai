@@ -107,9 +107,10 @@ def evaluate_interview(session: AIInterviewSession) -> bool:
     )
     if total_words < 150:
         logger.warning(f"Candidate {session.candidate.user.email} submitted extremely short answers. Total words: {total_words}")
-        session.status = AIInterviewSession.Status.FAILED_CHEATING
+        session.status = AIInterviewSession.Status.COMPLETED
         session.overall_score = 0
         session.passed = False
+        session.completed_at = timezone.now()
         session.ai_feedback_summary = "Your interview has been failed due to extremely short or insufficient responses. A comprehensive interview requires detailed answers."
         session.save()
         return True

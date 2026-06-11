@@ -83,6 +83,8 @@ export default function CandidateDetailPage() {
  
  const [interviewLoading, setInterviewLoading] = useState(false)
  const [interviewDraft, setInterviewDraft] = useState(null)
+ const [selectedInterviewIndex, setSelectedInterviewIndex] = useState(0)
+ const [showInterviewHistory, setShowInterviewHistory] = useState(false)
 
  const { data: profile, loading, error } = useFetch(
   () => candidatesAPI.getPublicProfile(id, jobId ? { job_id: jobId } : {}), 
@@ -266,28 +268,65 @@ export default function CandidateDetailPage() {
     <div className="lg:col-span-2 space-y-6">
 
      {/* AI Interview Results Section */}
-     {profile.interviews_summary && profile.interviews_summary.length > 0 && (
-      <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative overflow-hidden">
-       <div className="absolute top-0 right-0 p-6 opacity-10">
-        <BrainCircuit className="w-24 h-24 text-blue-500" />
-       </div>
-       <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-        <BrainCircuit className="w-5 h-5 text-blue-500" /> AI Video Interview Results
-       </h3>
-       <div className="space-y-6 relative z-10">
-        {profile.interviews_summary.map((interview, index) => (
-         <div key={interview.id} className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+     {profile.interviews_summary && profile.interviews_summary.length > 0 && (() => {
+      const interview = profile.interviews_summary[selectedInterviewIndex] || profile.interviews_summary[0];
+      return (
+       <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative overflow-visible z-20">
+        <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
+         <BrainCircuit className="w-24 h-24 text-blue-500" />
+        </div>
+        <div className="flex items-center justify-between mb-6 relative z-30">
+         <h3 className="text-xl font-bold flex items-center gap-2">
+          <BrainCircuit className="w-5 h-5 text-blue-500" /> AI Video Interview Results
+         </h3>
+         {profile.interviews_summary.length > 1 && (
+          <div className="relative">
+           <button 
+            onClick={() => setShowInterviewHistory(!showInterviewHistory)}
+            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors bg-white text-slate-700 shadow-sm"
+           >
+            Past Interviews ({profile.interviews_summary.length - 1})
+           </button>
+           {showInterviewHistory && (
+            <div className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg z-50 animate-fade-in">
+             <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1 mb-1">Interview History</h4>
+             {profile.interviews_summary.map((hist, idx) => (
+              <button
+               key={hist.id}
+               onClick={() => { setSelectedInterviewIndex(idx); setShowInterviewHistory(false); }}
+               className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between transition-colors ${
+                idx === selectedInterviewIndex ? 'bg-primary/10 text-primary font-medium' : 'text-slate-700 hover:bg-slate-50'
+               }`}
+              >
+               <span>{hist.completed_at || hist.started_at || hist.created_at ? new Date(hist.completed_at || hist.started_at || hist.created_at).toLocaleDateString() : 'Unknown Date'}</span>
+               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${hist.status === 'failed_cheating' ? 'bg-red-100 text-red-700' : hist.passed ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                {hist.overall_score || 0}%
+               </span>
+              </button>
+             ))}
+            </div>
+           )}
+          </div>
+         )}
+        </div>
+        <div className="space-y-6 relative z-10">
+         <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
           <div className="flex items-center justify-between mb-4">
            <div className="flex items-center gap-2">
-            <span className={`px-3 py-1 rounded-full text-xs font-bold ${interview.passed ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-rose-100 text-rose-700 border border-rose-200'}`}>
-             {interview.passed ? 'PASSED' : 'DID NOT PASS'}
+            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+             interview.status === 'failed_cheating' ? 'bg-red-100 text-red-800 border border-red-300' : 
+             interview.passed ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-rose-100 text-rose-700 border border-rose-200'
+            }`}>
+             {interview.status === 'failed_cheating' ? 'CHEATING DETECTED' : interview.passed ? 'PASSED' : 'DID NOT PASS'}
             </span>
             <span className="text-xs text-slate-500 font-medium">
-             {new Date(interview.completed_at).toLocaleDateString()}
+             {interview.completed_at || interview.started_at || interview.created_at ? new Date(interview.completed_at || interview.started_at || interview.created_at).toLocaleDateString() : 'Unknown Date'}
             </span>
            </div>
            <div className="text-right">
-            <span className="text-2xl font-extrabold text-slate-900">{interview.overall_score}%</span>
+            <span className={`text-2xl font-extrabold ${interview.status === 'failed_cheating' ? 'text-red-600' : 'text-slate-900'}`}>
+             {interview.overall_score || 0}%
+            </span>
             <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Overall</span>
            </div>
           </div>
@@ -295,11 +334,11 @@ export default function CandidateDetailPage() {
           <div className="grid grid-cols-2 gap-4 mb-4">
            <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
             <span className="text-sm font-bold text-slate-600">Technical</span>
-            <span className="text-lg font-bold text-blue-600">{interview.technical_score}%</span>
+            <span className="text-lg font-bold text-blue-600">{interview.technical_score || 0}%</span>
            </div>
            <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
             <span className="text-sm font-bold text-slate-600">Soft Skills</span>
-            <span className="text-lg font-bold text-purple-600">{interview.soft_skills_score}%</span>
+            <span className="text-lg font-bold text-purple-600">{interview.soft_skills_score || 0}%</span>
            </div>
           </div>
 
@@ -310,10 +349,10 @@ export default function CandidateDetailPage() {
            </p>
           </div>
          </div>
-        ))}
+        </div>
        </div>
-      </div>
-     )}
+      )
+     })()}
 
      {/* AI Decision Layer Insight */}
      {(profile.match_reason || profile.skills?.length > 0 || profile.years_of_experience > 0) && (

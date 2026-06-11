@@ -23,6 +23,8 @@ const AIInterviewRoom = () => {
   const [faceCount, setFaceCount] = useState(1);
   const [isCheating, setIsCheating] = useState(false);
   const [isWarningActive, setIsWarningActive] = useState(false);
+  const [instructionsRead, setInstructionsRead] = useState(false);
+  const instructionsReadRef = useRef(false);
   const [cheatTimeStr, setCheatTimeStr] = useState("0.0s / 30.0s");
   const cheatingFramesRef = useRef(0);
 
@@ -30,6 +32,7 @@ const AIInterviewRoom = () => {
   const recognitionRef = useRef(null);
   const startTimeRef = useRef(null);
   const faceDetectorRef = useRef(null);
+  const mediaStreamRef = useRef(null);
   const animationFrameRef = useRef(null);
   const isRecordingRef = useRef(false);
 
@@ -51,6 +54,12 @@ const AIInterviewRoom = () => {
     const startVisionAI = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (!active) {
+           // Component unmounted while waiting for camera
+           stream.getTracks().forEach(track => track.stop());
+           return;
+        }
+        mediaStreamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
@@ -148,17 +157,24 @@ const AIInterviewRoom = () => {
     startVisionAI();
 
     const handleVisibilityChange = () => {
-      if (document.hidden && !isCompleted && !showResults) {
-        setCheatingFlags(prev => prev + 1);
+      if (document.hidden && !isCompleted && !showResults && instructionsReadRef.current) {
         interviewsApi.flagCheating(id, 'tab_switch');
-        alert("WARNING: You left the interview tab. This has been flagged.");
+        setIsCheating(true);
+        if (isRecordingRef.current) {
+            setIsRecording(false);
+            isRecordingRef.current = false;
+        }
       }
     };
     
     const handleBlur = () => {
-      if (!isCompleted && !showResults) {
-        setCheatingFlags(prev => prev + 1);
+      if (!isCompleted && !showResults && instructionsReadRef.current) {
         interviewsApi.flagCheating(id, 'window_blur');
+        setIsCheating(true);
+        if (isRecordingRef.current) {
+            setIsRecording(false);
+            isRecordingRef.current = false;
+        }
       }
     };
 
@@ -208,8 +224,12 @@ const AIInterviewRoom = () => {
       active = false;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("blur", handleBlur);
+      // Hard stop the camera hardware light
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      }
       if (videoRef.current && videoRef.current.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
       }
       if (recognitionRef.current) {
         recognitionRef.current.stop();
@@ -221,14 +241,26 @@ const AIInterviewRoom = () => {
         faceDetectorRef.current.close();
       }
     };
-  }, [id, navigate, isCompleted, showResults]);
+  }, [id, navigate]);
 
   useEffect(() => {
     if (isCheating && !isCompleted) {
       interviewsApi.flagCheating(id, 'face_violation_auto_cancel').catch(e=>console.log(e));
-      if (recognitionRef.current) recognitionRef.current.stop();
     }
-  }, [isCheating, id, isCompleted]);
+    
+    // Always kill camera when cheating is detected or results are shown
+    if (isCheating || showResults) {
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      }
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject = null;
+      }
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch(e){}
+      }
+    }
+  }, [isCheating, id, isCompleted, showResults]);
 
   const startRecording = () => {
     if (recognitionRef.current) {
@@ -307,11 +339,11 @@ const AIInterviewRoom = () => {
     );
   }
 
-  if (loading || !session) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white">
-        <BrainCircuit className="w-12 h-12 text-blue-500 animate-pulse mb-4" />
-        <h2 className="text-xl font-bold">AI is preparing your interview...</h2>
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-white font-sans">
+        <Loader2 className="w-12 h-12 animate-spin text-emerald-500 mb-4" />
+        <p className="text-xl font-bold">Setting up interview room...</p>
       </div>
     );
   }
@@ -396,13 +428,56 @@ const AIInterviewRoom = () => {
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4">
       
+      {!instructionsRead && (
+        <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 font-sans">
+          <div className="max-w-2xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500"></div>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20">
+                <ShieldAlert className="w-6 h-6 text-red-500" />
+              </div>
+              <h1 className="text-3xl font-bold text-white">Strict Interview Rules</h1>
+            </div>
+            
+            <div className="space-y-4 mb-8 text-slate-300">
+              <p className="text-lg">Please read these rules carefully. Violating them will result in <strong>immediate termination</strong> of your interview.</p>
+              
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <span className="text-red-400 mt-1">•</span>
+                  <span><strong>No Tab Switching:</strong> If you minimize the window, click outside the interview, or switch tabs even once, the interview will instantly fail.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-orange-400 mt-1">•</span>
+                  <span><strong>Camera Focus:</strong> You must look directly at the camera. Looking away or down for a cumulative 30 seconds will terminate the session.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-amber-400 mt-1">•</span>
+                  <span><strong>Face Detection:</strong> Only one face is allowed in the frame. If your face is obscured or multiple faces appear, it will be flagged.</span>
+                </li>
+              </ul>
+            </div>
+            
+            <button 
+              onClick={() => {
+                setInstructionsRead(true);
+                instructionsReadRef.current = true;
+              }}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(5,150,105,0.2)]"
+            >
+              I Understand, Start Interview
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Top Bar */}
       <div className="w-full max-w-6xl flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <div className="bg-blue-500/20 p-2 rounded-xl">
             <BrainCircuit className="w-6 h-6 text-blue-400" />
           </div>
-          <h1 className="text-xl font-bold text-white">Gemini AI Interviewer</h1>
+          <h1 className="text-xl font-bold text-white">Elite Interviewer</h1>
         </div>
         
         <div className="flex items-center gap-4">

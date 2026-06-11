@@ -107,6 +107,8 @@ function StatusSelect({ appId, initialStatus, onStatusChange }) {
  )
 }
 
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+
 export default function RecruiterDashboard() {
  const { user } = useAuth()
  
@@ -122,6 +124,15 @@ export default function RecruiterDashboard() {
  
  const totalJobsCount = jobsMeta?.count || jobList.length
  const totalAppsCount = appsMeta?.count || appList.length
+
+ // Compute Pipeline Data
+ const pipelineData = [
+  { name: 'Applied', count: appList.filter(a => a.status === 'applied').length, color: '#94a3b8' },
+  { name: 'Reviewing', count: appList.filter(a => a.status === 'reviewing').length, color: '#3b82f6' },
+  { name: 'Shortlisted', count: appList.filter(a => a.status === 'shortlisted').length, color: '#8b5cf6' },
+  { name: 'Interview', count: appList.filter(a => a.status === 'interview').length, color: '#4f46e5' },
+  { name: 'Offered', count: appList.filter(a => a.status === 'offered').length, color: '#10b981' },
+ ]
 
  if ((jobsLoading && !jobs) || (appsLoading && !applications)) {
   return (
@@ -142,7 +153,7 @@ export default function RecruiterDashboard() {
      <p className="mt-2 text-sm text-slate-500">Welcome back, {user?.first_name}. Here's what's happening in your hiring pipeline.</p>
     </div>
     <Link to="/recruiter/jobs/new"
-     className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all">
+     className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all hover:shadow-primary/20 hover:-translate-y-0.5">
      <Plus className="mr-2 h-4 w-4"/> Post New Job
     </Link>
    </div>
@@ -151,13 +162,35 @@ export default function RecruiterDashboard() {
    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
     <DashboardStat icon={Briefcase} label="Total Jobs"value={totalJobsCount} trend="+1"trendLabel="this month"/>
     <DashboardStat icon={FileText} label="Total Applications"value={totalAppsCount} trend="+12"trendLabel="new this week"/>
-    <DashboardStat icon={Users} label="Candidates to Review"value={appList.filter(a => a.status === 'applied').length} />
-    <DashboardStat icon={TrendingUp} label="Interviews Scheduled"value={appList.filter(a => a.status === 'interview').length} />
+    <DashboardStat icon={Users} label="Candidates to Review"value={pipelineData[0].count} />
+    <DashboardStat icon={TrendingUp} label="Interviews Scheduled"value={pipelineData[3].count} />
    </div>
 
    <div className="grid gap-8 lg:grid-cols-1 xl:grid-cols-3">
     {/* Main Tables Area (Takes up 2/3 width on massive screens) */}
     <div className="xl:col-span-2 space-y-8">
+     
+     {/* Pipeline Chart */}
+     <div className="glass-card rounded-xl overflow-hidden p-6">
+      <h2 className="text-base font-semibold text-slate-900 mb-6">Pipeline Health</h2>
+      <div className="h-64 w-full">
+       <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={pipelineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} allowDecimals={false} />
+         <Tooltip 
+          cursor={{ fill: '#f1f5f9' }}
+          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }}
+         />
+         <Bar dataKey="count" radius={[6, 6, 6, 6]} barSize={40}>
+          {pipelineData.map((entry, index) => (
+           <Cell key={`cell-${index}`} fill={entry.color} />
+          ))}
+         </Bar>
+        </BarChart>
+       </ResponsiveContainer>
+      </div>
+     </div>
      
      {/* Recent Candidates Table */}
      <div className="glass-card rounded-xl overflow-hidden">
