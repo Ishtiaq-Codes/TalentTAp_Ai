@@ -130,9 +130,8 @@ class CandidateSkill(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     candidate = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name='skills')
     name = models.CharField(max_length=100, db_index=True)
-    proficiency = models.CharField(
-        max_length=20, choices=Proficiency.choices, default=Proficiency.INTERMEDIATE,
-    )
+    proficiency = models.CharField(max_length=50, choices=Proficiency.choices, default=Proficiency.INTERMEDIATE)
+    is_verified_by_ai = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ['candidate', 'name']

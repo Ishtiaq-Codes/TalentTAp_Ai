@@ -19,7 +19,7 @@ import AddToPoolModal from '@/components/companies/AddToPoolModal'
 import { getImageUrl } from '@/lib/utils'
 
 /* ─── Proficiency bar ─── */
-function SkillBar({ name, proficiency }) {
+function SkillBar({ name, proficiency, isVerified }) {
  const levels = { beginner: 25, intermediate: 50, advanced: 75, expert: 100 }
  const pct = levels[proficiency] || 50
  const colors = {
@@ -30,7 +30,10 @@ function SkillBar({ name, proficiency }) {
  }
  return (
   <div className="flex items-center gap-3">
-   <span className="text-sm font-medium text-slate-700 w-32 shrink-0 truncate">{name}</span>
+   <span className="text-sm font-medium text-slate-700 w-32 shrink-0 truncate flex items-center gap-1.5">
+    <span className="truncate">{name}</span>
+    {isVerified && <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" title="AI Verified Expert" />}
+   </span>
    <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
     <div
      className={`h-full rounded-full transition-all duration-700 ${colors[proficiency] || 'bg-primary'}`}
@@ -188,14 +191,14 @@ export default function CandidateDetailPage() {
         <div className="flex items-center gap-3">
          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{profile.user_name}</h1>
          {profile.is_flight_risk && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700 ring-1 ring-inset ring-rose-600/20">
+          <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700 ring-1 ring-inset ring-rose-600/20 cursor-help" title="Passive Talent: Currently employed with 2+ years of experience, but recently updated their profile. High potential for headhunting!">
            🚀 Passive Talent
           </span>
          )}
          {profile.verified_expert && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-600/20 shadow-sm border border-blue-200">
-           <CheckCircle className="w-3 h-3 text-blue-600" />
-           AI Verified Expert
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 px-3 py-1 text-xs font-bold text-amber-800 ring-1 ring-inset ring-amber-600/30 shadow-sm border border-amber-200">
+           <Award className="w-3.5 h-3.5 text-amber-600" />
+           Top 1% AI Verified
           </span>
          )}
         </div>
@@ -468,7 +471,7 @@ export default function CandidateDetailPage() {
           </div>
           <div className="space-y-2.5">
            {skills.map(s => (
-            <SkillBar key={s.id} name={s.name} proficiency={s.proficiency} />
+            <SkillBar key={s.id} name={s.name} proficiency={s.proficiency} isVerified={s.is_verified_by_ai} />
            ))}
           </div>
          </div>

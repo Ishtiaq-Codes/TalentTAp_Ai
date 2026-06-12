@@ -6,7 +6,7 @@ from .models import CandidateProfile, CandidateSkill, Experience, Education, Cer
 class CandidateSkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = CandidateSkill
-        fields = ['id', 'name', 'proficiency']
+        fields = ['id', 'name', 'proficiency', 'is_verified_by_ai']
         read_only_fields = ['id']
 
 
@@ -75,8 +75,11 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'user', 'profile_completion', 'created_at', 'updated_at']
 
     def get_verified_expert(self, obj):
-        # Return true if candidate passed any AI interview
-        return obj.interviews.filter(passed=True).exists()
+        interviews = obj.interviews.filter(passed=True)
+        if not interviews.exists():
+            return False
+        total = sum(i.overall_score or 0 for i in interviews)
+        return (total / interviews.count()) >= 90
 
     def get_interviews_summary(self, obj):
         qs = obj.interviews.filter(status__in=['completed', 'failed_cheating'])
@@ -122,7 +125,11 @@ class CandidateSearchSerializer(serializers.ModelSerializer):
         ]
 
     def get_verified_expert(self, obj):
-        return obj.interviews.filter(passed=True).exists()
+        interviews = obj.interviews.filter(passed=True)
+        if not interviews.exists():
+            return False
+        total = sum(i.overall_score or 0 for i in interviews)
+        return (total / interviews.count()) >= 90
 
     def get_is_shortlisted(self, obj):
         request = self.context.get('request')

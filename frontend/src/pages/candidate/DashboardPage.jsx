@@ -4,7 +4,8 @@ import { matchingAPI } from '@/api/matching'
 import { applicationsAPI } from '@/api/applications'
 import { useAuth } from '@/contexts/AuthContext'
 import { Briefcase, Sparkles, FileText, CheckCircle, ArrowRight, TrendingUp } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import SkeletonCard from '@/components/common/SkeletonCard'
 
 function DashboardStat({ icon: Icon, label, value, trend }) {
@@ -30,6 +31,11 @@ function DashboardStat({ icon: Icon, label, value, trend }) {
 
 export default function CandidateDashboard() {
  const { user } = useAuth()
+ const navigate = useNavigate()
+ const [showConsentModal, setShowConsentModal] = useState(false)
+ const [agreedReward, setAgreedReward] = useState(false)
+ const [agreedPenalty, setAgreedPenalty] = useState(false)
+
  const { data: profile, loading: profileLoading } = useFetch(() => candidatesAPI.getProfile())
  const { data: matches } = useFetch(() => matchingAPI.getCandidateMatches())
  const { data: applications } = useFetch(() => applicationsAPI.list())
@@ -64,9 +70,9 @@ export default function CandidateDashboard() {
        </p>
       </div>
       <div className="shrink-0 flex flex-col sm:flex-row gap-3">
-       <Link to="/candidate/interviews/lobby" className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 hover:bg-indigo-500 transition-all">
+       <button onClick={() => setShowConsentModal(true)} className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 hover:bg-indigo-500 transition-all">
         Take AI Interview
-       </Link>
+       </button>
        <Link to="/candidate/matches"className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 transition-all">
         View Matches <ArrowRight className="ml-2 h-4 w-4"/>
        </Link>
@@ -199,6 +205,42 @@ export default function CandidateDashboard() {
      </div>
     </div>
    </div>
+
+   {/* AI Interview Consent Modal */}
+   {showConsentModal && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm animate-in fade-in">
+     <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl overflow-hidden animate-in zoom-in-95">
+      <div className="p-6 border-b border-slate-100">
+       <h2 className="text-xl font-bold text-slate-900">AI Interview Agreement</h2>
+       <p className="mt-1 text-sm text-slate-500">Please acknowledge the rules of the AI Matching Engine before proceeding.</p>
+      </div>
+      <div className="p-6 space-y-4">
+       <label className="flex items-start gap-3 p-4 rounded-xl border border-emerald-100 bg-emerald-50/50 cursor-pointer hover:bg-emerald-50 transition-colors">
+        <input type="checkbox" className="mt-1 flex-shrink-0 w-4 h-4 text-emerald-600 rounded border-emerald-300 focus:ring-emerald-500" checked={agreedReward} onChange={(e) => setAgreedReward(e.target.checked)} />
+        <span className="text-sm text-emerald-900">
+         <strong>I understand the Reward:</strong> Passing this interview will verify my skills and grant me a <strong>1.3x ranking boost</strong> on the platform.
+        </span>
+       </label>
+       <label className="flex items-start gap-3 p-4 rounded-xl border border-red-100 bg-red-50/50 cursor-pointer hover:bg-red-50 transition-colors">
+        <input type="checkbox" className="mt-1 flex-shrink-0 w-4 h-4 text-red-600 rounded border-red-300 focus:ring-red-500" checked={agreedPenalty} onChange={(e) => setAgreedPenalty(e.target.checked)} />
+        <span className="text-sm text-red-900">
+         <strong>I understand the Penalty:</strong> The test is strictly proctored. Getting caught cheating will result in a <strong>-30% visibility penalty</strong> for 30 days.
+        </span>
+       </label>
+      </div>
+      <div className="p-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+       <button onClick={() => setShowConsentModal(false)} className="px-5 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">Cancel</button>
+       <button 
+        disabled={!agreedReward || !agreedPenalty}
+        onClick={() => navigate('/candidate/interviews/lobby')} 
+        className="px-6 py-2 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm shadow-indigo-600/20"
+       >
+        I Agree, Enter Lobby
+       </button>
+      </div>
+     </div>
+    </div>
+   )}
   </div>
  )
 }

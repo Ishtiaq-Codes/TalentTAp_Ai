@@ -385,10 +385,15 @@ export default function CandidateSearchPage() {
              <MatchScoreBadge score={c.match_score} size="sm" />
             </div>
            ) : (c.years_of_experience >= 5 || c.is_recommended) ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-ai/10 px-2 py-0.5 text-[9px] font-bold text-ai uppercase tracking-wider ring-1 ring-inset ring-ai/20 shadow-[0_0_8px_rgba(124,58,237,0.15)]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-ai/10 px-2 py-0.5 text-[9px] font-bold text-ai uppercase tracking-wider ring-1 ring-inset ring-ai/20 shadow-[0_0_8px_rgba(124,58,237,0.15)] cursor-help" title="Top Match: This candidate has 5+ years of experience or is highly recommended by AI.">
              <Sparkles className="h-2.5 w-2.5"/> Top Match
             </span>
            ) : null}
+           {c.verified_expert && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 px-2 py-0.5 text-[9px] font-bold text-amber-800 uppercase tracking-wider ring-1 ring-inset ring-amber-600/30 shadow-sm border border-amber-200" title="Top 1% AI Verified Talent">
+             <Award className="h-2.5 w-2.5 text-amber-600"/> Verified
+            </span>
+           )}
           </div>
           <p className="text-xs text-slate-500 truncate mt-0.5">{c.headline || 'Professional'}</p>
           <div className="flex items-center gap-3 mt-1.5">
@@ -463,8 +468,14 @@ export default function CandidateSearchPage() {
          <div className="flex items-center gap-2">
           <h2 className="text-lg font-bold text-slate-900">{selected.user_name}</h2>
           {selected.is_flight_risk && (
-           <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+           <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700 cursor-help" title="Passive Talent: Currently employed with 2+ years of experience, but recently updated their profile. High potential for headhunting!">
             🚀 Passive Talent
+           </span>
+          )}
+          {selected.verified_expert && (
+           <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 ring-1 ring-inset ring-amber-600/30 shadow-sm border border-amber-200" title="Top 1% AI Verified Talent">
+            <Award className="w-3 h-3 text-amber-600" />
+            Top 1% AI Verified
            </span>
           )}
          </div>
@@ -522,7 +533,10 @@ export default function CandidateSearchPage() {
           <div className="space-y-2">
            {selected.skills.map((s, i) => (
             <div key={i} className="flex items-center justify-between">
-             <span className="text-sm font-medium text-slate-700">{s.name || s}</span>
+             <span className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
+              <span className="truncate">{s.name || s}</span>
+              {s.is_verified_by_ai && <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" title="AI Verified Expert" />}
+             </span>
              <ProficiencyDots level={s.proficiency} />
             </div>
            ))}

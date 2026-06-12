@@ -138,6 +138,7 @@ def evaluate_interview(session: AIInterviewSession) -> bool:
     2. If the answer does not accurately and comprehensively address the question, score it below 20%.
     3. Evaluate Technical Accuracy and Soft Skills rigorously. Filler words, hesitation, or lack of deep detail should severely lower the score.
     4. Note: 130-160 WPM is a confident speaking rate. Very low WPM or extremely long time_to_answer indicates hesitation.
+    5. CRITICAL: Analyze the transcript. If the candidate answered a technical question exceptionally well (>80% score) regarding a specific technology or framework (e.g., "React", "Python", "SEO", "Figma"), extract the name of that technology into the `verified_skills` array.
     
     Interview Data:
     {json.dumps(interview_data)}
@@ -148,6 +149,7 @@ def evaluate_interview(session: AIInterviewSession) -> bool:
         "soft_skills_score": <0-100 float>,
         "overall_score": <0-100 float>,
         "feedback_summary": "<A 2-paragraph summary of their performance>",
+        "verified_skills": ["React", "Python"],
         "question_evaluations": [
             {{
                 "id": "<question_id>",
@@ -180,6 +182,18 @@ def evaluate_interview(session: AIInterviewSession) -> bool:
             session.status = AIInterviewSession.Status.COMPLETED
             session.completed_at = timezone.now()
             session.save()
+            
+            if session.passed:
+                verified_skills = result.get('verified_skills', [])
+                if verified_skills:
+                    from apps.candidates.models import CandidateSkill
+                    from thefuzz import fuzz
+                    candidate_skills = CandidateSkill.objects.filter(candidate=session.candidate)
+                    for v_skill in verified_skills:
+                        for cs in candidate_skills:
+                            if fuzz.ratio(v_skill.lower(), cs.name.lower()) > 85:
+                                cs.is_verified_by_ai = True
+                                cs.save()
             
             evals = result.get('question_evaluations', [])
             eval_dict = {e.get('id'): e for e in evals}

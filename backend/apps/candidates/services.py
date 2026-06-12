@@ -26,10 +26,24 @@ def get_organic_ranking_queryset():
             recruiter_actions__action_type=RecruiterActionLog.ActionType.REJECT,
             recruiter_actions__timestamp__gte=thirty_days_ago
         )),
+        # Bonus for passed AI Interviews (lifetime)
+        passed_interviews_count=Count('interviews', filter=Q(
+            interviews__passed=True
+        )),
+        
+        # Penalty for cheating in AI Interviews (last 30 days)
+        cheated_interviews_count=Count('interviews', filter=Q(
+            interviews__status='failed_cheating',
+            interviews__created_at__gte=thirty_days_ago
+        )),
         
         # Final calculated score
         organic_score=ExpressionWrapper(
-            F('base_score') + (F('shortlist_count') * 5.0) - (F('reject_count') * 3.0),
+            F('base_score') 
+            + (F('shortlist_count') * 5.0) 
+            - (F('reject_count') * 3.0)
+            + (F('passed_interviews_count') * 15.0)
+            - (F('cheated_interviews_count') * 30.0),
             output_field=FloatField()
         )
     ).order_by('-organic_score')

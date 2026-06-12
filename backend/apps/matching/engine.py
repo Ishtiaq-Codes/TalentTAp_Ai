@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 def compute_match_llm(candidate, job):
     """Compute cognitive match score using Gemini 2.5."""
-    candidate_skills = ", ".join([s.name for s in candidate.skills.all()])
+    candidate_skills = ", ".join([f"{s.name} (AI Verified Expert)" if s.is_verified_by_ai else s.name for s in candidate.skills.all()])
     job_skills = ", ".join([s.name for s in job.skills.all()])
     
     candidate_exps = "\n".join([
@@ -27,9 +27,18 @@ def compute_match_llm(candidate, job):
         for e in candidate.experiences.all()
     ])
     
+    from django.utils import timezone
+    from datetime import timedelta
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    has_cheated = candidate.interviews.filter(status='failed_cheating', created_at__gte=thirty_days_ago).exists()
+    
+    cheater_warning = ""
+    if has_cheated:
+        cheater_warning = "\nCRITICAL WARNING: This candidate was caught cheating in a recent AI interview. You MUST deduct at least 50 points from their overall_score and mention this cheating offense as the first item in missing_factors."
+    
     prompt = f"""
 You are an elite Senior Executive Technical Recruiter. Your task is to deeply analyze the fit between a Candidate Profile and a Job Description.
-Do not just look for exact keyword matches. Use semantic reasoning. If they know 'Next.js', they inherently know 'React'. Evaluate their seniority, trajectory, and soft skills based on their bio and experience descriptions.
+Do not just look for exact keyword matches. Use semantic reasoning. If they know 'Next.js', they inherently know 'React'. Evaluate their seniority, trajectory, and soft skills based on their bio and experience descriptions.{cheater_warning}
 
 JOB PROFILE:
 Title: {job.title}
@@ -133,11 +142,26 @@ def compute_semantic_alignment(candidate_text, job_text):
 def compute_match_fallback(candidate, job):
     """Compute full match score using basic AI/NLP heuristics (Fallback)."""
     # 1. Skills
-    candidate_names = [s.name for s in candidate.skills.all()]
+    candidate_skills = candidate.skills.all()
     required = [s.name for s in job.skills.all() if s.is_required]
-    matched_req = [r for r in required if max([fuzz.token_sort_ratio(r.lower(), c.lower()) for c in candidate_names], default=0) >= 80]
+    
+    matched_req = []
+    effective_matched_count = 0.0
+    
+    for r in required:
+        best_match_score = 0
+        is_verified = False
+        for c in candidate_skills:
+            score = fuzz.token_sort_ratio(r.lower(), c.name.lower())
+            if score > best_match_score:
+                best_match_score = score
+                is_verified = c.is_verified_by_ai
+        if best_match_score >= 80:
+            matched_req.append(r)
+            effective_matched_count += 1.3 if is_verified else 1.0
+            
     missing_req = [r for r in required if r not in matched_req]
-    skills_score = (len(matched_req) / len(required) * 100) if required else 50.0
+    skills_score = min(100.0, (effective_matched_count / len(required) * 100)) if required else 50.0
 
     # 2. Experience
     candidate_years = candidate.years_of_experience or 0
@@ -167,12 +191,23 @@ def compute_match_fallback(candidate, job):
     overall = (skills_score * WEIGHTS['skills']) + (experience_score * WEIGHTS['experience']) + \
               (location_score * WEIGHTS['location']) + (availability_score * WEIGHTS['availability']) + \
               (employment_type_score * WEIGHTS['employment_type'])
+              
+    from django.utils import timezone
+    from datetime import timedelta
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    has_cheated = candidate.interviews.filter(status='failed_cheating', created_at__gte=thirty_days_ago).exists()
+    
+    if has_cheated:
+        overall = max(0.0, overall - 30.0)
 
     breakdown = {
         'match_reason': f"Matched with a fallback organic score of {overall:.1f}%.",
         'relevance_factors': [f"Matches {m}" for m in matched_req[:3]],
         'missing_factors': [f"Missing {m}" for m in missing_req[:3]]
     }
+    
+    if has_cheated:
+        breakdown['missing_factors'].insert(0, "CRITICAL: Caught cheating in a recent AI Interview.")
 
     return {
         'overall_score': round(overall, 2),
