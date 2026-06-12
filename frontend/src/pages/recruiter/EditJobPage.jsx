@@ -39,6 +39,7 @@ export default function EditJobPage() {
      salary_currency: data.salary_currency || 'USD',
      status: data.status || 'draft',
      skills: data.skills || [],
+     auto_headhunt: data.auto_headhunt !== undefined ? data.auto_headhunt : true,
     })
    } catch (err) {
     setError('Failed to load job details')
@@ -240,6 +241,24 @@ export default function EditJobPage() {
       placeholder="Auto-draft using the button above or write the job description manually..."/>
     </div>
    </section>
+
+   <section className="rounded-xl border bg-card p-6 space-y-4 border-ai/30 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-1 bg-ai h-full"></div>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900">
+              <Sparkles className="h-5 w-5 text-ai"/> Enable Auto-Headhunter 🦄
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">
+              When published, the AI will automatically scan the platform, identify the top passive candidates with a 90%+ match, and proactively email them a highly personalized pitch on your behalf.
+            </p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+            <input type="checkbox" className="sr-only peer" checked={form.auto_headhunt} onChange={(e) => setForm({...form, auto_headhunt: e.target.checked})} />
+            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-ai"></div>
+          </label>
+        </div>
+      </section>
 
    <div className="flex justify-end gap-3 pt-4 border-t">
     <button onClick={() => handleSubmit('draft')} disabled={saving}

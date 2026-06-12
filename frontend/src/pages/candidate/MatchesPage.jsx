@@ -57,7 +57,7 @@ export default function MatchesPage() {
         {/* Score breakdown */}
         <div className="mt-3 grid grid-cols-5 gap-2">
          {[
-          { label: 'Skills', score: match.skill_score },
+          { label: 'Skills', score: match.skills_score },
           { label: 'Experience', score: match.experience_score },
           { label: 'Location', score: match.location_score },
           { label: 'Availability', score: match.availability_score },

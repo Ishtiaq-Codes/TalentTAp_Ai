@@ -382,10 +382,17 @@ def parse_resume(candidate_id):
                 raise Exception("Failed to extract text from PDF for Groq")
                 
             prompt = f"""
-            You are an expert HR data extractor. Parse the following resume text and extract the data into a JSON object with this EXACT schema:
+            You are an expert HR data extractor. Parse the following resume text and extract the data into a JSON object with this EXACT schema.
+            
+            CRITICAL RULES:
+            1. If the resume does not have an explicit professional summary, YOU MUST write a short 2-3 sentence professional summary based on their experience for the "about" field.
+            2. YOU MUST generate a short 3-5 word professional headline for the "headline" field based on their most recent role.
+            3. Look very carefully for the phone number, it may be in the header or footer.
+            
+            SCHEMA:
             {{
                 "headline": "A professional headline, e.g. Senior Software Engineer",
-                "about": "A short professional summary of the candidate",
+                "about": "A short professional summary of the candidate (generate one if missing)",
                 "years_of_experience": 5,
                 "phone": "e.g. +1234567890",
                 "city": "e.g. San Francisco",
@@ -439,10 +446,17 @@ def parse_resume(candidate_id):
                 
             gemini_file = client.files.upload(file=file_path)
             prompt = """
-            Parse this resume and extract the data into a JSON object with this EXACT schema:
+            Parse this resume and extract the data into a JSON object with this EXACT schema.
+            
+            CRITICAL RULES:
+            1. If the resume does not have an explicit professional summary, YOU MUST write a short 2-3 sentence professional summary based on their experience for the "about" field.
+            2. YOU MUST generate a short 3-5 word professional headline for the "headline" field based on their most recent role.
+            3. Look very carefully for the phone number, it may be in the header or footer.
+            
+            SCHEMA:
             {
                 "headline": "A professional headline, e.g. Senior Software Engineer",
-                "about": "A short professional summary of the candidate",
+                "about": "A short professional summary of the candidate (generate one if missing)",
                 "years_of_experience": 5,
                 "phone": "e.g. +1234567890",
                 "city": "e.g. San Francisco",

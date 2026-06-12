@@ -255,7 +255,7 @@ export default function JobDetailPage() {
         </div>
         <div className="mt-2 grid grid-cols-5 gap-2">
          {['Skills', 'Experience', 'Location', 'Availability', 'Type'].map((label, i) => {
-          const scores = [match.skill_score, match.experience_score, match.location_score, match.availability_score, match.employment_type_score]
+          const scores = [match.skills_score, match.experience_score, match.location_score, match.availability_score, match.employment_type_score]
           return (
            <div key={label} className="text-center">
             <div className="h-1.5 rounded-full bg-muted overflow-hidden">

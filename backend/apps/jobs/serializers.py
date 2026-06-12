@@ -26,7 +26,7 @@ class JobSerializer(serializers.ModelSerializer):
             'experience_min', 'experience_max', 'employment_type',
             'location', 'country', 'city', 'is_remote',
             'salary_min', 'salary_max', 'salary_currency',
-            'status', 'application_deadline', 'is_featured',
+            'status', 'application_deadline', 'is_featured', 'auto_headhunt',
             'skills', 'applicants_count', 'created_at', 'updated_at', 'has_applied',
         ]
         read_only_fields = ['id', 'slug', 'company', 'recruiter', 'created_at', 'updated_at']

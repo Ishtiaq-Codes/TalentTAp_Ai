@@ -48,6 +48,7 @@ class Job(models.Model):
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT, db_index=True)
     application_deadline = models.DateField(null=True, blank=True)
     is_featured = models.BooleanField(default=False)
+    auto_headhunt = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
