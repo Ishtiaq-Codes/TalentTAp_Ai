@@ -43,7 +43,7 @@ export default function ResetPasswordPage() {
  if (success) {
   return (
    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4">
-    <div className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-xl">
+    <div className="w-full max-w-md rounded-3xl bg-white p-6 sm:p-8 text-center shadow-xl">
      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 mb-6">
       <CheckCircle className="h-8 w-8"/>
      </div>
@@ -57,7 +57,7 @@ export default function ResetPasswordPage() {
 
  return (
   <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4">
-   <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl">
+   <div className="w-full max-w-md rounded-3xl bg-white p-6 sm:p-8 shadow-xl">
     <div className="mb-8 text-center">
      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
       <Lock className="h-6 w-6"/>

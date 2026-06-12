@@ -77,8 +77,8 @@ export default function ShortlistsPage() {
     </div>
    ) : viewMode === 'list' ? (
     /* ─── Table View ─── */
-    <div className="glass-card rounded-xl overflow-hidden">
-     <div className="overflow-x-auto">
+    <div className="glass-card rounded-xl overflow-hidden min-w-0">
+     <div className="overflow-x-auto w-full pb-2">
       <table className="w-full">
        <thead>
         <tr className="border-b bg-slate-50/80">

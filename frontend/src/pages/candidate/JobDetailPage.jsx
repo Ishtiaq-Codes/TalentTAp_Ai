@@ -53,7 +53,7 @@ export default function CandidateJobDetailPage() {
 
    {/* Header */}
    <div className="glass-card rounded-2xl overflow-hidden">
-    <div className="p-8 sm:p-10">
+    <div className="p-6 sm:p-10">
      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
       <div className="flex flex-col sm:flex-row gap-6">
        <Link to={`/companies/${job.company}`} className="shrink-0 group">
@@ -99,7 +99,7 @@ export default function CandidateJobDetailPage() {
    {/* Description & Skills */}
    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <div className="lg:col-span-2 space-y-8">
-     <div className="glass-card rounded-2xl p-8">
+     <div className="glass-card rounded-2xl p-6 sm:p-8">
       <h2 className="text-xl font-bold text-slate-900 border-b pb-4 mb-6">About the Role</h2>
       <div className="prose prose-slate max-w-none text-slate-600">
        <p className="whitespace-pre-wrap leading-relaxed">{job.description}</p>

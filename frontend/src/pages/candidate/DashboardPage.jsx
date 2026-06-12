@@ -57,7 +57,7 @@ export default function CandidateDashboard() {
  return (
   <div className="space-y-8 pb-8 animate-fade-in">
    {/* Welcome Banner */}
-   <div className="relative overflow-hidden rounded-3xl bg-slate-900 p-8 sm:p-10 shadow-lg">
+   <div className="relative overflow-hidden rounded-3xl bg-slate-900 p-6 sm:p-10 shadow-lg">
     {/* Background elements */}
     <div className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-primary/20 blur-3xl"/>
     <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl"/>

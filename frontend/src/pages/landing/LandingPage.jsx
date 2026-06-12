@@ -357,7 +357,7 @@ export default function LandingPage() {
             </div>
             <div className="flex justify-center">
               <div className="relative">
-                <div className="rounded-2xl bg-gradient-to-br from-red-50 to-amber-50 p-8">
+                <div className="rounded-2xl bg-gradient-to-br from-red-50 to-amber-50 p-6 sm:p-8">
                   <div className="space-y-4">
                     {['Resume sent...', 'Resume sent...', 'Resume sent...', 'No response', 'No response', 'Rejected'].map((text, i) => (
                       <div key={i} className="flex items-center gap-3 rounded-lg bg-white/80 px-4 py-2.5 text-sm text-slate-500">
@@ -390,7 +390,7 @@ export default function LandingPage() {
               { step: '02', icon: Brain, title: 'AI Finds Matches', desc: 'Our engine scores every candidate-job pair across 5 dimensions and ranks them in real-time.' },
               { step: '03', icon: Zap, title: 'Connect & Hire', desc: 'Review detailed match breakdowns, shortlist top talent, and start conversations directly.' },
             ].map(({ step, icon: Icon, title, desc }, i) => (
-              <div key={step} className="glass-card group relative rounded-2xl p-8">
+              <div key={step} className="glass-card group relative rounded-2xl p-6 sm:p-8">
                 <div className="flex items-center gap-4 mb-4">
                   <span className="text-4xl font-bold text-slate-200 group-hover:text-primary/20 transition-colors">{step}</span>
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-indigo-100 text-primary shadow-inner">
@@ -564,7 +564,7 @@ export default function LandingPage() {
             Our AI doesn't just give you a black-box score. It breaks down exactly why a candidate is the perfect fit.
           </p>
           <div className={`mx-auto mt-16 max-w-3xl transition-all duration-1000 ${showcaseReveal.visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-            <div className="glass-panel rounded-3xl p-8 sm:p-10 text-left border-white/80">
+            <div className="glass-panel rounded-3xl p-6 sm:p-10 text-left border-white/80">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
                  <div className="flex items-center gap-5">
                    <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="David Smith" className="h-16 w-16 rounded-full object-cover border-2 border-white shadow-md" />
@@ -614,7 +614,7 @@ export default function LandingPage() {
           </div>
           <div className="mt-16 grid gap-8 md:grid-cols-3">
             {testimonials.map(({ name, role, company, quote, pic }) => (
-              <div key={name} className="glass-card rounded-2xl p-8 flex flex-col justify-between h-full">
+              <div key={name} className="glass-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between h-full">
                 <div>
                   <Quote className="h-8 w-8 text-primary/30 mb-6" />
                   <p className="text-base leading-relaxed text-slate-700 italic font-medium">"{quote}"</p>

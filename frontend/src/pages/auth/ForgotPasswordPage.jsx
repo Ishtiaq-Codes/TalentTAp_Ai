@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
     <div className="mb-8 text-center"><Logo /></div>
 
     {sent ? (
-     <div className="rounded-xl border bg-card p-8 text-center">
+     <div className="rounded-xl border bg-card p-6 sm:p-8 text-center">
       <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
        <span className="text-2xl">📧</span>
       </div>
@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
       </Link>
      </div>
     ) : (
-     <div className="rounded-xl border bg-card p-8">
+     <div className="rounded-xl border bg-card p-6 sm:p-8">
       <h2 className="text-xl font-bold">Forgot Password</h2>
       <p className="mt-1 text-sm text-muted-foreground">We'll send you a reset link.</p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">

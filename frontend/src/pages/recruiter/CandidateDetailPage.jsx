@@ -274,7 +274,7 @@ export default function CandidateDetailPage() {
      {profile.interviews_summary && profile.interviews_summary.length > 0 && (() => {
       const interview = profile.interviews_summary[selectedInterviewIndex] || profile.interviews_summary[0];
       return (
-       <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative overflow-visible z-20">
+       <div className="bg-white rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm relative overflow-visible z-20">
         <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
          <BrainCircuit className="w-24 h-24 text-blue-500" />
         </div>

@@ -367,7 +367,7 @@ const AIInterviewRoom = () => {
 
   if (isCheating) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-8 text-center text-white">
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 sm:p-8 text-center text-white">
         <ShieldAlert className="w-24 h-24 text-red-500 mb-6 animate-pulse" />
         <h1 className="text-4xl font-bold mb-4 text-red-500">Interview Cancelled</h1>
         <p className="text-slate-300 max-w-lg mb-8 text-lg">
@@ -383,7 +383,7 @@ const AIInterviewRoom = () => {
 
   if (isTimeout) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-8 text-center text-white">
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 sm:p-8 text-center text-white">
         <AlertTriangle className="w-24 h-24 text-orange-500 mb-6 animate-pulse" />
         <h1 className="text-4xl font-bold mb-4 text-orange-500">Time's Up!</h1>
         <p className="text-slate-300 max-w-lg mb-8 text-lg">
@@ -407,8 +407,8 @@ const AIInterviewRoom = () => {
 
   if (showResults) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center p-8">
-        <div className="max-w-4xl w-full bg-slate-800 rounded-3xl p-8 border border-slate-700 shadow-xl mt-12">
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center p-6 sm:p-8">
+        <div className="max-w-4xl w-full bg-slate-800 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-xl mt-12">
           <div className="flex flex-col items-center text-center">
             {session.passed ? (
               <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 border border-emerald-500/50">
@@ -469,7 +469,7 @@ const AIInterviewRoom = () => {
 
   if (!currentQuestion && !showResults) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-8 text-center text-white">
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 sm:p-8 text-center text-white">
         <AlertTriangle className="w-16 h-16 text-rose-500 mb-6" />
         <h1 className="text-3xl font-bold mb-4">Interview Setup Error</h1>
         <p className="text-slate-400 max-w-lg mb-8">
@@ -487,7 +487,7 @@ const AIInterviewRoom = () => {
       
       {!instructionsRead && (
         <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 font-sans">
-          <div className="max-w-2xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+          <div className="max-w-2xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500"></div>
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20">
@@ -562,7 +562,7 @@ const AIInterviewRoom = () => {
         
         {/* Left Side: Question & Transcript */}
         <div className="w-full lg:w-2/3 flex flex-col gap-6">
-          <div className="bg-slate-800 rounded-3xl p-8 border border-slate-700 shadow-xl flex-grow flex flex-col">
+          <div className="bg-slate-800 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-xl flex-grow flex flex-col">
             <div className="inline-block px-3 py-1 bg-slate-700/50 rounded-lg text-slate-300 text-sm font-bold w-max mb-4 uppercase tracking-wider">
               {currentQuestion.question_type.replace('_', ' ')}
             </div>

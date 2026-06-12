@@ -380,7 +380,7 @@ export default function CompanyDashboardPage() {
    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {/* Recruiter Performance Table */}
-    <div className="lg:col-span-2 glass-card rounded-2xl overflow-hidden">
+    <div className="lg:col-span-2 glass-card rounded-2xl overflow-hidden min-w-0">
      <div className="flex items-center justify-between border-b px-6 py-4 bg-slate-50/60">
       <div className="flex items-center gap-2">
        <Trophy className="h-5 w-5 text-amber-500"/>
@@ -412,7 +412,7 @@ export default function CompanyDashboardPage() {
     </div>
 
     {/* Hiring Pipeline */}
-    <div className="glass-card rounded-2xl overflow-hidden">
+    <div className="glass-card rounded-2xl overflow-hidden min-w-0">
      <div className="flex items-center gap-2 border-b px-6 py-4 bg-slate-50/60">
       <TrendingUp className="h-5 w-5 text-violet-500"/>
       <h2 className="font-bold text-slate-800">Hiring Pipeline</h2>
@@ -447,7 +447,7 @@ export default function CompanyDashboardPage() {
    </div>
 
    {/* Recent Active Jobs */}
-   <div className="glass-card rounded-2xl overflow-hidden">
+   <div className="glass-card rounded-2xl overflow-hidden min-w-0">
     <div className="flex items-center justify-between border-b px-6 py-4 bg-slate-50/60">
      <div className="flex items-center gap-2">
       <Briefcase className="h-5 w-5 text-blue-500"/>
@@ -473,7 +473,7 @@ export default function CompanyDashboardPage() {
       </Link>
      </div>
     ) : (
-     <div className="overflow-x-auto">
+     <div className="overflow-x-auto w-full pb-2">
       <table className="w-full text-sm">
        <thead className="border-b text-xs uppercase tracking-wider text-slate-400 bg-slate-50/40">
         <tr>

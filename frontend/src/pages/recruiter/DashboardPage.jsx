@@ -168,10 +168,10 @@ export default function RecruiterDashboard() {
 
    <div className="grid gap-8 lg:grid-cols-1 xl:grid-cols-3">
     {/* Main Tables Area (Takes up 2/3 width on massive screens) */}
-    <div className="xl:col-span-2 space-y-8">
+    <div className="xl:col-span-2 space-y-8 min-w-0">
      
      {/* Pipeline Chart */}
-     <div className="glass-card rounded-xl overflow-hidden p-6">
+     <div className="glass-card rounded-xl overflow-hidden p-6 min-w-0">
       <h2 className="text-base font-semibold text-slate-900 mb-6">Pipeline Health</h2>
       <div className="h-64 w-full">
        <ResponsiveContainer width="100%" height="100%">
@@ -198,7 +198,7 @@ export default function RecruiterDashboard() {
        <h2 className="text-base font-semibold text-slate-900">Recent Candidates</h2>
        <Link to="/recruiter/candidates"className="text-sm font-medium text-primary hover:text-primary/80">View all</Link>
       </div>
-      <div className="overflow-x-auto min-h-[400px]">
+      <div className="overflow-x-auto min-h-[400px] w-full pb-2">
        <table className="min-w-full divide-y divide-slate-200">
         <thead className="bg-white">
          <tr>
@@ -262,7 +262,7 @@ export default function RecruiterDashboard() {
        <h2 className="text-base font-semibold text-slate-900">Active Job Postings</h2>
        <Link to="/recruiter/jobs"className="text-sm font-medium text-primary hover:text-primary/80">View all</Link>
       </div>
-      <div className="overflow-x-auto min-h-[400px]">
+      <div className="overflow-x-auto min-h-[400px] w-full pb-2">
        <table className="min-w-full divide-y divide-slate-200">
         <thead className="bg-white">
          <tr>
