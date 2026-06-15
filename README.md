@@ -1,6 +1,5 @@
 # TalentTap – AI-Powered Digital Talent Marketplace for Smart Hiring
 
-![TalentTap Cover](frontend/public/cover.png) *(You can replace this with an actual screenshot of your project)*
 
 **TalentTap** is a modern, AI-powered Software-as-a-Service (SaaS) platform designed to revolutionize the recruitment industry. It bridges the gap between top-tier candidates and innovative companies by automating the most time-consuming aspects of the hiring lifecycle.
 
@@ -59,7 +58,7 @@ To run this project locally, follow these steps:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/TalentTap.git
+git clone https://github.com/Ishtiaq-Codes/TalentTAp_Ai.git
 cd TalentTap
 ```
 
