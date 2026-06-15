@@ -1,4 +1,4 @@
-# TalentTap AI — Implementation Plan
+# TalentTap AI — Development Plan
 
 > AI-powered talent marketplace. Candidates create profiles once. Companies find the best matches automatically.
 
@@ -898,26 +898,3 @@ Services:
 - `frontend` — Nginx serving built React app
 - `redis` — Redis (ready for Celery)
 
----
-
-## 9. Open Questions
-
-> [!IMPORTANT]
-> ### Q1: Database for Development
-> Should I use **SQLite** during development for simplicity, or do you want to set up **PostgreSQL** locally from the start? PostgreSQL is required for production, but SQLite is easier for initial development.
-
-> [!IMPORTANT]
-> ### Q2: Shadcn UI Confirmation
-> The plan uses Shadcn UI with Tailwind CSS v4 as you requested. Shadcn components are installed individually (Button, Card, Dialog, etc.). Should I pre-install a comprehensive set of components, or add them incrementally as needed?
-
-> [!IMPORTANT]
-> ### Q3: Seed Data
-> Should I create seed data scripts (management commands) to populate the database with sample companies, candidates, and jobs for testing?
-
-> [!NOTE]
-> ### Q4: Email Backend
-> For email verification and password reset emails, should I use Django's **console email backend** (prints to terminal) during development? Real email (SendGrid/SES) can be added later.
-
-> [!NOTE]
-> ### Q5: Execution Approach
-> This is a large project (~100+ files). I plan to build it phase by phase, starting with the backend, then frontend. After each phase, I'll verify everything works before moving on. Does this approach work for you, or would you prefer a different order?
