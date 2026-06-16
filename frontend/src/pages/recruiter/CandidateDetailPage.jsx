@@ -17,6 +17,9 @@ import ShortlistButton from '@/components/common/ShortlistButton'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 import AddToPoolModal from '@/components/companies/AddToPoolModal'
 import { getImageUrl } from '@/lib/utils'
+import { ProfileStrengthCompact } from '@/components/common/ProfileStrength'
+import OutreachModal from './modals/OutreachModal'
+import InterviewPrepModal from './modals/InterviewPrepModal'
 
 /* ─── Proficiency bar ─── */
 function SkillBar({ name, proficiency, isVerified }) {
@@ -47,28 +50,7 @@ function SkillBar({ name, proficiency, isVerified }) {
  )
 }
 
-/* ─── Profile Strength ─── */
-function ProfileStrength({ completion }) {
- const tiers = [
-  { min: 0, label: 'Starter', color: 'text-red-600', bg: 'bg-red-50', ring: 'ring-red-500/20', bar: 'bg-red-500' },
-  { min: 31, label: 'Growing', color: 'text-amber-600', bg: 'bg-amber-50', ring: 'ring-amber-500/20', bar: 'bg-amber-500' },
-  { min: 61, label: 'Strong', color: 'text-blue-600', bg: 'bg-blue-50', ring: 'ring-blue-500/20', bar: 'bg-blue-500' },
-  { min: 81, label: 'Outstanding', color: 'text-emerald-600', bg: 'bg-emerald-50', ring: 'ring-emerald-500/20', bar: 'bg-emerald-500' },
- ]
- const tier = [...tiers].reverse().find(t => completion >= t.min) || tiers[0]
 
- return (
-  <div className={`rounded-xl p-4 ${tier.bg} ring-1 ring-inset ${tier.ring}`}>
-   <div className="flex items-center justify-between mb-2">
-    <span className={`text-xs font-bold uppercase tracking-wider ${tier.color}`}>{tier.label} Profile</span>
-    <span className={`text-lg font-bold ${tier.color}`}>{completion}%</span>
-   </div>
-   <div className="h-1.5 bg-white/60 rounded-full overflow-hidden">
-    <div className={`h-full rounded-full transition-all duration-700 ${tier.bar}`} style={{ width: `${completion}%` }} />
-   </div>
-  </div>
- )
-}
 
 export default function CandidateDetailPage() {
  const { id } = useParams()
@@ -491,7 +473,7 @@ export default function CandidateDetailPage() {
           <div className="rounded-xl border border-slate-100 p-4 hover:shadow-sm transition-shadow">
            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
             <h3 className="font-bold text-slate-900">{exp.title}</h3>
-            <span className="text-xs text-slate-400 shrink-0">{exp.start_date} — {exp.is_current ? 'Present' : exp.end_date}</span>
+            <span className="text-xs text-slate-400 shrink-0">{exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}</span>
            </div>
            <p className="font-medium text-primary text-sm mt-0.5">{exp.company_name}</p>
            {exp.description && (
@@ -517,7 +499,7 @@ export default function CandidateDetailPage() {
           <div className="rounded-xl border border-slate-100 p-4 hover:shadow-sm transition-shadow">
            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
             <h3 className="font-bold text-slate-900">{edu.degree}</h3>
-            <span className="text-xs text-slate-400 shrink-0">{edu.start_date} — {edu.end_date || 'Present'}</span>
+            <span className="text-xs text-slate-400 shrink-0">{edu.start_date} - {edu.end_date || 'Present'}</span>
            </div>
            <p className="font-medium text-primary text-sm mt-0.5">{edu.institution_name}</p>
            {edu.field_of_study && <p className="text-sm font-medium text-slate-700 mt-2">Field of Study: {edu.field_of_study}</p>}
@@ -564,7 +546,7 @@ export default function CandidateDetailPage() {
     <div className="space-y-5">
      {/* Profile Strength */}
      {profile.profile_completion != null && (
-      <ProfileStrength completion={profile.profile_completion} />
+       <ProfileStrengthCompact completion={profile.profile_completion} />
      )}
 
      {/* Profile Insights */}
@@ -658,77 +640,18 @@ export default function CandidateDetailPage() {
    )}
 
    {/* AI Outreach Draft Modal */}
-   {outreachDraft !== null && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-100/80 p-4 backdrop-blur-sm">
-     <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 flex flex-col max-h-[90vh]">
-      <div className="mb-5 flex items-center justify-between shrink-0">
-       <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
-        <Sparkles className="h-5 w-5 text-ai"/> Auto-Drafted Message
-       </h2>
-       <button onClick={() => setOutreachDraft(null)} className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
-        <X className="h-5 w-5"/>
-       </button>
-      </div>
-      
-      <p className="text-sm text-slate-600 mb-4 shrink-0">
-       Review and edit the AI-generated message below. Clicking send will deliver it directly to the candidate's inbox.
-      </p>
-
-      <div className="flex-1 min-h-0 relative rounded-lg border border-slate-200 bg-slate-50 overflow-hidden">
-       <textarea
-        value={outreachDraft}
-        onChange={e => setOutreachDraft(e.target.value)}
-        className="w-full h-full min-h-[300px] resize-none bg-transparent p-4 text-sm text-slate-700 whitespace-pre-wrap font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ai/50"
-       />
-      </div>
-      
-      <div className="mt-6 flex justify-end gap-3 shrink-0">
-       <button onClick={() => setOutreachDraft(null)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-        Cancel
-       </button>
-       <button 
-        onClick={handleSendOutreach} 
-        disabled={outreachSending || !outreachDraft.trim()} 
-        className="rounded-lg bg-ai px-6 py-2 text-sm font-semibold text-white hover:bg-ai/90 shadow-sm transition-all disabled:opacity-50"
-       >
-        {outreachSending ? 'Sending...' : 'Send Message'}
-       </button>
-      </div>
-     </div>
-    </div>
-   )}
+   <OutreachModal 
+    outreachDraft={outreachDraft} 
+    setOutreachDraft={setOutreachDraft} 
+    handleSendOutreach={handleSendOutreach} 
+    outreachSending={outreachSending} 
+   />
 
    {/* AI Interview Prep Modal */}
-   {interviewDraft !== null && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-100/80 p-4 backdrop-blur-sm overflow-y-auto">
-     <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 my-8">
-      <div className="mb-5 flex items-center justify-between">
-       <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
-        <Sparkles className="h-5 w-5 text-ai"/> Tailored Interview Guide
-       </h2>
-       <button onClick={() => setInterviewDraft(null)} className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
-        <X className="h-5 w-5"/>
-       </button>
-      </div>
-      
-      <p className="text-sm text-slate-600 mb-6">
-       These questions were dynamically generated based on the semantic gap between this candidate's profile and your job requirements.
-      </p>
-
-      <div className="space-y-4">
-       <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800 whitespace-pre-wrap font-mono leading-relaxed">
-        {interviewDraft}
-       </div>
-      </div>
-      
-      <div className="mt-6 flex justify-end">
-       <button onClick={() => setInterviewDraft(null)} className="rounded-lg bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800 shadow-sm transition-all">
-        Done
-       </button>
-      </div>
-     </div>
-    </div>
-   )}
+   <InterviewPrepModal 
+    interviewDraft={interviewDraft} 
+    setInterviewDraft={setInterviewDraft} 
+   />
   </div>
  )
 }

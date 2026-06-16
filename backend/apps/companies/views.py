@@ -236,17 +236,17 @@ class CompanyDashboardView(APIView):
         pipeline_qs = Application.objects.filter(job__in=job_ids).values('status').annotate(count=Count('id'))
         pipeline = {item['status']: item['count'] for item in pipeline_qs}
 
-        # Recruiter performance — use annotations to avoid N+1
+        # Recruiter performance - use annotations to avoid N+1
         from apps.applications.models import Shortlist as ShortlistModel
+        from apps.analytics.models import RecruiterActionLog
+        from apps.analytics.serializers import RecruiterActionLogSerializer
+
         recruiters_annotated = RecruiterProfile.objects.filter(company=company).select_related('user').annotate(
             jobs_cnt=Count('jobs', distinct=True),
             shortlists_cnt=Count('shortlists', distinct=True),
+            messages_cnt=Count('user__sent_messages', distinct=True),
         )
 
-        # Messages are on User, annotate separately
-        from django.db.models import OuterRef, Subquery
-        from apps.analytics.models import RecruiterActionLog
-        from apps.analytics.serializers import RecruiterActionLogSerializer
         recruiter_data = []
         for r in recruiters_annotated:
             avatar_url = None
@@ -255,8 +255,7 @@ class CompanyDashboardView(APIView):
                     avatar_url = request.build_absolute_uri(r.user.avatar.url)
                 except Exception:
                     pass
-            
-            # Fetch recent activities (increased from 5 to 100 to show more history while maintaining performance)
+
             activities = RecruiterActionLog.objects.filter(recruiter=r.user).select_related('candidate__user', 'job').order_by('-timestamp')[:100]
             recent_activities = RecruiterActionLogSerializer(activities, many=True, context={'request': request}).data
 
@@ -268,7 +267,7 @@ class CompanyDashboardView(APIView):
                 'is_active': r.is_active,
                 'jobs_count': r.jobs_cnt,
                 'shortlists_count': r.shortlists_cnt,
-                'messages_count': Message.objects.filter(sender=r.user).count(),
+                'messages_count': r.messages_cnt,
                 'joined_at': r.created_at.isoformat(),
                 'recent_activities': recent_activities,
             })
@@ -341,12 +340,7 @@ class RecruiterStatusView(APIView):
 class _CompanyMixin:
     """Shared helper: resolve company for company_admin or recruiter."""
     def _get_company(self):
-        user = self.request.user
-        company = Company.objects.filter(created_by=user).first()
-        if not company:
-            profile = RecruiterProfile.objects.filter(user=user).first()
-            company = profile.company if profile else None
-        return company
+        return _get_company_for_user(self.request.user)
 
 
 class TalentPoolListCreateView(_CompanyMixin, APIView):

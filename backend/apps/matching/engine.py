@@ -1,5 +1,5 @@
 """
-AI Matching Engine — Advanced NLP & Cognitive Scoring.
+AI Matching Engine - Advanced NLP & Cognitive Scoring.
 
 Powered by Gemini LLM for deep semantic reasoning, with a 
 TF-IDF/Fuzzy fallback for offline environments.

@@ -1,4 +1,4 @@
-"""Auth views — register, login, profile, password management."""
+"""Auth views - register, login, profile, password management."""
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response

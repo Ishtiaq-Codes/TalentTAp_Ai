@@ -1,4 +1,4 @@
-"""Blog API views — fully public, read-only."""
+"""Blog API views - fully public, read-only."""
 from django.db.models import F
 from rest_framework import generics, filters
 from rest_framework.permissions import AllowAny

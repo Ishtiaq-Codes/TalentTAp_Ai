@@ -40,7 +40,7 @@ const features = [
  },
  {
   icon: Shield, title: 'Transparent Scoring',
-  desc: 'Every match comes with a detailed breakdown across all dimensions. No black box AI — see exactly why a candidate was recommended.',
+  desc: 'Every match comes with a detailed breakdown across all dimensions. No black box AI - see exactly why a candidate was recommended.',
   highlights: ['Full breakdown', 'Dimension scores', 'No hidden bias'],
  },
  {
@@ -103,7 +103,7 @@ export default function FeaturesPage() {
    <section className="py-20">
     <div className="mx-auto max-w-3xl px-4 sm:px-6 text-center">
      <h2 className="text-3xl font-bold">Ready to try it?</h2>
-     <p className="mt-4 text-muted-foreground">Start using TalentTap AI today — completely free for candidates and recruiters.</p>
+     <p className="mt-4 text-muted-foreground">Start using TalentTap AI today - completely free for candidates and recruiters.</p>
      <Link to="/register"className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all">
       Get Started Free <ArrowRight className="h-4 w-4"/>
      </Link>

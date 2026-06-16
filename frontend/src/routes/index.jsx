@@ -133,7 +133,7 @@ export default function AppRouter() {
     <BrowserRouter>
       <Suspense fallback={<Loading />}>
         <Routes>
-          {/* Public routes — redirect to dashboard if logged in */}
+          {/* Public routes - redirect to dashboard if logged in */}
           <Route path="/" element={<RedirectIfAuth><PublicRouteWrapper><LandingPage /></PublicRouteWrapper></RedirectIfAuth>} />
           <Route path="/about" element={<PublicRouteWrapper><AboutPage /></PublicRouteWrapper>} />
           <Route path="/features" element={<PublicRouteWrapper><FeaturesPage /></PublicRouteWrapper>} />

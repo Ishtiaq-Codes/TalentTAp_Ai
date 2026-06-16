@@ -3,240 +3,17 @@ import { useFetch } from '@/hooks/useFetch'
 import { companiesAPI } from '@/api/companies'
 import { Link } from 'react-router-dom'
 import {
- Users, Briefcase, FileText, Heart, MessageSquare, Sparkles,
+ Users, Briefcase, FileText, Heart, Sparkles,
  TrendingUp, CheckCircle2, ChevronRight, Building2,
- Trophy, Eye, Star, XCircle, Bookmark, RefreshCw, Trash2, Activity, Clock, Award
+ Trophy
 } from 'lucide-react'
-import { formatDateTime } from '@/lib/utils'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import DashStat from '@/components/dashboard/DashStat'
+import RecruiterActivityCard from '@/components/dashboard/RecruiterActivityCard'
 
-/* ─── Stat Card ─── */
-function DashStat({ icon: Icon, label, value, color = 'blue', sub }) {
- const colors = {
-  blue: 'bg-blue-50 text-blue-600',
-  emerald: 'bg-emerald-50 text-emerald-600',
-  violet: 'bg-violet-50 text-violet-600',
-  amber: 'bg-amber-50 text-amber-600',
-  rose: 'bg-rose-50 text-rose-600',
-  slate: 'bg-slate-100 text-slate-500',
- }
- return (
-  <div className="glass-card rounded-2xl p-5">
-   <div className="flex items-start justify-between">
-    <div>
-     <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-     <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900">{value ?? '—'}</p>
-     {sub && <p className="mt-1 text-xs text-slate-400">{sub}</p>}
-    </div>
-    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${colors[color]}`}>
-     <Icon className="h-5 w-5"/>
-    </div>
-   </div>
-  </div>
- )
-}
 
-/* ─── Pipeline Bar ─── */
-function PipelineBar({ label, count, total, color }) {
- const pct = total > 0 ? Math.round((count / total) * 100) : 0
- return (
-  <div className="space-y-1.5">
-   <div className="flex items-center justify-between text-sm">
-    <span className="font-medium text-slate-700 capitalize">{label}</span>
-    <span className="font-semibold text-slate-900">{count}</span>
-   </div>
-   <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-    <div className={`h-full rounded-full transition-all duration-700 ${color}`} style={{ width: `${pct}%` }} />
-   </div>
-  </div>
- )
-}
-
-/* ─── Recruiter Row ─── */
-function RecruiterRow({ recruiter, index }) {
- const isTop = index === 0;
- return (
-  <div className="flex items-center gap-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors px-2 rounded-lg group">
-   <div className="relative">
-    <ProfileAvatar name={recruiter.name} src={recruiter.avatar} size="md"/>
-    {isTop && (
-     <div className="absolute -top-2 -right-2 bg-amber-400 text-white rounded-full p-0.5 shadow-sm border-2 border-white"title="Top Performer">
-      <Trophy className="h-3 w-3" />
-     </div>
-    )}
-   </div>
-   <div className="flex-1 min-w-0">
-    <div className="flex items-center gap-2">
-     <p className="font-semibold text-slate-900 truncate group-hover:text-primary transition-colors">{recruiter.name}</p>
-     {isTop && <span className="text-[10px] font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider">Top Recruiter</span>}
-    </div>
-    <p className="text-xs text-slate-400 truncate mt-0.5">{recruiter.title}</p>
-   </div>
-   <div className="hidden sm:flex items-center gap-6 shrink-0 text-center">
-    <div className="flex flex-col items-center">
-     <div className="flex items-center gap-1.5">
-      <p className="text-sm font-bold text-slate-900">{recruiter.jobs_count}</p>
-     </div>
-     <p className="text-[10px] text-slate-400 uppercase tracking-wide">Jobs</p>
-    </div>
-    <div className="w-px h-8 bg-slate-100"></div>
-    <div className="flex flex-col items-center">
-     <div className="flex items-center gap-1.5">
-      <p className="text-sm font-bold text-slate-900">{recruiter.shortlists_count}</p>
-     </div>
-     <p className="text-[10px] text-slate-400 uppercase tracking-wide">Saved</p>
-    </div>
-    <div className="w-px h-8 bg-slate-100"></div>
-    <div className="flex flex-col items-center">
-     <div className="flex items-center gap-1.5">
-      <p className="text-sm font-bold text-slate-900">{recruiter.messages_count}</p>
-     </div>
-     <p className="text-[10px] text-slate-400 uppercase tracking-wide">Msgs</p>
-    </div>
-   </div>
-   <div className="shrink-0 ml-2">
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-     recruiter.is_active
-      ? 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20'
-      : 'bg-slate-100 text-slate-500 ring-1 ring-inset ring-slate-400/20'
-    }`}>
-     {recruiter.is_active ? <CheckCircle2 className="h-3 w-3"/> : null}
-     {recruiter.is_active ? 'Active' : 'Suspended'}
-    </span>
-   </div>
-  </div>
- )
-}
-
-/* 🔹🔹🔹 Recruiter Activity Card 🔹🔹🔹 */
-function RecruiterActivityCard({ recruiter }) {
- const activities = recruiter.recent_activities || [];
- const rName = recruiter.name.split(' ')[0];
-
- return (
-  <div className="glass-card rounded-xl overflow-hidden flex flex-col h-[400px]">
-   <div className="p-4 border-b border-slate-200 bg-slate-50/50 flex items-center gap-3">
-    <ProfileAvatar name={recruiter.name} src={recruiter.avatar} size="sm"/>
-    <div>
-     <h3 className="font-semibold text-slate-900 text-sm leading-tight">{recruiter.name}</h3>
-     <p className="text-xs text-slate-500">Recent Activity</p>
-    </div>
-   </div>
-   <div className="p-2 overflow-y-auto overflow-x-hidden flex-1">
-    {activities.length === 0 ? (
-     <div className="py-8 text-center px-4">
-      <Activity className="h-8 w-8 text-slate-300 mx-auto mb-3"/>
-      <p className="text-sm text-slate-500">No recent actions.</p>
-     </div>
-    ) : (
-     <div className="space-y-1">
-      {activities.map((activity) => {
-       let Icon = Eye;
-       let iconClass ="bg-blue-100 text-blue-600";
-       let titleText ="";
-       let subtitleText ="";
-       let linkTo ="#";
-
-       if (activity.action_type === 'view') {
-        titleText = <span><span className="font-medium">{rName}</span> viewed {activity.candidate_name}'s profile</span>;
-        subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
-        linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
-       } else if (activity.action_type === 'shortlist') {
-        Icon = Star;
-        iconClass ="bg-purple-100 text-purple-600";
-        titleText = <span><span className="font-medium">{rName}</span> shortlisted {activity.candidate_name}</span>;
-        subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
-        linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
-       } else if (activity.action_type === 'reject') {
-        Icon = XCircle;
-        iconClass ="bg-red-100 text-red-600";
-        titleText = <span><span className="font-medium">{rName}</span> rejected {activity.candidate_name}</span>;
-        subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
-        linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
-       } else if (activity.action_type === 'save') {
-        Icon = Bookmark;
-        iconClass ="bg-emerald-100 text-emerald-600";
-        titleText = <span><span className="font-medium">{rName}</span> saved {activity.candidate_name}</span>;
-        subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
-        linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
-       } else if (activity.action_type === 'status_change') {
-        let detailsObj = {};
-        try { detailsObj = typeof activity.details === 'string' ? JSON.parse(activity.details) : (activity.details || {}); } catch(e) {}
-        const status = (detailsObj.status ||"a new stage").toLowerCase();
-        
-        if (status === 'rejected') {
-         Icon = XCircle;
-         iconClass ="bg-red-100 text-red-600";
-         titleText = <span><span className="font-medium">{rName}</span> rejected {activity.candidate_name}</span>;
-        } else if (status === 'offered') {
-         Icon = Award;
-         iconClass ="bg-emerald-100 text-emerald-600";
-         titleText = <span><span className="font-medium">{rName}</span> offered a job to {activity.candidate_name}</span>;
-        } else if (status === 'interview') {
-         Icon = Clock;
-         iconClass ="bg-indigo-100 text-indigo-600";
-         titleText = <span><span className="font-medium">{rName}</span> scheduled an interview with {activity.candidate_name}</span>;
-        } else if (status === 'shortlisted') {
-         Icon = Star;
-         iconClass ="bg-purple-100 text-purple-600";
-         titleText = <span><span className="font-medium">{rName}</span> shortlisted {activity.candidate_name}</span>;
-        } else {
-         Icon = RefreshCw;
-         iconClass ="bg-indigo-100 text-indigo-600";
-         titleText = <span>{rName} moved {activity.candidate_name} to <span className="font-medium capitalize">{status}</span></span>;
-        }
-        subtitleText = activity.job_title ? `For ${activity.job_title}` : activity.candidate_headline;
-        linkTo = `/recruiter/candidates/${activity.candidate_id}${activity.job_title ? '?job_id=' : ''}`;
-       } else if (activity.action_type === 'job_create') {
-        Icon = Briefcase;
-        iconClass ="bg-blue-100 text-blue-600";
-        titleText = <span><span className="font-medium">{rName}</span> posted a new job</span>;
-        subtitleText = activity.details?.title ||"Job Posting";
-        linkTo = `/recruiter/jobs/${activity.job_title ? activity.job_id : ''}`;
-       } else if (activity.action_type === 'job_delete') {
-        Icon = Trash2;
-        iconClass ="bg-slate-100 text-slate-600";
-        titleText = <span><span className="font-medium">{rName}</span> deleted a job post</span>;
-        subtitleText = activity.details?.title ||"Job Posting";
-        linkTo = `/recruiter/jobs`;
-       } else if (activity.action_type === 'talent_pool') {
-        Icon = Users;
-        iconClass ="bg-amber-100 text-amber-600";
-        const poolName = activity.details?.pool_name ||"a talent pool";
-        titleText = <span>{rName} added {activity.candidate_name} to <span className="font-medium">{poolName}</span></span>;
-        subtitleText ="Talent Pool Activity";
-        linkTo = `/company/talent-pools`;
-       }
-
-       return (
-        <Link 
-         key={activity.id} 
-         to={linkTo} 
-         className="flex items-start gap-3 p-3 hover:bg-slate-50 hover:shadow-sm hover:-translate-y-0.5 transition-all rounded-lg group border border-transparent hover:border-slate-100"
-        >
-         <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform group-hover:scale-110 ${iconClass}`}>
-          <Icon className="h-4 w-4"/>
-         </div>
-         <div className="flex-1 min-w-0">
-          <p className="text-sm text-slate-900 truncate group-hover:text-primary transition-colors">
-           {titleText}
-          </p>
-          <p className="text-xs text-slate-500 mt-0.5 flex items-center justify-between gap-2">
-           <span className="truncate flex-1">{subtitleText}</span>
-           <span className="shrink-0 whitespace-nowrap text-slate-400 text-[10px] uppercase tracking-wider">{formatDateTime(activity.timestamp)}</span>
-          </p>
-         </div>
-        </Link>
-       )
-      })}
-     </div>
-    )}
-   </div>
-  </div>
- )
-}
 
 /* 🔹🔹🔹 Main Dashboard 🔹🔹🔹 */
 export default function CompanyDashboardPage() {
@@ -491,7 +268,7 @@ export default function CompanyDashboardPage() {
            <p className="font-semibold text-slate-900">{job.title}</p>
           </td>
           <td className="px-6 py-4 text-slate-500 hidden sm:table-cell">
-           {[job.city, job.country].filter(Boolean).join(', ') || '—'}
+           {[job.city, job.country].filter(Boolean).join(', ') || '-'}
           </td>
           <td className="px-6 py-4 text-center">
            <span className="inline-flex items-center justify-center min-w-[28px] rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">

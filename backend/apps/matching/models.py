@@ -1,4 +1,4 @@
-"""MatchScore model — stores AI matching results."""
+"""MatchScore model - stores AI matching results."""
 import uuid
 from django.db import models
 from apps.candidates.models import CandidateProfile

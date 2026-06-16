@@ -112,7 +112,7 @@ export default function ShortlistsPage() {
            )}
           </td>
           <td className="px-4 py-3 text-xs text-slate-500 hidden md:table-cell">
-           {item.created_at ? new Date(item.created_at).toLocaleDateString() : '—'}
+           {item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}
           </td>
           <td className="px-4 py-3">
            <div className="flex items-center justify-end gap-1">

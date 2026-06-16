@@ -87,7 +87,7 @@ class CandidateProfile(models.Model):
         return False
 
     def __str__(self):
-        return f'{self.user.full_name} — {self.headline}'
+        return f'{self.user.full_name} - {self.headline}'
 
     def calculate_completion(self):
         """Calculate profile completion score (0–100)."""

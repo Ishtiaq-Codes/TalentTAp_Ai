@@ -1,4 +1,4 @@
-"""Custom user manager — email-based authentication."""
+"""Custom user manager - email-based authentication."""
 from django.contrib.auth.models import BaseUserManager
 
 

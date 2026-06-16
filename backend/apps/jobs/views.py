@@ -162,7 +162,7 @@ class JobRepostView(APIView):
 
 
 class PublicJobListView(generics.ListAPIView):
-    """Public job listing — no auth required."""
+    """Public job listing - no auth required."""
     serializer_class = JobListSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]

@@ -182,7 +182,7 @@ export default function TalentProfilePage() {
            <div className="rounded-xl border border-slate-100 p-4 hover:shadow-sm transition-shadow">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
              <h3 className="font-bold text-slate-900">{exp.title}</h3>
-             <span className="text-xs text-slate-400">{exp.start_date} — {exp.is_current ? 'Present' : exp.end_date}</span>
+             <span className="text-xs text-slate-400">{exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}</span>
             </div>
             <p className="font-medium text-primary text-sm mt-0.5">{exp.company_name}</p>
             {exp.description && <p className="text-sm text-slate-600 leading-relaxed mt-3">{exp.description}</p>}
@@ -204,7 +204,7 @@ export default function TalentProfilePage() {
            <div className="rounded-xl border border-slate-100 p-4 hover:shadow-sm transition-shadow">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
              <h3 className="font-bold text-slate-900">{edu.degree}</h3>
-             <span className="text-xs text-slate-400">{edu.start_date} — {edu.end_date || 'Present'}</span>
+             <span className="text-xs text-slate-400">{edu.start_date} - {edu.end_date || 'Present'}</span>
             </div>
             <p className="font-medium text-primary text-sm mt-0.5">{edu.institution_name}</p>
             {edu.field_of_study && <p className="text-sm font-medium text-slate-700 mt-2">Field of Study: {edu.field_of_study}</p>}

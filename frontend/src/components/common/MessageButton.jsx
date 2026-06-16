@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { messagingAPI } from '@/api/messaging'
 import { useNavigate } from 'react-router-dom'
 import { Mail, X } from 'lucide-react'
@@ -16,6 +17,7 @@ export default function MessageButton({ recipientId, name, showText = true, clas
 
   const handleSend = async (e) => {
     e.preventDefault()
+    e.stopPropagation()
     if (!message.trim()) return
     setSending(true)
     try {
@@ -23,8 +25,6 @@ export default function MessageButton({ recipientId, name, showText = true, clas
       setIsOpen(false)
       setMessage('')
       success('Message sent successfully!')
-      // Optionally navigate to messages page to view conversation
-      // navigate('/recruiter/messages')
     } catch (err) {
       error(err.response?.data?.detail || 'Error sending message')
     } finally {
@@ -36,19 +36,23 @@ export default function MessageButton({ recipientId, name, showText = true, clas
   return (
     <>
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setIsOpen(true)
+        }}
         className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium border text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors ${className}`}
         title="Send Message"
       >
         <Mail className="h-3.5 w-3.5" /> {showText && "Message"}
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-100/80 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-xl border bg-card shadow-lg">
+      {isOpen && createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-100/80 backdrop-blur-sm" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-md rounded-xl border bg-card shadow-lg relative">
             <div className="flex items-center justify-between border-b p-4">
               <h2 className="font-semibold">Message {name}</h2>
-              <button onClick={() => setIsOpen(false)} className="rounded-lg p-1 text-muted-foreground hover:bg-muted">
+              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsOpen(false); }} className="rounded-lg p-1 text-muted-foreground hover:bg-muted">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -62,7 +66,7 @@ export default function MessageButton({ recipientId, name, showText = true, clas
                 autoFocus
               />
               <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setIsOpen(false)} className="rounded-lg px-4 py-2 text-sm font-medium hover:bg-muted">
+                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsOpen(false); }} className="rounded-lg px-4 py-2 text-sm font-medium hover:bg-muted">
                   Cancel
                 </button>
                 <button type="submit" disabled={sending || !message.trim()} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
@@ -71,7 +75,8 @@ export default function MessageButton({ recipientId, name, showText = true, clas
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

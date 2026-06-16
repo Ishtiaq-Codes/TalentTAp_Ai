@@ -1,5 +1,6 @@
 import { clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { API_BASE } from './constants'
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs))
@@ -47,5 +48,12 @@ export function getMatchColor(score) {
 export function getImageUrl(path) {
   if (!path) return null;
   if (path.startsWith('http')) return path;
-  return `http://localhost:8000${path.startsWith('/') ? '' : '/'}${path}`;
+  
+  // Extract base host from API_BASE if it's an absolute URL, otherwise default to current origin
+  const baseURL = API_BASE.startsWith('http') ? API_BASE.split('/api')[0] : window.location.origin;
+  // If in dev and API_BASE is relative, assume backend runs on 8000
+  const isDev = window.location.hostname === 'localhost' && !API_BASE.startsWith('http');
+  const host = isDev ? 'http://localhost:8000' : baseURL;
+  
+  return `${host}${path.startsWith('/') ? '' : '/'}${path}`;
 }

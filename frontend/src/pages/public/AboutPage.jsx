@@ -8,7 +8,7 @@ const values = [
  { icon: Target, title: 'Mission-Driven', desc: 'We believe talent should be discovered, not filtered out. Our AI levels the playing field.' },
  { icon: Users, title: 'People-First', desc: 'Behind every profile is a real person. We design with empathy, transparency, and respect.' },
  { icon: Globe, title: 'Global Access', desc: 'Great talent exists everywhere. We connect companies with candidates across borders.' },
- { icon: Heart, title: 'Fairness by Design', desc: 'Our matching is based on skills and experience — not names, schools, or backgrounds.' },
+ { icon: Heart, title: 'Fairness by Design', desc: 'Our matching is based on skills and experience - not names, schools, or backgrounds.' },
 ]
 
 const team = [
@@ -50,7 +50,7 @@ export default function AboutPage() {
        <div className="mt-6 space-y-4 text-muted-foreground">
         <p>Traditional hiring platforms force candidates to apply blindly and recruiters to filter manually. The result? Wasted time on both sides and great talent slipping through the cracks.</p>
         <p>TalentTap AI was born from the frustration of watching talented developers, designers, and engineers struggle to get noticed while companies desperately searched for the right people.</p>
-        <p>We built an AI-powered marketplace that inverts the model: candidates create a profile once, and our matching engine does the rest — connecting them with companies who actually need their skills.</p>
+        <p>We built an AI-powered marketplace that inverts the model: candidates create a profile once, and our matching engine does the rest - connecting them with companies who actually need their skills.</p>
        </div>
       </div>
       <div className="rounded-2xl bg-gradient-to-br from-primary/5 to-blue-50 p-8">

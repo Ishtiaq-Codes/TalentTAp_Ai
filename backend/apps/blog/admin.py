@@ -1,4 +1,4 @@
-"""Blog Admin — professional CMS-like interface with CKEditor."""
+"""Blog Admin - professional CMS-like interface with CKEditor."""
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils import timezone
@@ -109,7 +109,7 @@ class BlogPostAdmin(admin.ModelAdmin):
     # ── SEO preview (read-only field in admin) ─────────────────────────────
     def seo_preview(self, obj):
         if not obj.pk:
-            return '—'
+            return '-'
         title = obj.seo_title or obj.title or '(No title)'
         desc = obj.seo_description or obj.excerpt or '(No description)'
         slug = obj.slug or 'article-slug'

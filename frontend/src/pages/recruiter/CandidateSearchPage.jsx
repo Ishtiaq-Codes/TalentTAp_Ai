@@ -1,51 +1,17 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { useFetch } from '@/hooks/useFetch'
 import { useDebounce } from '@/hooks/useDebounce'
 import { candidatesAPI } from '@/api/candidates'
 import { jobsAPI } from '@/api/jobs'
-import EmptyState from '@/components/common/EmptyState'
-import SkeletonCard from '@/components/common/SkeletonCard'
 import ShortlistButton from '@/components/common/ShortlistButton'
-import MessageButton from '@/components/common/MessageButton'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
-import { getImageUrl } from '@/lib/utils'
+import AvailabilityBadge from '@/components/common/AvailabilityBadge'
+import MatchScoreBadge from '@/components/common/MatchScoreBadge'
+import CandidateSearchSidebar from './components/CandidateSearchSidebar'
+import CandidatePreviewDrawer from './components/CandidatePreviewDrawer'
 import {
- Search, MapPin, Award, Clock, Sparkles, X, ChevronRight,
- Briefcase, Filter, ArrowRight, ExternalLink, FileText, Globe,
- SlidersHorizontal, User,
+ Search, MapPin, Award, Sparkles, SlidersHorizontal,
 } from 'lucide-react'
-
-/* ─── Proficiency bar ─── */
-function ProficiencyDots({ level }) {
- const levels = { beginner: 1, intermediate: 2, advanced: 3, expert: 4 }
- const n = levels[level] || 2
- return (
-  <div className="flex gap-0.5">
-   {[1,2,3,4].map(i => (
-    <div key={i} className={`h-1.5 w-3 rounded-full ${i <= n ? 'bg-primary' : 'bg-slate-200'}`} />
-   ))}
-  </div>
- )
-}
-
-/* ─── Availability badge ─── */
-function AvailabilityBadge({ availability }) {
- if (!availability) return null
- const colors = {
-  immediate: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
-  '2_weeks': 'bg-blue-50 text-blue-700 ring-blue-600/20',
-  '1_month': 'bg-amber-50 text-amber-700 ring-amber-600/20',
-  '3_months': 'bg-orange-50 text-orange-700 ring-orange-600/20',
-  not_available: 'bg-red-50 text-red-700 ring-red-600/20',
- }
- return (
-  <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset uppercase tracking-wider ${colors[availability] || 'bg-slate-50 text-slate-600 ring-slate-600/20'}`}>
-   <Clock className="h-2.5 w-2.5"/>
-   {availability?.replace(/_/g, ' ')}
-  </span>
- )
-}
 
 export default function CandidateSearchPage() {
  const [search, setSearch] = useState('')
@@ -70,7 +36,6 @@ export default function CandidateSearchPage() {
  // Keyboard Navigation System
  useEffect(() => {
   const handleKeyDown = (e) => {
-   // Don't trigger if typing in an input
    if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return
 
    if (e.key === 'j' || e.key === 'ArrowDown') {
@@ -165,162 +130,17 @@ export default function CandidateSearchPage() {
    <div className="flex flex-1 gap-4 min-h-0 overflow-hidden">
 
     {/* LEFT: Filters */}
-    <aside 
-     className={`${showFilters ? 'fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm lg:relative lg:bg-transparent lg:backdrop-blur-none' : 'hidden'} lg:block lg:w-64 shrink-0`}
-     onClick={() => setShowFilters(false)}
-    >
-     <div 
-      onClick={(e) => e.stopPropagation()}
-      className={`${showFilters ? 'absolute right-0 top-0 h-full w-[85%] max-w-sm bg-white shadow-2xl lg:relative lg:w-auto lg:shadow-none' : ''} flex flex-col h-full overflow-hidden glass-card rounded-xl`}
-     >
-      <div className="flex-1 overflow-y-auto">
-       {/* Filter header */}
-      <div className="flex items-center justify-between p-4 border-b">
-       <div className="flex items-center gap-2">
-        <Filter className="h-4 w-4 text-primary"/>
-        <h2 className="text-sm font-semibold">Filters</h2>
-       </div>
-       <div className="flex items-center gap-2">
-        {activeFilterCount > 0 && (
-         <button onClick={clearFilters} className="text-xs text-primary font-medium hover:underline">Clear all</button>
-        )}
-        <button onClick={() => setShowFilters(false)} className="lg:hidden p-1 rounded hover:bg-slate-100">
-         <X className="h-4 w-4"/>
-        </button>
-       </div>
-      </div>
-
-      {/* Search */}
-      <div className="p-4 border-b">
-       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Search</label>
-       <div className="relative mt-2">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"/>
-        <input
-         value={search}
-         onChange={(e) => setSearch(e.target.value)}
-         placeholder="Name, skills, role..."
-         className="w-full rounded-lg border bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
-        />
-       </div>
-      </div>
-
-      {/* Location */}
-      <div className="p-4 border-b">
-       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Location</label>
-       <div className="mt-3 space-y-3">
-        <div className="relative">
-         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"/>
-         <input
-          value={filters.city || ''}
-          onChange={(e) => setFilters({ ...filters, city: e.target.value || undefined })}
-          placeholder="City (e.g. London)"
-          className="w-full rounded-lg border bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
-         />
-        </div>
-        <div className="relative">
-         <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"/>
-         <input
-          value={filters.country || ''}
-          onChange={(e) => setFilters({ ...filters, country: e.target.value || undefined })}
-          placeholder="Country (e.g. UK)"
-          className="w-full rounded-lg border bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
-         />
-        </div>
-       </div>
-      </div>
-
-      {/* Availability */}
-      <div className="p-4 border-b">
-       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Availability</label>
-       <div className="mt-3 flex flex-wrap gap-2">
-        {[
-         { value: '', label: 'Any' },
-         { value: 'immediate', label: 'Immediate' },
-         { value: '2_weeks', label: 'In 2 Weeks' },
-         { value: '1_month', label: 'In 1 Month' },
-         { value: '3_months', label: 'In 3 Months' },
-        ].map(opt => (
-         <button
-          key={opt.value}
-          onClick={() => setFilters({ ...filters, availability: opt.value || undefined })}
-          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-           (filters.availability || '') === opt.value
-            ? 'bg-primary text-white shadow-md ring-2 ring-primary ring-offset-1'
-            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          }`}
-         >
-          {opt.label}
-         </button>
-        ))}
-       </div>
-      </div>
-
-      {/* Employment Type */}
-      <div className="p-4 border-b">
-       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Employment Type</label>
-       <div className="mt-3 flex flex-wrap gap-2">
-        {[
-         { value: '', label: 'Any' },
-         { value: 'full_time', label: 'Full Time' },
-         { value: 'part_time', label: 'Part Time' },
-         { value: 'contract', label: 'Contract' },
-         { value: 'freelance', label: 'Freelance' },
-        ].map(opt => (
-         <button
-          key={opt.value}
-          onClick={() => setFilters({ ...filters, employment_type_preferred: opt.value || undefined })}
-          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-           (filters.employment_type_preferred || '') === opt.value
-            ? 'bg-primary text-white shadow-md ring-2 ring-primary ring-offset-1'
-            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          }`}
-         >
-          {opt.label}
-         </button>
-        ))}
-       </div>
-      </div>
-
-      {/* Employment Status */}
-      <div className="p-4">
-       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</label>
-       <div className="mt-3 flex flex-wrap gap-2">
-        {[
-         { value: '', label: 'Any' },
-         { value: 'employed', label: 'Employed' },
-         { value: 'unemployed', label: 'Unemployed' },
-         { value: 'freelancing', label: 'Freelancing' },
-         { value: 'student', label: 'Student' },
-        ].map(opt => (
-         <button
-          key={opt.value}
-          onClick={() => setFilters({ ...filters, employment_status: opt.value || undefined })}
-          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-           (filters.employment_status || '') === opt.value
-            ? 'bg-primary text-white shadow-md ring-2 ring-primary ring-offset-1'
-            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          }`}
-         >
-          {opt.label}
-         </button>
-        ))}
-       </div>
-      </div>
-      </div>
-      
-      {/* Mobile Apply Button */}
-      {showFilters && (
-       <div className="lg:hidden p-4 border-t bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] mt-auto shrink-0">
-        <button 
-         onClick={() => setShowFilters(false)}
-         className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-        >
-         Show {list.length} Results
-        </button>
-       </div>
-      )}
-     </div>
-    </aside>
+    <CandidateSearchSidebar 
+      showFilters={showFilters}
+      setShowFilters={setShowFilters}
+      search={search}
+      setSearch={setSearch}
+      filters={filters}
+      setFilters={setFilters}
+      clearFilters={clearFilters}
+      activeFilterCount={activeFilterCount}
+      listLength={list.length}
+    />
 
     {/* CENTER: Results List */}
     <div className={`flex-1 min-w-0 flex flex-col overflow-hidden glass-card rounded-xl ${selected ? 'hidden lg:flex' : 'flex'}`}>
@@ -371,14 +191,14 @@ export default function CandidateSearchPage() {
          } ${focusedIndex === idx && selectedId !== c.id ? 'ring-2 ring-inset ring-primary/30 bg-slate-50' : ''}`}
         >
          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 overflow-hidden shrink-0">
-          <ProfileAvatar name={c.user_name} src={c.avatar} size="md"className="h-full w-full"isActive={c.is_open_to_work} />
+          <ProfileAvatar name={c.user_name} src={c.avatar} size="md" className="h-full w-full" isActive={c.is_open_to_work} />
          </div>
 
          <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
            <h3 className="text-sm font-semibold text-slate-900 truncate">{c.user_name || 'Candidate'}</h3>
            {c.is_open_to_work && (
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500 shrink-0"title="Open to work"/>
+            <span className="flex h-2 w-2 rounded-full bg-emerald-500 shrink-0" title="Open to work"/>
            )}
            {c.match_score ? (
             <div className="ml-2 scale-90 origin-left">
@@ -435,118 +255,11 @@ export default function CandidateSearchPage() {
     </div>
 
     {/* RIGHT: Preview Panel */}
-    {selected && (
-     <div className="fixed inset-0 z-40 lg:relative lg:z-auto lg:w-[420px] shrink-0 flex">
-      {/* Mobile backdrop */}
-      <div className="absolute inset-0 bg-black/40 lg:hidden"onClick={() => setSelectedId(null)} />
-
-      <div className="relative ml-auto w-full max-w-md lg:max-w-none h-full overflow-y-auto rounded-xl border bg-white shadow-xl lg:shadow-sm flex flex-col">
-       {/* Preview Header */}
-       <div className="relative shrink-0">
-        <div className="h-28 bg-gradient-to-r from-primary/20 to-blue-500/20">
-         {selected.banner_image && (
-          <img src={getImageUrl(selected.banner_image)} alt=""className="h-full w-full object-cover"/>
-         )}
-        </div>
-        <button
-         onClick={() => setSelectedId(null)}
-         className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 backdrop-blur text-slate-600 hover:bg-white transition-all shadow-sm"
-        >
-         <X className="h-4 w-4"/>
-        </button>
-        <div className="px-5 -mt-8">
-         <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
-          <ProfileAvatar name={selected.user_name} src={selected.avatar} size="lg"className="h-full w-full"/>
-         </div>
-        </div>
-       </div>
-
-       {/* Preview Body */}
-       <div className="flex-1 px-5 pb-5 space-y-5">
-        {/* Name & headline */}
-        <div className="pt-2">
-         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-bold text-slate-900">{selected.user_name}</h2>
-          {selected.is_flight_risk && (
-           <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700 cursor-help" title="Passive Talent: Currently employed with 2+ years of experience, but recently updated their profile. High potential for headhunting!">
-            🚀 Passive Talent
-           </span>
-          )}
-          {selected.verified_expert && (
-           <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 ring-1 ring-inset ring-amber-600/30 shadow-sm border border-amber-200" title="Top 1% AI Verified Talent">
-            <Award className="w-3 h-3 text-amber-600" />
-            Top 1% AI Verified
-           </span>
-          )}
-         </div>
-         <p className="text-sm text-muted-foreground">{selected.headline || 'Professional'}</p>
-
-         <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3 text-xs text-slate-500">
-          {(selected.city || selected.country) && (
-           <span className="flex items-center gap-1"><MapPin className="h-3 w-3"/> {selected.city}{selected.city && selected.country ? ', ' : ''}{selected.country}</span>
-          )}
-          {selected.years_of_experience > 0 && (
-           <span className="flex items-center gap-1"><Award className="h-3 w-3"/> {selected.years_of_experience} years exp</span>
-          )}
-          {selected.employment_status && (
-           <span className="flex items-center gap-1"><Briefcase className="h-3 w-3"/> {selected.employment_status.replace(/_/g, ' ')}</span>
-          )}
-         </div>
-        </div>
-
-        {/* Quick actions */}
-        <div className="flex gap-2">
-         <Link
-          to={`/recruiter/candidates/${selected.id}${selectedJobId ? `?job_id=${selectedJobId}` : ''}`}
-          className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all"
-         >
-          View Full Profile <ArrowRight className="h-3.5 w-3.5"/>
-         </Link>
-         <div className="shrink-0"id={`shortlist-btn-${selected.id}`}>
-          <ShortlistButton candidateId={selected.id} initialIsShortlisted={selected.is_shortlisted} />
-         </div>
-        </div>
-
-        <div className="flex gap-2">
-         <MessageButton recipientId={selected.user_id} name={selected.user_name || 'Candidate'} className="flex-1 justify-center text-sm"/>
-        </div>
-
-        {/* Availability & preferences */}
-        <div className="flex flex-wrap gap-2">
-         <AvailabilityBadge availability={selected.availability} />
-         {selected.employment_type_preferred && (
-          <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 ring-1 ring-inset ring-blue-600/20 uppercase tracking-wider">
-           <Briefcase className="h-2.5 w-2.5"/> {selected.employment_type_preferred.replace(/_/g, ' ')}
-          </span>
-         )}
-         {selected.is_open_to_work && (
-          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20 uppercase tracking-wider">
-           <Sparkles className="h-2.5 w-2.5"/> Open to work
-          </span>
-         )}
-        </div>
-
-        {/* Skills */}
-        {selected.skills?.length > 0 && (
-         <div>
-          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Skills</h3>
-          <div className="space-y-2">
-           {selected.skills.map((s, i) => (
-            <div key={i} className="flex items-center justify-between">
-             <span className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
-              <span className="truncate">{s.name || s}</span>
-              {s.is_verified_by_ai && <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" title="AI Verified Expert" />}
-             </span>
-             <ProficiencyDots level={s.proficiency} />
-            </div>
-           ))}
-          </div>
-         </div>
-        )}
-       </div>
-      </div>
-     </div>
-    )}
+    <CandidatePreviewDrawer 
+      selected={selected} 
+      selectedJobId={selectedJobId} 
+      onClose={() => setSelectedId(null)} 
+    />
    </div>
   </div>
  )

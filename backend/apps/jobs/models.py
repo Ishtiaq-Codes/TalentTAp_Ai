@@ -56,7 +56,7 @@ class Job(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.title} — {self.company.name}'
+        return f'{self.title} - {self.company.name}'
 
     def save(self, *args, **kwargs):
         if not self.slug:

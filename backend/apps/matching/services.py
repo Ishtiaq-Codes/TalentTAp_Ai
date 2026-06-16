@@ -1,4 +1,4 @@
-"""Matching service — orchestrates engine runs."""
+"""Matching service - orchestrates engine runs."""
 from apps.candidates.models import CandidateProfile
 from apps.notifications.models import Notification
 from .models import MatchScore

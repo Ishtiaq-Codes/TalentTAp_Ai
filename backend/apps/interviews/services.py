@@ -17,7 +17,6 @@ def generate_interview_questions(session: AIInterviewSession) -> bool:
     
     resume_context = f"Skills: {candidate.skills}\\nExperience: {candidate.years_of_experience} years\\nAbout: {candidate.about}"
     if candidate.resume and hasattr(candidate.resume, 'parsed_data') and candidate.resume.parsed_data:
-        resume_context += f"\\nParsed Resume Data: {json.dumps(candidate.resume.parsed_data)}"
         resume_context += f"\nParsed Resume Data: {json.dumps(candidate.resume.parsed_data)}"
         
     job_context = "General senior role evaluation."

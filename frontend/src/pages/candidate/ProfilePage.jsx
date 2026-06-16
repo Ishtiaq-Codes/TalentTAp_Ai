@@ -12,6 +12,10 @@ import {
  Save, Plus, X, Upload, User, Briefcase, Code, FileText, Globe,
  Camera, CheckCircle, AlertCircle, ArrowRight, Sparkles, GraduationCap, Award
 } from 'lucide-react'
+import { ProfileStrengthBanner } from '@/components/common/ProfileStrength'
+import ExperienceTab from './tabs/ExperienceTab'
+import EducationTab from './tabs/EducationTab'
+import CertificationsTab from './tabs/CertificationsTab'
 
 /* ─── Reusable fields ─── */
 const SelectField = ({ label, field, options, form, update }) => (
@@ -32,41 +36,7 @@ const InputField = ({ label, field, type = 'text', placeholder = '', form, updat
  </div>
 )
 
-/* ─── Profile Strength Tier ─── */
-function ProfileStrengthBanner({ completion, suggestions }) {
- const tiers = [
-  { min: 0, label: 'Starter Profile', color: 'text-red-700', bg: 'from-red-50 to-orange-50', border: 'border-red-200', bar: 'bg-red-500', icon: '🚀' },
-  { min: 31, label: 'Growing Profile', color: 'text-amber-700', bg: 'from-amber-50 to-yellow-50', border: 'border-amber-200', bar: 'bg-amber-500', icon: '📈' },
-  { min: 61, label: 'Strong Profile', color: 'text-blue-700', bg: 'from-blue-50 to-indigo-50', border: 'border-blue-200', bar: 'bg-blue-500', icon: '💪' },
-  { min: 81, label: 'Outstanding Profile', color: 'text-emerald-700', bg: 'from-emerald-50 to-teal-50', border: 'border-emerald-200', bar: 'bg-emerald-500', icon: '⭐' },
- ]
- const tier = [...tiers].reverse().find(t => completion >= t.min) || tiers[0]
 
- return (
-  <div className={`rounded-xl border ${tier.border} bg-gradient-to-r ${tier.bg} p-5`}>
-   <div className="flex items-center justify-between mb-3">
-    <div className="flex items-center gap-2">
-     <span className="text-lg">{tier.icon}</span>
-     <span className={`text-sm font-bold ${tier.color}`}>{tier.label}</span>
-    </div>
-    <span className={`text-2xl font-bold ${tier.color}`}>{completion}%</span>
-   </div>
-   <div className="h-2 bg-white/60 rounded-full overflow-hidden mb-3">
-    <div className={`h-full rounded-full transition-all duration-1000 ${tier.bar}`} style={{ width: `${completion}%` }} />
-   </div>
-   {suggestions.length > 0 && (
-    <div className="space-y-1.5">
-     {suggestions.map((s, i) => (
-      <div key={i} className="flex items-center gap-2 text-xs text-slate-600">
-       <AlertCircle className="h-3 w-3 text-amber-500 shrink-0"/>
-       {s}
-      </div>
-     ))}
-    </div>
-   )}
-  </div>
- )
-}
 
 /* ─── Tab navigation ─── */
 const TABS = [
@@ -91,13 +61,6 @@ const TABS = [
   const [skillProficiency, setSkillProficiency] = useState('intermediate')
   const [message, setMessage] = useState('')
   const [activeTab, setActiveTab] = useState('basic')
-  const [showExpForm, setShowExpForm] = useState(false)
-  const [expForm, setExpForm] = useState({ company_name: '', title: '', start_date: '', end_date: '', is_current: false, description: '' })
-  const [showEduForm, setShowEduForm] = useState(false)
-  const [eduForm, setEduForm] = useState({ institution_name: '', degree: '', field_of_study: '', start_date: '', end_date: '', description: '' })
-  const [showCertForm, setShowCertForm] = useState(false)
-  const [certForm, setCertForm] = useState({ name: '', issuing_organization: '', issue_date: '', expiration_date: '', credential_id: '', credential_url: '' })
-
   const [prevUnreadCount, setPrevUnreadCount] = useState(unreadCount)
 
   // Auto-refresh the profile data when a new notification arrives (e.g. AI parsing finished)
@@ -171,56 +134,7 @@ const TABS = [
   refetch(true)
  }
 
- const handleAddExperience = async (e) => {
-  e.preventDefault()
-  try {
-   await candidatesAPI.addExperience(expForm)
-   setExpForm({ company_name: '', title: '', start_date: '', end_date: '', is_current: false, description: '' })
-   setShowExpForm(false)
-   refetch(true)
-  } catch {
-   setMessage('Error adding experience')
-  }
- }
 
- const handleDeleteExperience = async (id) => {
-  await candidatesAPI.deleteExperience(id)
-  refetch(true)
- }
-
- const handleAddEducation = async (e) => {
-  e.preventDefault()
-  try {
-   await candidatesAPI.addEducation(eduForm)
-   setEduForm({ institution_name: '', degree: '', field_of_study: '', start_date: '', end_date: '', description: '' })
-   setShowEduForm(false)
-   refetch(true)
-  } catch {
-   setMessage('Error adding education')
-  }
- }
-
- const handleDeleteEducation = async (id) => {
-  await candidatesAPI.deleteEducation(id)
-  refetch(true)
- }
-
- const handleAddCertification = async (e) => {
-  e.preventDefault()
-  try {
-   await candidatesAPI.addCertification(certForm)
-   setCertForm({ name: '', issuing_organization: '', issue_date: '', expiration_date: '', credential_id: '', credential_url: '' })
-   setShowCertForm(false)
-   refetch(true)
-  } catch {
-   setMessage('Error adding certification')
-  }
- }
-
- const handleDeleteCertification = async (id) => {
-  await candidatesAPI.deleteCertification(id)
-  refetch(true)
- }
 
  const handleResumeUpload = async (e) => {
   const file = e.target.files[0]
@@ -466,239 +380,17 @@ const TABS = [
 
     {/* Experience Tab */}
     {activeTab === 'experience' && (
-     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-       <h2 className="text-base font-bold text-slate-900">Work Experience</h2>
-       <button onClick={() => setShowExpForm(!showExpForm)}
-        className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium hover:bg-slate-50 transition-colors">
-        <Plus className="h-4 w-4"/> Add Experience
-       </button>
-      </div>
-
-      {showExpForm && (
-       <form onSubmit={handleAddExperience} className="rounded-xl border bg-slate-50/50 p-5 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Job Title</label>
-          <input required value={expForm.title} onChange={e => setExpForm({ ...expForm, title: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Company</label>
-          <input required value={expForm.company_name} onChange={e => setExpForm({ ...expForm, company_name: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Start Date</label>
-          <input type="date"required value={expForm.start_date} onChange={e => setExpForm({ ...expForm, start_date: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">End Date</label>
-          <input type="date"disabled={expForm.is_current} value={expForm.end_date} onChange={e => setExpForm({ ...expForm, end_date: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none disabled:bg-slate-100"/>
-         </div>
-        </div>
-        <div className="flex items-center gap-2">
-         <input type="checkbox"id="current"checked={expForm.is_current} onChange={e => setExpForm({ ...expForm, is_current: e.target.checked, end_date: '' })} className="rounded border-slate-300"/>
-         <label htmlFor="current"className="text-sm font-medium cursor-pointer">I currently work here</label>
-        </div>
-        <div>
-         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Description</label>
-         <textarea value={expForm.description} onChange={e => setExpForm({ ...expForm, description: e.target.value })} rows={3}
-          className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-        </div>
-        <div className="flex justify-end gap-2">
-         <button type="button"onClick={() => setShowExpForm(false)} className="rounded-lg px-4 py-2 text-sm font-medium hover:bg-slate-200 transition-colors">Cancel</button>
-         <button type="submit"className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors">Save Experience</button>
-        </div>
-       </form>
-      )}
-
-      {profile?.experiences?.length > 0 ? (
-       <div className="space-y-3">
-        {profile.experiences.map((exp) => (
-         <div key={exp.id} className="relative rounded-xl border p-4 hover:shadow-sm transition-shadow group">
-          <button onClick={() => handleDeleteExperience(exp.id)} className="absolute right-3 top-3 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-           <X className="h-4 w-4"/>
-          </button>
-          <h3 className="font-bold text-slate-900">{exp.title}</h3>
-          <p className="font-medium text-primary text-sm">{exp.company_name}</p>
-          <p className="text-xs text-muted-foreground mt-1 mb-2">{exp.start_date} — {exp.is_current ? 'Present' : exp.end_date}</p>
-          {exp.description && <p className="text-sm text-slate-600 leading-relaxed">{exp.description}</p>}
-         </div>
-        ))}
-       </div>
-      ) : (
-       <p className="text-sm text-muted-foreground py-2">No experience added yet.</p>
-      )}
-     </div>
+     <ExperienceTab profile={profile} refetch={refetch} setMessage={setMessage} />
     )}
 
     {/* Education Tab */}
     {activeTab === 'education' && (
-     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-       <h2 className="text-base font-bold text-slate-900">Education</h2>
-       <button onClick={() => setShowEduForm(!showEduForm)}
-        className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium hover:bg-slate-50 transition-colors">
-        <Plus className="h-4 w-4"/> Add Education
-       </button>
-      </div>
-
-      {showEduForm && (
-       <form onSubmit={handleAddEducation} className="rounded-xl border bg-slate-50/50 p-5 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Institution Name</label>
-          <input required value={eduForm.institution_name} onChange={e => setEduForm({ ...eduForm, institution_name: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Degree</label>
-          <input required value={eduForm.degree} onChange={e => setEduForm({ ...eduForm, degree: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-        </div>
-        <div>
-         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Field of Study</label>
-         <input value={eduForm.field_of_study} onChange={e => setEduForm({ ...eduForm, field_of_study: e.target.value })}
-          className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Start Date</label>
-          <input type="date"required value={eduForm.start_date} onChange={e => setEduForm({ ...eduForm, start_date: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">End Date (or expected)</label>
-          <input type="date"value={eduForm.end_date} onChange={e => setEduForm({ ...eduForm, end_date: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-        </div>
-        <div>
-         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Description</label>
-         <textarea value={eduForm.description} onChange={e => setEduForm({ ...eduForm, description: e.target.value })} rows={3}
-          className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-        </div>
-        <div className="flex justify-end gap-2">
-         <button type="button"onClick={() => setShowEduForm(false)} className="rounded-lg px-4 py-2 text-sm font-medium hover:bg-slate-200 transition-colors">Cancel</button>
-         <button type="submit"className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors">Save Education</button>
-        </div>
-       </form>
-      )}
-
-      {profile?.education?.length > 0 ? (
-       <div className="space-y-3">
-        {profile.education.map((edu) => (
-         <div key={edu.id} className="relative rounded-xl border p-4 hover:shadow-sm transition-shadow group">
-          <button onClick={() => handleDeleteEducation(edu.id)} className="absolute right-3 top-3 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-           <X className="h-4 w-4"/>
-          </button>
-          <h3 className="font-bold text-slate-900">{edu.degree}</h3>
-          <p className="font-medium text-primary text-sm">{edu.institution_name}</p>
-          <p className="text-xs text-muted-foreground mt-1 mb-2">{edu.start_date} — {edu.end_date || 'Present'}</p>
-          {edu.field_of_study && <p className="text-sm font-medium text-slate-700 mb-1">Field of Study: {edu.field_of_study}</p>}
-          {edu.description && <p className="text-sm text-slate-600 leading-relaxed">{edu.description}</p>}
-         </div>
-        ))}
-       </div>
-      ) : (
-       <p className="text-sm text-muted-foreground py-2">No education added yet.</p>
-      )}
-     </div>
+     <EducationTab profile={profile} refetch={refetch} setMessage={setMessage} />
     )}
 
     {/* Certifications Tab */}
     {activeTab === 'certifications' && (
-     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-       <h2 className="text-base font-bold text-slate-900">Certifications</h2>
-       <button onClick={() => setShowCertForm(!showCertForm)}
-        className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium hover:bg-slate-50 transition-colors">
-        <Plus className="h-4 w-4"/> Add Certification
-       </button>
-      </div>
-
-      {showCertForm && (
-       <form onSubmit={handleAddCertification} className="rounded-xl border bg-slate-50/50 p-5 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Certification Name</label>
-          <input required value={certForm.name} onChange={e => setCertForm({ ...certForm, name: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Issuing Organization</label>
-          <input required value={certForm.issuing_organization} onChange={e => setCertForm({ ...certForm, issuing_organization: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Issue Date</label>
-          <input type="date"value={certForm.issue_date} onChange={e => setCertForm({ ...certForm, issue_date: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Expiration Date</label>
-          <input type="date"value={certForm.expiration_date} onChange={e => setCertForm({ ...certForm, expiration_date: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Credential ID</label>
-          <input value={certForm.credential_id} onChange={e => setCertForm({ ...certForm, credential_id: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-         <div>
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Credential URL</label>
-          <input type="url"value={certForm.credential_url} onChange={e => setCertForm({ ...certForm, credential_url: e.target.value })}
-           className="mt-1.5 block w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:border-primary focus:outline-none"/>
-         </div>
-        </div>
-        <div className="flex justify-end gap-2">
-         <button type="button"onClick={() => setShowCertForm(false)} className="rounded-lg px-4 py-2 text-sm font-medium hover:bg-slate-200 transition-colors">Cancel</button>
-         <button type="submit"className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors">Save Certification</button>
-        </div>
-       </form>
-      )}
-
-      {profile?.certifications?.length > 0 ? (
-       <div className="space-y-3">
-        {profile.certifications.map((cert) => (
-         <div key={cert.id} className="relative rounded-xl border p-4 hover:shadow-sm transition-shadow group">
-          <button onClick={() => handleDeleteCertification(cert.id)} className="absolute right-3 top-3 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-           <X className="h-4 w-4"/>
-          </button>
-          <h3 className="font-bold text-slate-900">{cert.name}</h3>
-          <p className="font-medium text-primary text-sm">{cert.issuing_organization}</p>
-          {cert.issue_date && (
-           <p className="text-xs text-muted-foreground mt-1 mb-2">
-            Issued {cert.issue_date} {cert.expiration_date ? `· Expires ${cert.expiration_date}` : ''}
-           </p>
-          )}
-          {(cert.credential_id || cert.credential_url) && (
-           <div className="mt-2 flex flex-wrap gap-3 text-sm">
-            {cert.credential_id && <span className="text-slate-600 font-mono">ID: {cert.credential_id}</span>}
-            {cert.credential_url && (
-             <a href={cert.credential_url} target="_blank"rel="noreferrer"className="text-primary hover:underline inline-flex items-center gap-1">
-              Verify Credential <Globe className="h-3 w-3"/>
-             </a>
-            )}
-           </div>
-          )}
-         </div>
-        ))}
-       </div>
-      ) : (
-       <p className="text-sm text-muted-foreground py-2">No certifications added yet.</p>
-      )}
-     </div>
+     <CertificationsTab profile={profile} refetch={refetch} setMessage={setMessage} />
     )}
 
     {/* Links Tab */}

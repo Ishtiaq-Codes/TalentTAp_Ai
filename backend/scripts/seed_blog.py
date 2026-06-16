@@ -1,4 +1,4 @@
-"""Seed realistic blog data for TalentTap — run via: python manage.py runscript seed_blog"""
+"""Seed realistic blog data for TalentTap - run via: python manage.py runscript seed_blog"""
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from apps.blog.models import BlogCategory, BlogTag, BlogPost
@@ -50,7 +50,7 @@ def run():
             'content': '''
 <h2>The Hiring Crisis in Pakistan's Tech Sector</h2>
 <p>Pakistan's technology industry is growing at an unprecedented rate, with IT exports surpassing $2.6 billion in 2024. But this rapid growth has created a critical challenge: the talent supply chain simply cannot keep pace with demand.</p>
-<p>Software houses in Lahore, Karachi, and Islamabad are spending an average of <strong>6–8 weeks</strong> to fill a single technical role. HR managers report spending over 60% of their time manually screening resumes — a process that is both exhausting and deeply inefficient.</p>
+<p>Software houses in Lahore, Karachi, and Islamabad are spending an average of <strong>6–8 weeks</strong> to fill a single technical role. HR managers report spending over 60% of their time manually screening resumes - a process that is both exhausting and deeply inefficient.</p>
 
 <h2>The Traditional Hiring Funnel is Broken</h2>
 <p>Here's what a typical hiring process looks like for a Pakistani software house:</p>
@@ -66,7 +66,7 @@ def run():
 <p>The result? Top talent gets hired by competitors while you're still reviewing resumes from week one.</p>
 
 <h2>How AI Matching Changes Everything</h2>
-<p>TalentTap's AI matching engine analyses a candidate's full profile — skills, experience level, project portfolio, availability, and location — and scores them against your job requirements in milliseconds.</p>
+<p>TalentTap's AI matching engine analyses a candidate's full profile - skills, experience level, project portfolio, availability, and location - and scores them against your job requirements in milliseconds.</p>
 <p>Instead of reviewing 500 applications manually, you see a ranked shortlist of the top 10–20 candidates who genuinely match your requirements. The AI considers factors that a keyword search will miss, like whether a candidate's project experience aligns with your tech stack, or whether their career trajectory suggests they're ready for a senior role.</p>
 
 <h2>Real Numbers: Before and After TalentTap</h2>
@@ -95,7 +95,7 @@ def run():
             'content': '''
 <h2>Why Developer Resumes Are Notoriously Hard to Evaluate</h2>
 <p>Hiring a great developer is one of the most high-stakes decisions an HR manager can make. A bad hire costs a Pakistani software house an average of PKR 800,000–1.2 million when you factor in onboarding time, salary paid, and the productivity loss of the team.</p>
-<p>The problem? Most HR managers are not developers themselves. Evaluating a technical resume requires knowing what to look for — and what to avoid.</p>
+<p>The problem? Most HR managers are not developers themselves. Evaluating a technical resume requires knowing what to look for - and what to avoid.</p>
 
 <h2>Red Flag #1: Buzzword Overload Without Context</h2>
 <p>A resume that lists every possible technology ("React, Angular, Vue, Node, Python, Django, Spring Boot, AWS, Azure...") without context is a warning sign. Strong developers are specialists first and generalists second. Ask yourself: is there any depth here, or just a laundry list?</p>
@@ -113,7 +113,7 @@ def run():
 <p>If someone claims to be a "Senior React Developer" but their experience section only shows 18 months of React work, dig deeper before proceeding.</p>
 
 <h2>Using TalentTap to Filter Automatically</h2>
-<p>TalentTap's candidate profiles are structured to surface these signals automatically. Every profile requires candidates to list their skills with proficiency levels and years of experience, link their portfolio, and describe specific contributions on projects — making it much easier to spot genuine talent.</p>
+<p>TalentTap's candidate profiles are structured to surface these signals automatically. Every profile requires candidates to list their skills with proficiency levels and years of experience, link their portfolio, and describe specific contributions on projects - making it much easier to spot genuine talent.</p>
             ''',
             'category': 'hiring-tips',
             'tags': ['Talent Acquisition', 'Interview Tips', 'Software Engineering'],
@@ -162,11 +162,11 @@ def run():
 
 <h2>Hot Skills That Command a Premium in 2025</h2>
 <ul>
-  <li><strong>AI/ML Engineering</strong> — 35–60% salary premium</li>
-  <li><strong>React + Node.js (Full Stack)</strong> — Most in-demand combination</li>
-  <li><strong>DevOps / Kubernetes</strong> — Massive shortage, 40% premium</li>
-  <li><strong>Django + DRF</strong> — Stable demand, especially for SaaS</li>
-  <li><strong>Flutter / Mobile</strong> — Growing demand, 20% premium</li>
+  <li><strong>AI/ML Engineering</strong> - 35–60% salary premium</li>
+  <li><strong>React + Node.js (Full Stack)</strong> - Most in-demand combination</li>
+  <li><strong>DevOps / Kubernetes</strong> - Massive shortage, 40% premium</li>
+  <li><strong>Django + DRF</strong> - Stable demand, especially for SaaS</li>
+  <li><strong>Flutter / Mobile</strong> - Growing demand, 20% premium</li>
 </ul>
 
 <h2>Set Competitive Salaries with TalentTap</h2>
@@ -174,7 +174,7 @@ def run():
             ''',
             'category': 'market-trends',
             'tags': ['Pakistan IT Market', 'Salary Negotiation', 'Software Engineering', 'Full Stack'],
-            'seo_title': 'Software Engineer Salaries Pakistan 2025 — City Guide | TalentTap',
+            'seo_title': 'Software Engineer Salaries Pakistan 2025 - City Guide | TalentTap',
             'seo_description': 'Comprehensive 2025 salary data for software engineers in Lahore, Karachi, and Islamabad. Based on 2,000+ real candidate profiles on TalentTap.',
             'seo_keywords': 'software engineer salary Pakistan 2025, developer salary Lahore, programmer salary Karachi, IT salary Pakistan, React developer salary',
             'is_featured': True,
@@ -201,7 +201,7 @@ Strong: "Built the product catalog microservice that handled 50,000 daily transa
 <p>This is non-negotiable. Recruiters use TalentTap's filter to show only candidates with portfolio links. If you don't have one, spend one weekend deploying a personal project to GitHub Pages or Vercel.</p>
 
 <h2>Strategy 5: Set Your Availability Correctly</h2>
-<p>Are you actively looking? Passively open? Recruiters filter by availability status. If you're actively searching, mark yourself as "Actively Looking" — you'll appear in more results.</p>
+<p>Are you actively looking? Passively open? Recruiters filter by availability status. If you're actively searching, mark yourself as "Actively Looking" - you'll appear in more results.</p>
 
 <h2>Strategy 6: Specify Your Location and Remote Preference</h2>
 <p>TalentTap is city-based. Clearly specifying your city (and whether you're open to remote or on-site work) dramatically improves your match quality.</p>
@@ -224,10 +224,10 @@ Strong: "Built the product catalog microservice that handled 50,000 daily transa
         {
             'title': 'TalentTap Launches AI-Powered Talent Matching for Pakistan\'s IT Sector',
             'slug': 'talenttap-launches-ai-talent-matching-pakistan',
-            'excerpt': 'We are excited to announce the official launch of TalentTap — Pakistan\'s first city-based AI talent marketplace connecting software houses with top digital professionals.',
+            'excerpt': 'We are excited to announce the official launch of TalentTap - Pakistan\'s first city-based AI talent marketplace connecting software houses with top digital professionals.',
             'content': '''
 <h2>Introducing TalentTap</h2>
-<p>Today, we are proud to officially launch <strong>TalentTap</strong> — a city-based AI digital talent marketplace built specifically for Pakistan's booming IT ecosystem.</p>
+<p>Today, we are proud to officially launch <strong>TalentTap</strong> - a city-based AI digital talent marketplace built specifically for Pakistan's booming IT ecosystem.</p>
 
 <h2>The Problem We're Solving</h2>
 <p>Pakistan produces over 25,000 IT graduates per year. The country has over 10,000 registered software houses and freelance studios. Yet despite this abundance of talent and demand, the hiring process remains painfully inefficient.</p>
@@ -242,15 +242,15 @@ Strong: "Built the product catalog microservice that handled 50,000 daily transa
 
 <h2>Key Features at Launch</h2>
 <ul>
-  <li>🤖 <strong>AI Matching Engine</strong> — Ranks candidates by job compatibility score</li>
-  <li>📍 <strong>City-Based Search</strong> — Find talent in your specific city</li>
-  <li>💬 <strong>Integrated Messaging</strong> — Communicate without leaving the platform</li>
-  <li>📊 <strong>Application Pipeline</strong> — Track applications through stages</li>
-  <li>🔒 <strong>Enterprise Security</strong> — JWT auth, 2FA, encrypted data</li>
-  <li>📱 <strong>Mobile Responsive</strong> — Works perfectly on all devices</li>
+  <li>🤖 <strong>AI Matching Engine</strong> - Ranks candidates by job compatibility score</li>
+  <li>📍 <strong>City-Based Search</strong> - Find talent in your specific city</li>
+  <li>💬 <strong>Integrated Messaging</strong> - Communicate without leaving the platform</li>
+  <li>📊 <strong>Application Pipeline</strong> - Track applications through stages</li>
+  <li>🔒 <strong>Enterprise Security</strong> - JWT auth, 2FA, encrypted data</li>
+  <li>📱 <strong>Mobile Responsive</strong> - Works perfectly on all devices</li>
 </ul>
 
-<h2>Get Started Today — It's Free</h2>
+<h2>Get Started Today - It's Free</h2>
 <p>TalentTap is currently free for all candidates. Companies can post up to 3 jobs for free. <a href="/register">Create your account today</a> and experience the future of hiring in Pakistan.</p>
             ''',
             'category': 'platform-updates',

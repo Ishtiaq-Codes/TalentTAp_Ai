@@ -47,7 +47,7 @@ export default function RegisterPage() {
     title="Create Free Account | TalentTap"
     description="Create your free TalentTap account. Join the global AI-powered hiring platform to hire or get hired."
    />
-   {/* Left panel — branding */}
+   {/* Left panel - branding */}
    <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-slate-900 p-12 lg:flex">
     {/* Background blobs */}
     <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-primary/20 blur-3xl"/>
@@ -87,7 +87,7 @@ export default function RegisterPage() {
     </div>
    </div>
 
-   {/* Right panel — form */}
+   {/* Right panel - form */}
    <div className="relative z-10 flex flex-1 items-center justify-center p-4 sm:p-8">
     <div className="w-full max-w-md animate-fade-in-up glass-panel rounded-3xl p-6 sm:p-10 border-white/60 shadow-2xl">
      <div className="mb-8 lg:hidden">

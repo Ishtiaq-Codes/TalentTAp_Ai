@@ -322,7 +322,7 @@ export default function TalentPoolsPage() {
      </div>
      <h3 className="text-lg font-bold text-slate-700">No Talent Pools Yet</h3>
      <p className="mt-2 text-sm text-slate-400 max-w-sm">
-      Create your first pool to start organising candidates — like"Python Developers"or"Remote AI Engineers".
+      Create your first pool to start organising candidates - like"Python Developers"or"Remote AI Engineers".
      </p>
      <button
       onClick={() => setShowCreate(true)}

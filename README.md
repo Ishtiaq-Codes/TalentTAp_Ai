@@ -1,120 +1,62 @@
-# TalentTap – AI-Powered Digital Talent Marketplace for Smart Hiring
+# TalentTap AI
 
-![TalentTap Cover](frontend/public/cover.png) *(You can replace this with an actual screenshot of your project)*
+TalentTap is a next-generation, AI-driven recruitment and talent acquisition platform designed to bridge the semantic gap between world-class talent and top-tier companies. It leverages advanced Large Language Models (LLMs), natural language processing, and video analytics to streamline the hiring process, from semantic candidate matching to automated AI interviews.
 
-**TalentTap** is a modern, AI-powered Software-as-a-Service (SaaS) platform designed to revolutionize the recruitment industry. It bridges the gap between top-tier candidates and innovative companies by automating the most time-consuming aspects of the hiring lifecycle.
+## Overview
 
-Built using a decoupled Three-Tier Architecture, TalentTap leverages advanced Natural Language Processing (NLP) for algorithmic candidate matching and utilizes Computer Vision (MediaPipe) for secure, anti-cheat AI video interviews.
+This repository contains the full monorepo for the TalentTap platform, encompassing both the Django backend and the React frontend.
 
----
+**Key Features:**
+- **AI Semantic Matching**: Matches candidates to job descriptions based on semantic understanding of skills and experiences, moving beyond basic keyword matching.
+- **Automated AI Interviews**: Conducts initial screening interviews using an automated, conversational AI agent with real-time video processing.
+- **Anti-Cheat Mechanisms**: Incorporates gaze tracking, face verification, and multi-face detection during AI interviews.
+- **Smart Parsing**: Automatically extracts and structures data from uploaded resumes.
+- **Copilot Assistant**: An AI assistant tailored for recruiters to draft outreach messages, analyze candidate gaps, and generate interview guides.
+- **SaaS Architecture**: Built with scalable, multi-tenant principles utilizing Stripe for billing and subscription management.
 
-## 🚀 Key Features
+## Repository Structure
 
-### For Candidates
-* **Rich Profiles:** Build professional, comprehensive profiles with dynamic completion tracking.
-* **Smart Applications:** Seamlessly apply for jobs that match your skills.
-* **AI Video Interviews:** Undertake automated, proctored video interviews directly in the browser.
-* **Real-time Tracking:** Monitor application statuses via an interactive dashboard.
+This is a monorepo containing both the frontend and backend in a single version-controlled project. This structure simplifies development and allows for atomic commits across the entire stack. 
 
-### For Companies / Recruiters
-* **Algorithmic Matching:** Instantly filter and rank candidates using the proprietary AI Matching Engine.
-* **Talent Pools:** Save and categorize high-potential candidates for future opportunities.
-* **Automated Video Screening:** Review AI-scored video interviews to eliminate manual screening bottlenecks.
-* **Premium Subscriptions:** Unlock advanced features via seamless Stripe billing integration.
+* `backend/`: Django REST Framework backend serving APIs, AI integrations (Groq/OpenAI), and database models.
+* `frontend/`: React-based single-page application built with Vite, TailwindCSS, and Lucide React.
+* `media/`: Local storage for uploaded assets (in production, this maps to an S3 bucket or equivalent).
 
-### Platform Security & Anti-Cheat
-* **MediaPipe Facial Tracking:** The AI Interview room utilizes real-time facial landmark detection to prevent cheating (e.g., looking away, multiple faces).
-* **JWT Authentication:** Secure, stateless JSON Web Tokens ensure robust Role-Based Access Control (RBAC).
+### Deployment Note (Monorepo)
 
----
+Having both the frontend and backend in one repository will **not** cause problems during deployment. Modern deployment pipelines (like GitHub Actions, AWS CodePipeline, or Vercel/Render) allow you to specify the "Root Directory" or the "Build Command" path. 
+* When deploying the frontend (e.g., to Vercel or AWS Amplify), you simply configure the build settings to use `frontend/` as the root directory.
+* When deploying the backend (e.g., to AWS EC2, Elastic Beanstalk, or App Runner), your deployment scripts will navigate to the `backend/` directory to install `requirements.txt` and run the WSGI server (Gunicorn).
 
-## 🏗️ System Architecture
+## Getting Started
 
-TalentTap utilizes a decoupled client-server architecture:
+Detailed instructions for setting up the development environment, running the servers, and deploying the application can be found in the `DOCUMENTATION.md` file.
 
-1. **Frontend (Presentation Layer):** Built with **React.js** and **Vite**. Features responsive "Glassmorphism" UI designs crafted with **TailwindCSS**. Complex state management is handled efficiently to provide a seamless Single Page Application (SPA) experience.
-2. **Backend (Business Logic Layer):** Powered by the **Django REST Framework (Python)**. This acts as a highly scalable API gateway handling authentication, algorithmic matching, database transactions, and Stripe webhook orchestration.
-3. **Database (Data Layer):** Hosted on **PostgreSQL**, strictly adhering to ACID compliance and normalized to the Third Normal Form (3NF) to guarantee data integrity.
+## Technologies Used
 
----
+### Backend
+- Python 3.10+
+- Django 5.x
+- Django REST Framework (DRF)
+- JWT Authentication (SimpleJWT)
+- Celery & Redis (Background Tasks)
+- Postgres (Production Database) / SQLite (Development)
+- Groq API / OpenAI API (LLMs)
+- MediaPipe / OpenCV (Video Analysis)
+- Stripe (Payments)
 
-## 🛠️ Technology Stack
+### Frontend
+- React 18
+- Vite
+- TailwindCSS
+- Lucide React (Icons)
+- Recharts (Data Visualization)
+- Context API (State Management)
+- Framer Motion (Animations)
 
-* **Frontend:** React, Vite, TailwindCSS, React Router, Recharts, MediaPipe (Client-side AI)
-* **Backend:** Python, Django, Django REST Framework, SimpleJWT
-* **Database:** PostgreSQL / SQLite (Development)
-* **Payments:** Stripe API
-* **Version Control:** Git, GitHub
+## License and Copyright
 
----
+**Confidential & Proprietary**
+Copyright © 2026 TalentTap AI. All Rights Reserved.
 
-## ⚙️ Installation & Setup Guide
-
-To run this project locally, follow these steps:
-
-### Prerequisites
-* Node.js (v18+)
-* Python (3.10+)
-* PostgreSQL (Optional for local dev, SQLite is used by default)
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/yourusername/TalentTap.git
-cd TalentTap
-```
-
-### 2. Backend Setup
-```bash
-cd backend
-
-# Create a virtual environment
-python -m venv venv
-
-# Activate the virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run migrations
-python manage.py migrate
-
-# Create a superuser (Admin)
-python manage.py createsuperuser
-
-# Start the Django server
-python manage.py runserver
-```
-*The backend API will run on `http://localhost:8000`*
-
-### 3. Frontend Setup
-Open a new terminal window:
-```bash
-cd frontend
-
-# Install Node dependencies
-npm install
-
-# Start the Vite development server
-npm run dev
-```
-*The frontend application will run on `http://localhost:5173`*
-
-### 4. Environment Variables
-You will need to configure your environment variables. Create a `.env` file in the `backend` directory with your database credentials, Django Secret Key, and Stripe API keys.
-
----
-
-## 📄 Licensing & Copyright
-**© 2026 Hafiz Muhammad Ishtiaq. All Rights Reserved.**
-
-*This project was developed as a Final Year Project (FYP) for the Department of Computer Science, University of Agriculture, Faisalabad.*
-
-This source code is the intellectual property of the author. It is strictly prohibited to copy, distribute, or reproduce this code for commercial purposes without explicit permission. The repository is initially public for academic evaluation but will transition to a private SaaS product post-graduation.
-
----
-
-**Developed with ❤️ by Hafiz Muhammad Ishtiaq**
+This code is the property of TalentTap AI. Unauthorized copying, distribution, modification, or public display of this project, or any portion thereof, is strictly prohibited. This repository is temporarily public for academic reporting purposes and will be converted to a private repository prior to commercial launch.

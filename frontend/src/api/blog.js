@@ -2,7 +2,7 @@ import client from './client'
 import axios from 'axios'
 import { API_BASE } from '@/lib/constants'
 
-// Public blog API — no auth required, uses plain axios for unauthenticated requests
+// Public blog API - no auth required, uses plain axios for unauthenticated requests
 const publicClient = axios.create({ baseURL: API_BASE })
 
 export const blogAPI = {

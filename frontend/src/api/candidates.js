@@ -1,4 +1,5 @@
 import client from './client'
+import { streamFetch } from './streamFetch'
 
 export const candidatesAPI = {
   getProfile: () => client.get('/candidates/profile/'),
@@ -39,84 +40,18 @@ export const candidatesAPI = {
   getOutreachDraft: (id, params) => client.get(`/candidates/${id}/outreach-draft/`, { params }),
   getInterviewQuestions: (id, params) => client.get(`/candidates/${id}/interview-questions/`, { params }),
 
-  generateOutreachStream: async (id, params, onChunk) => {
-    const baseURL = client.defaults.baseURL || 'http://localhost:8000/api';
-    const token = localStorage.getItem('access_token');
-    const queryString = params?.job_id ? `&job_id=${params.job_id}` : '';
-    
-    const response = await fetch(`${baseURL}/candidates/${id}/outreach-draft/?stream=true${queryString}`, {
-      method: 'GET',
-      headers: {
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-      }
-    });
-    
-    if (!response.ok) throw new Error(`Streaming API error: ${response.statusText}`);
-    
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    
-    let done = false;
-    while (!done) {
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      if (value) {
-        onChunk(decoder.decode(value, { stream: true }));
-      }
-    }
+  generateOutreachStream: (id, params, onChunk) => {
+    const query = params?.job_id ? `&job_id=${params.job_id}` : ''
+    return streamFetch(`/candidates/${id}/outreach-draft/?stream=true${query}`, {}, onChunk)
   },
 
-  generateInterviewPrepStream: async (id, params, onChunk) => {
-    const baseURL = client.defaults.baseURL || 'http://localhost:8000/api';
-    const token = localStorage.getItem('access_token');
-    const queryString = params?.job_id ? `&job_id=${params.job_id}` : '';
-    
-    const response = await fetch(`${baseURL}/candidates/${id}/interview-questions/?stream=true${queryString}`, {
-      method: 'GET',
-      headers: {
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-      }
-    });
-    
-    if (!response.ok) throw new Error(`Streaming API error: ${response.statusText}`);
-    
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    
-    let done = false;
-    while (!done) {
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      if (value) {
-        onChunk(decoder.decode(value, { stream: true }));
-      }
-    }
+  generateInterviewPrepStream: (id, params, onChunk) => {
+    const query = params?.job_id ? `&job_id=${params.job_id}` : ''
+    return streamFetch(`/candidates/${id}/interview-questions/?stream=true${query}`, {}, onChunk)
   },
 
-  generateCoverLetterStream: async (jobId, onChunk) => {
-    const baseURL = client.defaults.baseURL || 'http://localhost:8000/api/v1';
-    const token = localStorage.getItem('access_token');
-    
-    // We assume backend handles the stream query param via fetch
-    const response = await fetch(`${baseURL}/candidates/cover-letter/?job_id=${jobId}`, {
-      method: 'GET',
-      headers: {
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-      }
-    });
-    
-    if (!response.ok) throw new Error(`Streaming API error: ${response.statusText}`);
-    
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    
-    let done = false;
-    while (!done) {
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      if (value) {
-        onChunk(decoder.decode(value, { stream: true }));
-      }
-    }
-  }
+  generateCoverLetterStream: (jobId, onChunk) => {
+    return streamFetch(`/candidates/cover-letter/?job_id=${jobId}`, {}, onChunk)
+  },
 }
+

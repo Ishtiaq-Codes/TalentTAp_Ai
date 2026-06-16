@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('excerpt', models.TextField(help_text='Short teaser shown on listing page (150–160 chars ideal for SEO).', max_length=300)),
                 ('content', models.TextField(help_text='Full article body. Supports HTML / Markdown from the editor.')),
                 ('cover_image', models.ImageField(blank=True, help_text='Recommended size: 1200×630 px (OpenGraph standard).', null=True, upload_to='blog/covers/')),
-                ('cover_image_alt', models.CharField(blank=True, help_text='Alt text for cover image — important for accessibility & image SEO.', max_length=200)),
+                ('cover_image_alt', models.CharField(blank=True, help_text='Alt text for cover image - important for accessibility & image SEO.', max_length=200)),
                 ('seo_title', models.CharField(blank=True, help_text='Override the <title> tag (ideal: 50–60 chars). Leave blank to use main title.', max_length=70)),
                 ('seo_description', models.CharField(blank=True, help_text='Meta description (ideal: 120–155 chars). Shown in Google search results.', max_length=160)),
                 ('seo_keywords', models.CharField(blank=True, help_text='Comma-separated keywords. Not used by Google but useful for internal tracking.', max_length=300)),

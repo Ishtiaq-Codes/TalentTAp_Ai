@@ -6,7 +6,7 @@ from django.utils.text import slugify
 
 
 class Company(models.Model):
-    """Company profile — created by a company_admin user."""
+    """Company profile - created by a company_admin user."""
 
     class Size(models.TextChoices):
         TINY = '1-10', '1-10'
@@ -79,7 +79,7 @@ class RecruiterProfile(models.Model):
 # ---------------------------------------------------------------------------
 
 class Plan(models.Model):
-    """Subscription plan — for future monetization."""
+    """Subscription plan - for future monetization."""
 
     class Cycle(models.TextChoices):
         MONTHLY = 'monthly', 'Monthly'
@@ -99,7 +99,7 @@ class Plan(models.Model):
 
 
 class Subscription(models.Model):
-    """Company subscription — for future billing integration."""
+    """Company subscription - for future billing integration."""
 
     class Status(models.TextChoices):
         ACTIVE = 'active', 'Active'
@@ -116,7 +116,7 @@ class Subscription(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.company.name} — {self.plan.name}'
+        return f'{self.company.name} - {self.plan.name}'
 
 
 class CompanyInvitation(models.Model):
@@ -149,7 +149,7 @@ class CompanyInvitation(models.Model):
 
 
 # ---------------------------------------------------------------------------
-# Talent Pools — company-curated candidate collections
+# Talent Pools - company-curated candidate collections
 # ---------------------------------------------------------------------------
 
 class TalentPool(models.Model):

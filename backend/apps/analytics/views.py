@@ -1,4 +1,4 @@
-"""Admin analytics views — platform overview stats."""
+"""Admin analytics views - platform overview stats."""
 from django.utils import timezone
 from django.db.models import Count, Q
 from rest_framework.permissions import IsAuthenticated

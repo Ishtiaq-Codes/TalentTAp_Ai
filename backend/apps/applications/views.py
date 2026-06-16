@@ -55,7 +55,7 @@ class ApplicationCreateView(generics.CreateAPIView):
 
 
 class ApplicationListView(generics.ListAPIView):
-    """List applications — candidates see theirs, recruiters see job applicants."""
+    """List applications - candidates see theirs, recruiters see job applicants."""
     serializer_class = ApplicationSerializer
     permission_classes = [IsAuthenticated]
 

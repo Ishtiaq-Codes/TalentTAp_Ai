@@ -1,55 +1,164 @@
-# TalentTap - Technical Documentation
+# TalentTap AI - Technical Documentation
 
-This document serves as the in-depth technical manual for the TalentTap platform, intended for future developers, maintainers, and system administrators. For quick setup and installation instructions, please refer to the `README.md`.
+This document provides a comprehensive overview of the technical architecture, setup instructions, and deployment strategies for the TalentTap platform.
 
-## 1. System Architecture Details
+## Architecture Overview
 
-The system is deployed across a decoupled Three-Tier architecture, utilizing containerization and RESTful communication.
+TalentTap uses a decoupled monorepo architecture:
+1. **Backend API (Django):** Acts as the central brain. Handles database operations, authentication (JWT), background tasks (Celery/Redis), payment processing (Stripe), and orchestrates LLM calls.
+2. **Frontend SPA (React):** A fast, responsive, single-page application that consumes the Django REST API. It handles routing locally and maintains state using React Context and custom hooks.
 
-### 1.1 Frontend (Presentation Layer)
-* **Framework:** React.js powered by Vite for rapid HMR (Hot Module Replacement).
-* **State Management:** React Context API paired with custom hooks (`useAuth`, `useNotifications`) to avoid prop-drilling.
-* **Styling:** TailwindCSS utilizing a bespoke "Glassmorphism" UI design system. Component styles are strictly utility-first to ensure performance.
-* **Routing:** `react-router-dom` utilizing protected routes for Role-Based Access Control (Candidate vs. Recruiter vs. Admin views).
+---
 
-### 1.2 Backend (Business Logic Layer)
-* **Framework:** Django 5.x utilizing the Django REST Framework (DRF).
-* **Authentication:** Stateless authentication via SimpleJWT. Tokens are securely passed via HTTP headers and stored securely on the client.
-* **File Handling:** Django signals process profile pictures, resumes, and media via AWS S3 / Cloudinary configurations.
-* **Webhooks:** Stripe is integrated natively. A dedicated webhook endpoint listens for `checkout.session.completed` events to automatically upgrade company subscription tiers.
+## 1. Local Development Setup
 
-### 1.3 AI Systems
-* **Matching Algorithm:** The `engine.py` script tokenizes text from Candidate Profiles and Job Descriptions, utilizing NLP similarity matrices to output a percentage match score.
-* **Anti-Cheat Video System:** Utilizes Google's MediaPipe Face Mesh model executing directly on the client's browser (React). If the user leaves the frame or multiple faces are detected, the system immediately voids the interview session and updates the backend database.
+### 1.1 Backend Setup (Windows/Linux/Mac)
+Navigate to the `backend` directory:
+```bash
+cd backend
+```
 
-## 2. API Schema Overview
+**Create and Activate Virtual Environment:**
+```bash
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
+```
 
-All API endpoints require a valid Bearer Token for access unless stated otherwise.
+**Install Dependencies:**
+```bash
+pip install -r requirements.txt
+```
+*(Note: It is standard practice to freeze your dependencies in production, but for development, `requirements.txt` contains the necessary packages without hard-locked versions unless specified).*
 
-### Authentication Endpoints
-* `POST /api/accounts/register/` - Register a new user (Candidate/Company)
-* `POST /api/accounts/login/` - Returns Access and Refresh JWTs
-* `POST /api/accounts/refresh/` - Refresh an expired Access token
+**Environment Variables:**
+Create a `.env` file in the `backend/` directory (where `manage.py` is located) with the following essential variables:
+```ini
+DEBUG=True
+SECRET_KEY=your-django-secret-key
+GROQ_API_KEY=your-groq-key
+STRIPE_SECRET_KEY=your-stripe-secret
+STRIPE_WEBHOOK_SECRET=your-stripe-webhook
+```
 
-### Job Management Endpoints
-* `GET /api/jobs/` - Fetch all active job listings
-* `POST /api/jobs/` - (Company Only) Create a new job posting
-* `GET /api/jobs/<id>/matches/` - (Company Only) Trigger the AI Matching Engine to rank applicants for a specific job
+**Run Migrations & Start Server:**
+```bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+```
 
-### Candidate Application Endpoints
-* `POST /api/applications/` - Apply to a job posting
-* `GET /api/applications/me/` - Retrieve all applications for the logged-in candidate
+### 1.2 Frontend Setup
+Navigate to the `frontend` directory:
+```bash
+cd frontend
+```
 
-## 3. Database Schema (PostgreSQL)
+**Install Dependencies:**
+```bash
+npm install
+```
 
-The database strictly adheres to Third Normal Form (3NF). Core models include:
-* **User:** Extended AbstractUser handling dual roles (`is_candidate`, `is_company`).
-* **CompanyProfile:** Contains Stripe `customer_id` and subscription status.
-* **Job:** Foreign Key mapped to `CompanyProfile`. Contains text vectors for matching.
-* **Application:** The junction table between `User` and `Job`. Tracks `match_score` and `status` (Pending, Interviewing, Hired, Rejected).
+**Environment Variables:**
+Create a `.env` file in the `frontend/` directory:
+```ini
+VITE_API_URL=http://localhost:8000/api
+```
 
-## 4. Deployment Strategy
+**Start Development Server:**
+```bash
+npm run dev
+```
 
-* **Frontend:** Configured for Vercel/Netlify. Run `npm run build` to generate the static `dist/` directory.
-* **Backend:** Configured for AWS EC2/Render. Utilize `gunicorn core.wsgi:application` to serve the application in production. Ensure `DEBUG=False` in the `.env` file before deployment.
-* **Database Management:** Run `python manage.py collectstatic` and `python manage.py migrate` upon every CI/CD deployment pipeline.
+---
+
+## 2. API & Integration Details
+
+### Authentication Flow
+- The platform uses JWT (JSON Web Tokens).
+- `POST /api/auth/login/` returns `access` and `refresh` tokens.
+- The React frontend stores the tokens in `localStorage` and attaches the `access` token as an `Authorization: Bearer <token>` header to all subsequent requests.
+
+### AI Integration (Groq/OpenAI)
+- The backend utilizes the `Groq` Python SDK to communicate with open-source models (like LLaMA-3).
+- Prompts are defined dynamically in services (e.g., `apps/candidates/services.py`, `apps/interviews/services.py`).
+- Responses are often streamed back to the frontend using `StreamingHttpResponse` in Django and the native `fetch` API on the frontend, parsed chunk-by-chunk for real-time UI updates (e.g., `streamFetch.js`).
+
+---
+
+## 3. GitHub Push & Version Control Guide
+
+### What to Ignore (`.gitignore`)
+A `.gitignore` file is crucial so you do not push sensitive data, large compiled binaries, or local environment files to GitHub. The project already contains a configured `.gitignore`. 
+
+**Critical exclusions:**
+- `backend/venv/`, `frontend/node_modules/` (Dependencies are easily re-installed)
+- `backend/.env`, `frontend/.env` (Contains sensitive API keys and secrets)
+- `backend/db.sqlite3` (Local database)
+- `backend/media/` (User uploads)
+- `__pycache__`, `.DS_Store` (System artifacts)
+
+### Professional Commit Workflow
+To push your code to GitHub professionally:
+
+1. **Initialize Git (if not already done):**
+   ```bash
+   git init
+   ```
+2. **Check your Status:**
+   ```bash
+   git status
+   ```
+3. **Stage all changes (respecting `.gitignore`):**
+   ```bash
+   git add .
+   ```
+4. **Commit with a professional message:**
+   ```bash
+   git commit -m "chore: Prepare v1.0 architecture and finalize full-stack refactoring"
+   ```
+5. **Add your remote repository:**
+   ```bash
+   git remote add origin https://github.com/your-username/your-repo-name.git
+   ```
+6. **Push to the main branch:**
+   ```bash
+   git push -u origin main
+   ```
+
+---
+
+## 4. Production Deployment Strategy (AWS)
+
+To deploy the backend on AWS, AWS needs to know where your code is and how to run it.
+
+### Step 1: AWS EC2 (Virtual Server)
+1. **Provision an EC2 Instance** (Ubuntu is recommended).
+2. **SSH into the server** and install Python, pip, Nginx, and Git.
+3. **Pull the Code:** You will clone your GitHub repository directly onto the AWS server:
+   ```bash
+   git clone https://github.com/your-username/your-repo-name.git
+   cd your-repo-name/backend
+   ```
+4. **Environment Setup:** You must manually recreate your `.env` file on the server since it was ignored by Git.
+
+### Step 2: Gunicorn and Systemd
+Django's `runserver` is not for production. You must use `Gunicorn`:
+```bash
+pip install gunicorn
+gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+```
+You will configure a `systemd` service to keep Gunicorn running continuously in the background.
+
+### Step 3: Nginx Reverse Proxy
+Nginx will be configured to listen on port 80 (HTTP) and 443 (HTTPS), forwarding traffic to your Gunicorn process running on port 8000, and serving your `static` and `media` files directly for performance.
+
+### Frontend Deployment (Vercel / Netlify / AWS Amplify)
+The React frontend is best deployed to a CDN-backed service like Vercel or AWS Amplify.
+1. Connect your GitHub repository to the platform.
+2. Set the Root Directory to `frontend`.
+3. Set the Build Command to `npm run build`.
+4. Set the Output Directory to `dist`.
+5. Add the environment variable `VITE_API_URL` pointing to your deployed AWS EC2 backend IP or domain (e.g., `https://api.talenttap.com/api`).

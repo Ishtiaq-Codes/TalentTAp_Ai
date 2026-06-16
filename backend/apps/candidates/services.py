@@ -545,7 +545,7 @@ def parse_resume(candidate_id):
             if 'years_of_experience' in data and data['years_of_experience'] is not None:
                 try:
                     profile.years_of_experience = int(data['years_of_experience'])
-                except:
+                except (ValueError, TypeError):
                     pass
             profile.save()
             
@@ -594,7 +594,7 @@ def parse_resume(candidate_id):
                             candidate=profile, title=title, company_name=company,
                             defaults={'start_date': sd, 'end_date': ed, 'description': desc}
                         )
-                    except:
+                    except Exception:
                         pass
                 
             edu_list = data.get('education')
@@ -611,7 +611,7 @@ def parse_resume(candidate_id):
                             candidate=profile, degree=degree, institution_name=inst,
                             defaults={'start_date': sd, 'end_date': ed}
                         )
-                    except:
+                    except Exception:
                         pass
                 
             cert_list = data.get('certifications')
@@ -628,7 +628,7 @@ def parse_resume(candidate_id):
                             candidate=profile, name=name, issuing_organization=org,
                             defaults={'issue_date': issue, 'expiration_date': expir}
                         )
-                    except:
+                    except Exception:
                         pass
 
         from apps.notifications.models import Notification

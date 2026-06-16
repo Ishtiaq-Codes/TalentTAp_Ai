@@ -69,7 +69,7 @@ const features = [
   { icon: Search, title: 'Smart Candidate Discovery', desc: 'Search and filter talent by skills, location, experience level, and availability in real-time.' },
   { icon: BarChart3, title: 'Recruiter Dashboard', desc: 'Track jobs, applications, matches, and hiring pipeline from a single command center.' },
   { icon: Target, title: 'Talent Pools', desc: 'Build and manage curated shortlists of top candidates for current and future roles.' },
-  { icon: Zap, title: 'Skill-Based Search', desc: 'Find candidates by exact skill match — no keyword guessing, no wasted time.' },
+  { icon: Zap, title: 'Skill-Based Search', desc: 'Find candidates by exact skill match - no keyword guessing, no wasted time.' },
   { icon: Globe, title: 'Global Hiring', desc: 'Connect with remote-first talent worldwide. No borders, no limits.' },
 ]
 
@@ -86,7 +86,7 @@ const recruiterBenefits = [
   'AI-ranked candidate recommendations for every job',
   'Search talent by skills, location, and availability',
   'One-click shortlisting and messaging',
-  'Detailed match breakdowns — no black box',
+  'Detailed match breakdowns - no black box',
   'Application tracking and hiring pipeline',
   'Build talent pools for future hiring needs',
 ]
@@ -96,7 +96,7 @@ const testimonials = [
     name: 'Samuel Chen',
     role: 'Engineering Lead',
     company: 'TechVault Inc',
-    quote: 'TalentTap cut our time-to-hire by 60%. The AI matching is scary accurate — we found our senior engineer in 3 days.',
+    quote: 'TalentTap cut our time-to-hire by 60%. The AI matching is scary accurate - we found our senior engineer in 3 days.',
     pic: 'https://randomuser.me/api/portraits/men/32.jpg',
   },
   {
@@ -126,7 +126,7 @@ const faqs = [
   },
   {
     q: 'How is this different from LinkedIn or Indeed?',
-    a: 'Unlike traditional job boards where candidates apply and wait, TalentTap inverts the model — candidates create profiles and companies discover them. Our AI proactively matches talent to roles based on deep skill and experience analysis.',
+    a: 'Unlike traditional job boards where candidates apply and wait, TalentTap inverts the model - candidates create profiles and companies discover them. Our AI proactively matches talent to roles based on deep skill and experience analysis.',
   },
   {
     q: 'Can I use TalentTap for remote hiring?',
@@ -138,7 +138,7 @@ const faqs = [
   },
   {
     q: 'Is my data secure?',
-    a: 'Yes. We use industry-standard encryption for all data in transit and at rest. Contact information is only visible to authenticated recruiters — public visitors can see your skills and experience but not your email or phone.',
+    a: 'Yes. We use industry-standard encryption for all data in transit and at rest. Contact information is only visible to authenticated recruiters - public visitors can see your skills and experience but not your email or phone.',
   },
 ]
 
@@ -226,7 +226,7 @@ export default function LandingPage() {
             {/* Subheadline */}
             <p className={`mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl transition-all duration-700 delay-200 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               TalentTap AI matches candidates with the right companies automatically
-              — no more endless applications, no more filtering thousands of resumes.
+              - no more endless applications, no more filtering thousands of resumes.
             </p>
 
             {/* CTAs */}
@@ -251,7 +251,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Hero visual — mock dashboard */}
+          {/* Hero visual - mock dashboard */}
           <div className={`mx-auto mt-16 max-w-5xl transition-all duration-1000 delay-500 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
             <div className="animate-float">
               <div className="glass-panel rounded-2xl p-2 sm:p-3">
@@ -352,7 +352,7 @@ export default function LandingPage() {
               </div>
               <div className="mt-8 flex items-center gap-3 rounded-xl bg-ai/10 p-4">
                 <Sparkles className="h-5 w-5 text-ai flex-shrink-0" />
-                <p className="text-sm font-medium text-ai">TalentTap AI solves this by inverting the model — candidates get discovered, recruiters get recommendations.</p>
+                <p className="text-sm font-medium text-ai">TalentTap AI solves this by inverting the model - candidates get discovered, recruiters get recommendations.</p>
               </div>
             </div>
             <div className="flex justify-center">

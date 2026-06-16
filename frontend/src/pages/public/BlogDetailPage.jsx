@@ -76,7 +76,7 @@ function SEOHead({ post }) {
 
   // Cleanup on unmount
   return () => {
-   document.title = 'TalentTap AI — AI-Powered Talent Marketplace'
+   document.title = 'TalentTap AI - AI-Powered Talent Marketplace'
   }
  }, [post])
 

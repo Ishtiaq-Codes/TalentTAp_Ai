@@ -50,7 +50,7 @@ class RecruiterProfileSerializer(serializers.ModelSerializer):
 
 
 class InviteRecruiterSerializer(serializers.Serializer):
-    """Invite a new recruiter — creates an invitation token."""
+    """Invite a new recruiter - creates an invitation token."""
     email = serializers.EmailField()
     first_name = serializers.CharField(max_length=100)
     last_name = serializers.CharField(max_length=100)

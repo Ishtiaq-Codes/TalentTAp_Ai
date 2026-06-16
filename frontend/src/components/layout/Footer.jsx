@@ -37,7 +37,7 @@ export default function Footer() {
             </div>
             <p className="text-sm leading-relaxed text-slate-400">
               AI-powered talent marketplace connecting the right candidates
-              with the right opportunities — automatically.
+              with the right opportunities - automatically.
             </p>
           </div>
 

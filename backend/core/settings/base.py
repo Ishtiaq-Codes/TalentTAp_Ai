@@ -1,5 +1,5 @@
 """
-TalentTap AI — Base Settings
+TalentTap AI - Base Settings
 
 Shared settings for all environments.
 """

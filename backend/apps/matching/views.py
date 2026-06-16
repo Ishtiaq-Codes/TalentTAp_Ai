@@ -1,4 +1,4 @@
-"""Matching views — run matching, view results."""
+"""Matching views - run matching, view results."""
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response

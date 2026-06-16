@@ -1,4 +1,4 @@
-"""Blog models — SEO-optimised articles & categories."""
+"""Blog models - SEO-optimised articles & categories."""
 import uuid
 from django.db import models
 from django.utils.text import slugify
@@ -90,7 +90,7 @@ class BlogPost(models.Model):
     )
     cover_image_alt = models.CharField(
         max_length=200, blank=True,
-        help_text="Alt text for cover image — important for accessibility & image SEO.",
+        help_text="Alt text for cover image - important for accessibility & image SEO.",
     )
 
     # ── SEO Overrides ─────────────────────────────────────────────────────
