@@ -5,13 +5,14 @@ import { Link } from 'react-router-dom'
 import {
  Users, Briefcase, FileText, Heart, Sparkles,
  TrendingUp, CheckCircle2, ChevronRight, Building2,
- Trophy
+ Trophy, Activity
 } from 'lucide-react'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 import SkeletonCard from '@/components/common/SkeletonCard'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import DashStat from '@/components/dashboard/DashStat'
 import RecruiterActivityCard from '@/components/dashboard/RecruiterActivityCard'
+import RecruiterRow from '@/components/dashboard/RecruiterRow'
 
 
 

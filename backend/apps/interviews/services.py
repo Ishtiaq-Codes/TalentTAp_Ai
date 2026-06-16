@@ -142,7 +142,7 @@ def evaluate_interview(session: AIInterviewSession) -> bool:
     Interview Data:
     {json.dumps(interview_data)}
     
-    Return a strict JSON object with this exact schema:
+    Return a strict JSON object with this exact schema. DO NOT output any scripts, python code, or conversational text. ONLY output the raw JSON object:
     {{
         "technical_score": <0-100 float>,
         "soft_skills_score": <0-100 float>,
