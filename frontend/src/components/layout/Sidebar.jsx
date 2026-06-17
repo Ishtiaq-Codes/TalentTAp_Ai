@@ -115,10 +115,10 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5 no-scrollbar">
+      <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-3 no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {sections.map((section, idx) => (
           <div key={idx}>
-            <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-600">
+            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-600">
               {section.section}
             </p>
             <div className="space-y-0.5">
@@ -153,7 +153,7 @@ export default function Sidebar() {
 
       {/* Upgrade Banner (for free tier) */}
       {user && !user.is_pro && (user.role === 'company_admin' || user.role === 'recruiter') && (
-        <div className="px-3 pb-3">
+        <div className="px-3 pb-3 mt-1">
           <Link
             to="/pricing"
             className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-violet-500/10 to-amber-500/10 border border-violet-500/20 hover:border-violet-500/40 transition-all group"
