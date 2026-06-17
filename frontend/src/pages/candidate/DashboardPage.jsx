@@ -8,22 +8,28 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import SkeletonCard from '@/components/common/SkeletonCard'
 
-function DashboardStat({ icon: Icon, label, value, trend }) {
+function DashboardStat({ icon: Icon, label, value, trend, color = 'violet' }) {
+ const colorMap = {
+  violet: 'bg-violet-50 text-violet-600',
+  amber: 'bg-amber-50 text-amber-600',
+  emerald: 'bg-emerald-50 text-emerald-600',
+  blue: 'bg-blue-50 text-blue-600',
+ }
  return (
-  <div className="glass-card rounded-2xl p-6 transition-all hover:shadow-md">
+  <div className="card-premium p-6 transition-all hover:shadow-md hover:-translate-y-0.5">
    <div className="flex items-center justify-between">
-    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-     <Icon className="h-6 w-6"/>
+    <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${colorMap[color] || colorMap.violet}`}>
+     <Icon className="h-5 w-5"/>
     </div>
     {trend && (
-     <span className="flex items-center text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+     <span className="flex items-center text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
       <TrendingUp className="h-3 w-3 mr-1"/> {trend}
      </span>
     )}
    </div>
    <div className="mt-4">
-    <h3 className="text-sm font-medium text-muted-foreground">{label}</h3>
-    <p className="mt-1 text-3xl font-bold tracking-tight text-foreground">{value}</p>
+    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</h3>
+    <p className="mt-1.5 text-2xl font-black tracking-tight text-slate-900">{value}</p>
    </div>
   </div>
  )
@@ -56,29 +62,33 @@ export default function CandidateDashboard() {
 
  return (
   <div className="space-y-8 pb-8 animate-fade-in">
-   {/* Welcome Banner */}
-   <div className="relative overflow-hidden rounded-3xl bg-slate-900 p-6 sm:p-10 shadow-lg">
-    {/* Background elements */}
-    <div className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-primary/20 blur-3xl"/>
-    <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl"/>
+   {/* ── Welcome Banner ── */}
+   <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 shadow-lg" style={{ background: 'linear-gradient(135deg, hsl(224,60%,8%) 0%, hsl(263,55%,16%) 60%, hsl(263,70%,22%) 100%)' }}>
+    <div className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-violet-500/20 blur-3xl"/>
+    <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl"/>
+    <div className="absolute top-1/2 left-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/8 blur-3xl"/>
 
-     <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
-      <div>
-       <h1 className="text-3xl font-bold text-white">Welcome back, {user?.first_name}! 👋</h1>
-       <p className="mt-2 text-slate-400 max-w-xl">
-        You have {matchCount} new job matches waiting for your review. Take an AI Video Interview to boost your profile and earn the Verified Expert badge!
-       </p>
+    <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
+     <div>
+      <div className="inline-flex items-center gap-2 rounded-full bg-violet-500/15 border border-violet-500/20 px-3 py-1 mb-3">
+       <Sparkles className="h-3.5 w-3.5 text-violet-400"/>
+       <span className="text-xs font-bold text-violet-300">AI-Powered Dashboard</span>
       </div>
-      <div className="shrink-0 flex flex-col sm:flex-row gap-3">
-       <button onClick={() => setShowConsentModal(true)} className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-600/25 hover:bg-indigo-500 transition-all">
-        Take AI Interview
-       </button>
-       <Link to="/candidate/matches"className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 transition-all">
-        View Matches <ArrowRight className="ml-2 h-4 w-4"/>
-       </Link>
-      </div>
+      <h1 className="text-2xl font-black text-white">Welcome back, {user?.first_name}! 👋</h1>
+      <p className="mt-2 text-slate-400 max-w-xl">
+       You have <span className="font-bold text-violet-300">{matchCount} new job matches</span> waiting for your review. Take an AI Video Interview to boost your profile!
+      </p>
+     </div>
+     <div className="shrink-0 flex flex-col sm:flex-row gap-2">
+      <button onClick={() => setShowConsentModal(true)} className="btn bg-violet-600 hover:bg-violet-500 text-white border-transparent shadow-lg shadow-violet-900/30">
+       Take AI Interview
+      </button>
+      <Link to="/candidate/matches" className="btn btn-secondary text-white border-white/20 hover:bg-white/10">
+       View Matches <ArrowRight className="h-4 w-4"/>
+      </Link>
      </div>
     </div>
+   </div>
 
    {/* Profile strength alert */}
    {completion < 80 && (() => {
@@ -111,11 +121,11 @@ export default function CandidateDashboard() {
    })()}
 
    {/* Stats */}
-   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-    <DashboardStat icon={Sparkles} label="AI Job Matches"value={matchCount} trend="+3 this week"/>
-    <DashboardStat icon={FileText} label="Active Applications"value={appCount} />
-    <DashboardStat icon={CheckCircle} label="Profile Score"value={`${completion}%`} />
-    <DashboardStat icon={Briefcase} label="Current Status"value={profile?.employment_status?.replace('_', ' ') || 'N/A'} />
+   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <DashboardStat icon={Sparkles} label="AI Job Matches" value={matchCount} trend="+3 this week" color="violet"/>
+    <DashboardStat icon={FileText} label="Active Applications" value={appCount} color="blue"/>
+    <DashboardStat icon={CheckCircle} label="Profile Score" value={`${completion}%`} color="emerald"/>
+    <DashboardStat icon={Briefcase} label="Current Status" value={profile?.employment_status?.replace('_', ' ') || 'N/A'} color="amber"/>
    </div>
 
    <div className="grid gap-8 lg:grid-cols-3">
@@ -126,81 +136,68 @@ export default function CandidateDashboard() {
       <Link to="/candidate/matches"className="text-sm font-semibold text-primary hover:underline">View all matches</Link>
      </div>
 
-     <div className="grid gap-4">
+     <div className="grid gap-3">
       {Array.isArray(matches) && matches.length > 0 ? matches.slice(0, 3).map((match) => (
-       <div key={match.id} className="group relative flex flex-col gap-4 glass-card rounded-2xl p-6 transition-all hover:shadow-md hover:border-primary/30 sm:flex-row sm:items-center justify-between">
+       <div key={match.id} className="group card-premium flex flex-col gap-4 p-5 transition-all hover:shadow-md hover:border-violet-200 sm:flex-row sm:items-center justify-between">
         <div>
-         <h3 className="text-lg font-bold group-hover:text-primary transition-colors">
+         <h3 className="text-base font-bold group-hover:text-violet-700 transition-colors">
           <Link to={`/candidate/jobs/${match.job}`} className="hover:underline">{match.job_title}</Link>
          </h3>
-         <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
-          <span className="font-medium text-slate-700">{match.company_name}</span>
+         <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
+          <span className="font-semibold text-slate-700">{match.company_name}</span>
           <span className="h-1 w-1 rounded-full bg-slate-300"/>
           <span>{match.job?.is_remote || 'On-site'}</span>
          </div>
         </div>
-
-        <div className="flex items-center justify-between gap-6">
+        <div className="flex items-center justify-between gap-4">
          <div className="text-right">
           <div className="flex items-center justify-end gap-1">
-           <Sparkles className="h-4 w-4 text-ai"/>
-           <span className="text-lg font-bold text-ai">
-            {Math.round(match.overall_score)}%
-           </span>
+           <Sparkles className="h-4 w-4 text-violet-500"/>
+           <span className="text-xl font-black text-violet-600">{Math.round(match.overall_score)}%</span>
           </div>
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Match Score</span>
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Match Score</span>
          </div>
-         <Link to={`/candidate/jobs/${match.job}`} className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-colors group-hover:bg-primary group-hover:text-white">
-          <ArrowRight className="h-5 w-5"/>
+         <Link to={`/candidate/jobs/${match.job}`} className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition-colors group-hover:bg-violet-600 group-hover:text-white">
+          <ArrowRight className="h-4 w-4"/>
          </Link>
         </div>
        </div>
       )) : (
-       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed p-12 text-center bg-slate-50">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200/50 mb-4">
-         <Sparkles className="h-6 w-6 text-slate-400"/>
+       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-violet-200 p-12 text-center bg-violet-50/30">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-100 mb-4">
+         <Sparkles className="h-6 w-6 text-violet-400"/>
         </div>
-        <h3 className="text-lg font-semibold">No matches yet</h3>
-        <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-         Complete your profile skills and experience to help our AI find the perfect roles for you.
-        </p>
-        <Link to="/candidate/profile"className="mt-6 rounded-full bg-white px-6 py-2 text-sm font-semibold border shadow-sm hover:bg-slate-50 transition-colors">
-         Update Profile
-        </Link>
+        <h3 className="text-base font-bold text-slate-800">No matches yet</h3>
+        <p className="mt-1 text-sm text-slate-500 max-w-sm">Complete your profile skills and experience to help our AI find the perfect roles for you.</p>
+        <Link to="/candidate/profile" className="mt-5 btn btn-primary text-sm">Update Profile</Link>
        </div>
       )}
      </div>
     </div>
 
     {/* Sidebar Activity */}
-    <div className="space-y-6">
-     <h2 className="text-xl font-bold tracking-tight">Recent Activity</h2>
+    <div className="space-y-5">
+     <h2 className="text-base font-bold tracking-tight text-slate-900">Recent Activity</h2>
 
-     <div className="glass-card rounded-2xl overflow-hidden">
-      <div className="p-5 border-b bg-slate-50/50">
-       <h3 className="font-semibold">Application Status</h3>
+     <div className="card-premium overflow-hidden">
+      <div className="p-5 border-b border-slate-100">
+       <h3 className="font-bold text-slate-900 text-sm">Application Status</h3>
       </div>
-      <div className="divide-y p-5">
+      <div className="divide-y divide-slate-50 p-4">
        {Array.isArray(applications) && applications.length > 0 ? applications.slice(0, 4).map(app => (
         <div key={app.id} className="py-3 first:pt-0 last:pb-0">
-         <p className="font-medium text-sm truncate">{app.job_title}</p>
+         <p className="font-semibold text-sm text-slate-900 truncate">{app.job_title}</p>
          <div className="mt-1 flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">{app.company_name}</p>
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 uppercase tracking-wider">
-           {app.status}
-          </span>
+          <p className="text-xs text-slate-400">{app.company_name}</p>
+          <span className="rounded-full bg-violet-50 border border-violet-200 px-2.5 py-0.5 text-[10px] font-bold text-violet-700 uppercase tracking-wider">{app.status}</span>
          </div>
         </div>
        )) : (
-        <div className="py-6 text-center text-sm text-muted-foreground">
-         No active applications.
-        </div>
+        <div className="py-6 text-center text-sm text-slate-400">No active applications.</div>
        )}
       </div>
-      <div className="p-3 border-t bg-slate-50/50">
-       <Link to="/candidate/applications"className="block text-center text-xs font-semibold text-primary hover:underline">
-        View all applications
-       </Link>
+      <div className="p-3 border-t border-slate-100 bg-slate-50/60">
+       <Link to="/candidate/applications" className="block text-center text-xs font-bold text-violet-600 hover:text-violet-700 transition-colors">View all applications</Link>
       </div>
      </div>
     </div>

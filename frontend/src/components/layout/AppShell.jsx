@@ -16,11 +16,8 @@ export default function AppShell() {
       <MobileNav open={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       <div className="flex flex-1 flex-col overflow-hidden relative">
-        {/* Animated Mesh Background for all Dashboards */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-slate-50/50">
-          <div className="absolute -top-[20%] -right-[10%] h-[70vw] w-[70vw] max-w-[800px] animate-pulse-soft rounded-full bg-gradient-to-br from-primary/15 to-ai/15 blur-[100px]" />
-          <div className="absolute -bottom-[20%] -left-[10%] h-[70vw] w-[70vw] max-w-[800px] animate-pulse-soft rounded-full bg-gradient-to-tr from-blue-500/15 to-primary/15 blur-[100px]" style={{ animationDelay: '2s' }} />
-        </div>
+        {/* Subtle brand mesh background */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-gradient-mesh" />
 
         <div className="relative z-10 flex flex-1 flex-col overflow-hidden">
           <Topbar onToggleMobile={() => setMobileOpen(true)} />

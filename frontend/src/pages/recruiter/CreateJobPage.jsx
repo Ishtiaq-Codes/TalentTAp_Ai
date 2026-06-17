@@ -2,18 +2,23 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { jobsAPI } from '@/api/jobs'
 import { EMPLOYMENT_TYPE, REMOTE_STATUS } from '@/lib/constants'
-import { ArrowLeft, Plus, X, Sparkles } from 'lucide-react'
+import { ArrowLeft, Plus, X, Sparkles, Lock } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import UpgradeModal from '@/components/common/UpgradeModal'
 
 export default function CreateJobPage() {
  const navigate = useNavigate()
  const [saving, setSaving] = useState(false)
  const [error, setError] = useState('')
  const [skillInput, setSkillInput] = useState('')
+ const { user } = useAuth()
+ const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+ const [upgradeFeature, setUpgradeFeature] = useState('')
  const [form, setForm] = useState({
   title: '', description: '', experience_min: 0, experience_max: 3,
   employment_type: 'full_time', location: '', country: '', city: '',
   is_remote: 'onsite', salary_min: '', salary_max: '', salary_currency: 'USD',
-  status: 'draft', skills: [], auto_headhunt: true,
+  status: 'draft', skills: [], auto_headhunt: user?.is_pro ? true : false,
  })
  
  const [optimizeLoading, setOptimizeLoading] = useState(false)
@@ -178,9 +183,16 @@ export default function CreateJobPage() {
    <section className="rounded-xl border bg-card p-6 space-y-4">
     <div className="flex items-center justify-between">
      <h2 className="text-lg font-semibold">Job Description</h2>
-     <button onClick={handleOptimize} disabled={optimizeLoading || !form.title}
+     <button onClick={(e) => {
+       if (user?.is_pro === false) {
+         setUpgradeFeature('Auto-Draft Job Description')
+         setShowUpgradeModal(true)
+         return
+       }
+       handleOptimize()
+     }} disabled={optimizeLoading || !form.title}
       className="inline-flex items-center gap-2 rounded-lg bg-ai/10 px-4 py-2 text-sm font-semibold text-ai hover:bg-ai/20 disabled:opacity-50 transition-colors">
-      <Sparkles className="h-4 w-4"/> {optimizeLoading ? 'Drafting...' : 'Auto-Draft Description'}
+      {!user?.is_pro ? <Lock className="h-4 w-4"/> : <Sparkles className="h-4 w-4"/>} {optimizeLoading ? 'Drafting...' : 'Auto-Draft Description'}
      </button>
     </div>
     
@@ -224,10 +236,23 @@ export default function CreateJobPage() {
        When published, the AI will automatically scan the platform, identify the top passive candidates with a 90%+ match, and proactively email them a highly personalized pitch on your behalf.
       </p>
      </div>
-     <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
-      <input type="checkbox" className="sr-only peer" checked={form.auto_headhunt} onChange={(e) => setForm({...form, auto_headhunt: e.target.checked})} />
-      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-ai"></div>
-     </label>
+      <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+       <input 
+        type="checkbox" 
+        className="sr-only peer" 
+        checked={form.auto_headhunt} 
+        onChange={(e) => {
+          if (user?.is_pro === false) {
+            setUpgradeFeature('Auto-Headhunter')
+            setShowUpgradeModal(true)
+            return
+          }
+          setForm({...form, auto_headhunt: e.target.checked})
+        }} 
+       />
+       <div className={`w-11 h-6 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${user?.is_pro === false ? 'bg-slate-200 cursor-not-allowed opacity-60' : 'bg-slate-200 peer-checked:bg-ai'}`}></div>
+       {user?.is_pro === false && <Lock className="absolute h-3 w-3 text-slate-400 left-8 z-10" />}
+      </label>
     </div>
    </section>
 
@@ -241,6 +266,12 @@ export default function CreateJobPage() {
      {saving ? 'Publishing...' : 'Publish Job'}
     </button>
    </div>
+
+   <UpgradeModal
+     isOpen={showUpgradeModal}
+     onClose={() => setShowUpgradeModal(false)}
+     featureName={upgradeFeature}
+   />
   </div>
  )
 }

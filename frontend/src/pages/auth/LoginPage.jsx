@@ -5,204 +5,230 @@ import Logo from '@/components/common/Logo'
 import { ArrowRight, Mail, Lock, AlertCircle, Shield } from 'lucide-react'
 import SEOHead from '@/components/shared/SEOHead'
 
+const STATS = [
+  { value: '15K+', label: 'Active Users' },
+  { value: '92%', label: 'Match Accuracy' },
+  { value: '3x', label: 'Faster Hiring' },
+]
+
 export default function LoginPage() {
- const { user, login, loginMFA } = useAuth()
- const navigate = useNavigate()
+  const { user, login, loginMFA } = useAuth()
+  const navigate = useNavigate()
 
- if (user) return <Navigate to={getRedirectPath(user)} replace />
- const [form, setForm] = useState({ email: '', password: '' })
- const [error, setError] = useState('')
- const [loading, setLoading] = useState(false)
- 
- // MFA state
- const [mfaStep, setMfaStep] = useState(false)
- const [mfaToken, setMfaToken] = useState('')
- const [mfaCode, setMfaCode] = useState('')
+  if (user) return <Navigate to={getRedirectPath(user)} replace />
 
- const handleSubmit = async (e) => {
-  e.preventDefault()
-  setError('')
-  setLoading(true)
-  try {
-   if (mfaStep) {
-    const loggedInUser = await loginMFA(mfaToken, mfaCode)
-    navigate(getRedirectPath(loggedInUser), { replace: true })
-   } else {
-    const res = await login(form.email, form.password)
-    if (res.mfa_required) {
-     setMfaToken(res.mfa_token)
-     setMfaStep(true)
-    } else {
-     navigate(getRedirectPath(res), { replace: true })
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [mfaStep, setMfaStep] = useState(false)
+  const [mfaToken, setMfaToken] = useState('')
+  const [mfaCode, setMfaCode] = useState('')
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      if (mfaStep) {
+        const loggedInUser = await loginMFA(mfaToken, mfaCode)
+        navigate(getRedirectPath(loggedInUser), { replace: true })
+      } else {
+        const res = await login(form.email, form.password)
+        if (res.mfa_required) {
+          setMfaToken(res.mfa_token)
+          setMfaStep(true)
+        } else {
+          navigate(getRedirectPath(res), { replace: true })
+        }
+      }
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Invalid email or password.')
+    } finally {
+      setLoading(false)
     }
-   }
-  } catch (err) {
-   setError(err.response?.data?.detail || 'Invalid credentials')
-  } finally {
-   setLoading(false)
   }
- }
 
- return (
-    <div className="flex min-h-screen bg-slate-50 relative overflow-hidden">
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none lg:w-1/2 lg:left-1/2">
-        <div className="absolute top-[10%] right-[10%] h-[40vw] w-[40vw] max-w-[500px] animate-pulse-soft rounded-full bg-gradient-to-br from-primary/20 to-ai/20 blur-[100px]" />
-        <div className="absolute bottom-[10%] left-[10%] h-[40vw] w-[40vw] max-w-[500px] animate-pulse-soft rounded-full bg-gradient-to-tr from-blue-500/20 to-primary/20 blur-[100px]" style={{ animationDelay: '2s' }} />
-      </div>
+  return (
+    <>
+      <SEOHead
+        title="Sign In | TalentTap"
+        description="Sign in to your TalentTap account to access your AI-powered hiring dashboard."
+      />
 
-   <SEOHead 
-    title="Log In | TalentTap"
-    description="Log in to your TalentTap account to access your AI talent dashboard."
-   />
-   {/* Left panel - branding */}
-   <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-slate-900 p-12 lg:flex">
-    {/* Background blobs */}
-    <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-primary/20 blur-3xl"/>
-    <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-blue-500/20 blur-3xl"/>
+      <div className="flex min-h-screen">
+        {/* ── Left Branding Panel ── */}
+        <div className="relative hidden w-[45%] flex-col justify-between overflow-hidden lg:flex bg-gradient-to-br from-[hsl(224,60%,8%)] via-[hsl(240,50%,12%)] to-[hsl(263,60%,14%)]">
+          {/* Decorative orbs */}
+          <div className="absolute top-[-10%] right-[-10%] h-[500px] w-[500px] rounded-full bg-violet-600/15 blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-[-10%] left-[-10%] h-[400px] w-[400px] rounded-full bg-amber-500/10 blur-[100px] pointer-events-none" />
+          <div className="absolute top-[40%] left-[20%] h-[300px] w-[300px] rounded-full bg-blue-500/10 blur-[80px] pointer-events-none" />
 
-    <div className="relative z-10">
-      <Logo collapsed={false} theme="dark" />
-    </div>
-
-    <div className="relative z-10 space-y-6">
-     <h1 className="text-4xl font-bold tracking-tight text-white xl:text-5xl">
-      Welcome back to <br />
-      <span className="text-primary">TalentTap AI</span>
-     </h1>
-     <p className="max-w-md text-lg text-slate-400">
-      Sign in to access your AI-powered dashboard and continue connecting talent with opportunity.
-     </p>
-
-     <div className="mt-12 flex items-center gap-4">
-      <div className="flex -space-x-3">
-       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="h-10 w-10 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center">
-         <div className="h-full w-full rounded-full bg-gradient-to-br from-primary/40 to-blue-600/40"/>
-        </div>
-       ))}
-      </div>
-      <p className="text-sm font-medium text-slate-400">
-       Join <span className="text-white">15,000+</span> users
-      </p>
-     </div>
-    </div>
-
-    <div className="relative z-10 text-sm text-slate-500">
-     © {new Date().getFullYear()} TalentTap AI. All rights reserved.
-    </div>
-   </div>
-
-   {/* Right panel - form */}
-      <div className="relative z-10 flex flex-1 items-center justify-center p-4 sm:p-8">
-        <div className="w-full max-w-md animate-fade-in-up glass-panel rounded-3xl p-6 sm:p-10 border-white/60 shadow-2xl">
-     <div className="mb-8 lg:hidden">
-      <Logo />
-     </div>
-
-     <div className="mb-8">
-      <h2 className="text-3xl font-bold tracking-tight">Sign In</h2>
-      <p className="mt-2 text-muted-foreground">Enter your credentials to continue to your account.</p>
-     </div>
-
-     {error && (
-      <div className="mb-6 flex items-center gap-3 rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
-       <AlertCircle className="h-5 w-5 flex-shrink-0"/>
-       {error}
-      </div>
-     )}
-
-     <form onSubmit={handleSubmit} className="space-y-5">
-      {!mfaStep ? (
-       <>
-        <div className="space-y-1.5">
-         <label className="text-sm font-medium"htmlFor="login-email">Email Address</label>
-         <div className="relative">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-           <Mail className="h-5 w-5 text-muted-foreground"/>
-          </div>
-          <input
-           id="login-email"
-           type="email"
-           required
-           value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="block w-full rounded-xl border bg-white/60 backdrop-blur-sm py-3 pl-11 pr-4 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
-                      placeholder="you@example.com"
-          />
-         </div>
-        </div>
-
-        <div className="space-y-1.5">
-         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium"htmlFor="login-password">Password</label>
-          <Link to="/forgot-password"className="text-xs font-medium text-primary hover:underline">
-           Forgot Password?
-          </Link>
-         </div>
-         <div className="relative">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-           <Lock className="h-5 w-5 text-muted-foreground"/>
-          </div>
-          <input
-           id="login-password"
-           type="password"
-           required
-           value={form.password}
-                      onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      className="block w-full rounded-xl border bg-white/60 backdrop-blur-sm py-3 pl-11 pr-4 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
-                      placeholder="••••••••"
-          />
-         </div>
-        </div>
-       </>
-      ) : (
-       <div className="space-y-1.5">
-        <label className="text-sm font-medium"htmlFor="login-mfa">Authenticator Code</label>
-        <div className="relative">
-         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-          <Shield className="h-5 w-5 text-muted-foreground"/>
-         </div>
-         <input
-          id="login-mfa"
-          type="text"
-          maxLength={6}
-          required
-          value={mfaCode}
-                    onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ''))}
-                    className="block w-full rounded-xl border bg-white/60 backdrop-blur-sm py-3 pl-11 pr-4 text-sm tracking-widest font-mono focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
-                    placeholder="000000"
-         />
-        </div>
-       </div>
-      )}
-
-            <div className="relative mt-8 group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-blue-500 rounded-xl blur opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse-soft"></div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="relative flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 disabled:opacity-50 transition-all"
-              >
-                {loading ? (
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                ) : (
-                  <>
-                    Sign In
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </>
-                )}
-              </button>
+          {/* Content */}
+          <div className="relative z-10 p-10 flex-1 flex flex-col justify-between">
+            {/* Logo */}
+            <div>
+              <Logo theme="dark" />
             </div>
-     </form>
 
-     <p className="mt-8 text-center text-sm text-muted-foreground">
-      Don't have an account?{' '}
-      <Link to="/register"className="font-semibold text-primary hover:underline">
-       Create an account
-      </Link>
-     </p>
-    </div>
-   </div>
-  </div>
- )
+            {/* Hero text */}
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full bg-violet-500/15 border border-violet-500/20 px-4 py-1.5">
+                <div className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
+                <span className="text-xs font-semibold text-violet-300 tracking-wide">AI-Powered Talent Intelligence</span>
+              </div>
+
+              <h1 className="text-4xl font-black text-white leading-[1.1] tracking-tight xl:text-5xl">
+                Hire Smarter.<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-amber-400">
+                  Move Faster.
+                </span>
+              </h1>
+
+              <p className="text-base text-slate-400 max-w-sm leading-relaxed">
+                TalentTap's AI engine matches the right candidates to your roles — automatically, with full explainability.
+              </p>
+
+              {/* Stats row */}
+              <div className="flex items-center gap-6 pt-4">
+                {STATS.map(({ value, label }) => (
+                  <div key={label}>
+                    <p className="text-2xl font-black text-white">{value}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <p className="text-xs text-slate-600">
+              © {new Date().getFullYear()} TalentTap AI. All rights reserved.
+            </p>
+          </div>
+        </div>
+
+        {/* ── Right Form Panel ── */}
+        <div className="flex flex-1 items-center justify-center bg-gradient-to-br from-slate-50 to-white p-6 sm:p-12">
+          <div className="w-full max-w-[400px] animate-fade-in-up">
+            {/* Mobile logo */}
+            <div className="mb-8 lg:hidden">
+              <Logo />
+            </div>
+
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                {mfaStep ? 'Two-Factor Verification' : 'Welcome back'}
+              </h2>
+              <p className="mt-1.5 text-sm text-slate-500">
+                {mfaStep
+                  ? 'Enter the 6-digit code from your authenticator app.'
+                  : 'Sign in to continue to your dashboard.'}
+              </p>
+            </div>
+
+            {/* Error alert */}
+            {error && (
+              <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
+                <AlertCircle className="mt-0.5 h-4.5 w-4.5 flex-shrink-0 text-red-500" style={{ height: '18px', width: '18px' }} />
+                <p className="text-sm font-medium text-red-700">{error}</p>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {!mfaStep ? (
+                <>
+                  {/* Email */}
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-slate-700" htmlFor="login-email">
+                      Email address
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400 pointer-events-none" style={{ height: '18px', width: '18px' }} />
+                      <input
+                        id="login-email"
+                        type="email"
+                        required
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        className="input pl-10"
+                        placeholder="you@company.com"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-semibold text-slate-700" htmlFor="login-password">
+                        Password
+                      </label>
+                      <Link to="/forgot-password" className="text-xs font-semibold text-violet-600 hover:text-violet-700 transition-colors">
+                        Forgot password?
+                      </Link>
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400 pointer-events-none" style={{ height: '18px', width: '18px' }} />
+                      <input
+                        id="login-password"
+                        type="password"
+                        required
+                        value={form.password}
+                        onChange={(e) => setForm({ ...form, password: e.target.value })}
+                        className="input pl-10"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-1.5">
+                  <label className="text-sm font-semibold text-slate-700" htmlFor="login-mfa">
+                    Authenticator Code
+                  </label>
+                  <div className="relative">
+                    <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400 pointer-events-none" style={{ height: '18px', width: '18px' }} />
+                    <input
+                      id="login-mfa"
+                      type="text"
+                      maxLength={6}
+                      required
+                      value={mfaCode}
+                      onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ''))}
+                      className="input pl-10 font-mono tracking-[0.4em] text-center text-lg"
+                      placeholder="000000"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Submit */}
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn btn-primary w-full py-3 text-base justify-center"
+                  style={{ borderRadius: '14px' }}
+                >
+                  {loading ? (
+                    <div className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  ) : (
+                    <>
+                      {mfaStep ? 'Verify' : 'Sign In'}
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+
+            <p className="mt-8 text-center text-sm text-slate-500">
+              Don't have an account?{' '}
+              <Link to="/register" className="font-semibold text-violet-600 hover:text-violet-700 transition-colors">
+                Create an account
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
+  )
 }

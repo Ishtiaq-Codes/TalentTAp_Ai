@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useFetch } from '@/hooks/useFetch'
+import { useSearchParams } from 'react-router-dom'
+import { useToast } from '@/contexts/ToastContext'
 import { companiesAPI } from '@/api/companies'
 import { Link } from 'react-router-dom'
 import {
@@ -18,9 +20,20 @@ import RecruiterRow from '@/components/dashboard/RecruiterRow'
 
 /* 🔹🔹🔹 Main Dashboard 🔹🔹🔹 */
 export default function CompanyDashboardPage() {
+ const [searchParams] = useSearchParams()
+ const { success } = useToast()
  const [sortField, setSortField] = useState('created_at')
  const [sortOrder, setSortOrder] = useState('desc')
  const { data, loading } = useFetch(() => companiesAPI.getDashboard())
+
+ // Handle Stripe success
+ useEffect(() => {
+  if (searchParams.get('upgrade') === 'success') {
+   success('Subscription upgraded successfully! Welcome to TalentTap Pro.')
+   // remove query params
+   window.history.replaceState({}, '', '/company/dashboard')
+  }
+ }, [searchParams, success])
 
  if (loading) {
   return (
@@ -87,39 +100,33 @@ export default function CompanyDashboardPage() {
  return (
   <div className="max-w-7xl mx-auto space-y-6 animate-fade-in pb-12">
 
-   {/* Header */}
+   {/* ── Header ── */}
    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div className="flex items-center gap-4">
      {company.logo ? (
-      <img src={company.logo} alt={company.name} className="h-12 w-12 rounded-xl object-cover border"/>
+      <img src={company.logo} alt={company.name} className="h-12 w-12 rounded-2xl object-cover border border-slate-200 shadow-sm"/>
      ) : (
-      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-600">
        <Building2 className="h-6 w-6"/>
       </div>
      )}
      <div>
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900">{company.name}</h1>
-      <p className="text-sm text-slate-400 mt-0.5">
-       {company.industry} · Hiring Command Center
+      <div className="flex items-center gap-2">
+       <h1 className="text-xl font-bold tracking-tight text-slate-900">{company.name}</h1>
        {company.is_verified && (
-        <span className="ml-2 inline-flex items-center gap-1 text-emerald-600 font-semibold">
-         <CheckCircle2 className="h-3.5 w-3.5"/> Verified
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+         <CheckCircle2 className="h-3 w-3"/> Verified
         </span>
        )}
-      </p>
+      </div>
+      <p className="text-sm text-slate-400 mt-0.5">{company.industry} · Hiring Command Center</p>
      </div>
     </div>
-    <div className="flex gap-3">
-     <Link
-      to="/company/team"
-      className="inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-     >
+    <div className="flex gap-2">
+     <Link to="/company/team" className="btn btn-secondary">
       <Users className="h-4 w-4"/> Manage Team
      </Link>
-     <Link
-      to="/recruiter/jobs/new"
-      className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 shadow-md transition-all"
-     >
+     <Link to="/recruiter/jobs/new" className="btn btn-primary">
       <Briefcase className="h-4 w-4"/> Post a Job
      </Link>
     </div>
@@ -157,17 +164,16 @@ export default function CompanyDashboardPage() {
 
    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    {/* Recruiter Performance Table */}
-    <div className="lg:col-span-2 glass-card rounded-2xl overflow-hidden min-w-0">
-     <div className="flex items-center justify-between border-b px-6 py-4 bg-slate-50/60">
+    {/* Recruiter Performance */}
+    <div className="lg:col-span-2 card-premium overflow-hidden min-w-0">
+     <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
       <div className="flex items-center gap-2">
-       <Trophy className="h-5 w-5 text-amber-500"/>
+       <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-50 text-amber-500">
+        <Trophy className="h-4 w-4"/>
+       </div>
        <h2 className="font-bold text-slate-800">Recruiter Performance</h2>
       </div>
-      <Link
-       to="/company/team"
-       className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
-      >
+      <Link to="/company/team" className="flex items-center gap-1 text-xs font-semibold text-violet-600 hover:text-violet-700 transition-colors">
        Manage <ChevronRight className="h-3 w-3"/>
       </Link>
      </div>
@@ -176,12 +182,7 @@ export default function CompanyDashboardPage() {
        <div className="flex flex-col items-center justify-center py-10 text-center">
         <Users className="h-10 w-10 text-slate-200 mb-3"/>
         <p className="text-sm text-slate-400">No recruiters yet. Invite your team.</p>
-        <Link
-         to="/company/team"
-         className="mt-3 text-sm font-semibold text-primary hover:underline"
-        >
-         Invite Recruiters
-        </Link>
+        <Link to="/company/team" className="mt-3 text-sm font-semibold text-violet-600 hover:underline">Invite Recruiters</Link>
        </div>
       ) : (
        recruiters.map(r => <RecruiterRow key={r.id} recruiter={r} />)
@@ -190,9 +191,11 @@ export default function CompanyDashboardPage() {
     </div>
 
     {/* Hiring Pipeline */}
-    <div className="glass-card rounded-2xl overflow-hidden min-w-0">
-     <div className="flex items-center gap-2 border-b px-6 py-4 bg-slate-50/60">
-      <TrendingUp className="h-5 w-5 text-violet-500"/>
+    <div className="card-premium overflow-hidden min-w-0">
+     <div className="flex items-center gap-2 border-b border-slate-100 px-6 py-4">
+      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-50 text-violet-500">
+       <TrendingUp className="h-4 w-4"/>
+      </div>
       <h2 className="font-bold text-slate-800">Hiring Pipeline</h2>
      </div>
      <div className="p-6 space-y-4">
@@ -200,12 +203,12 @@ export default function CompanyDashboardPage() {
        <p className="text-sm text-slate-400 text-center py-6">No applications yet.</p>
       ) : (
        <div className="h-64 w-full">
-        <ResponsiveContainer width="100%"height="100%">
-         <BarChart data={pipelineData} layout="vertical"margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
-          <XAxis type="number"hide />
-          <YAxis type="category"dataKey="label"axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} width={80} />
-          <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-          <Bar dataKey="count"radius={[0, 4, 4, 0]} barSize={24}>
+        <ResponsiveContainer width="100%" height="100%">
+         <BarChart data={pipelineData} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
+          <XAxis type="number" hide />
+          <YAxis type="category" dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} width={80} />
+          <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+          <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={22}>
            {pipelineData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.hex} />
            ))}
@@ -215,26 +218,23 @@ export default function CompanyDashboardPage() {
        </div>
       )}
      </div>
-     <div className="border-t px-6 py-4 bg-slate-50/40">
-      <p className="text-xs text-slate-400">
-       Total <span className="font-bold text-slate-700">{pipelineTotal}</span> applications across all jobs
-      </p>
+     <div className="border-t border-slate-100 px-6 py-3 bg-slate-50/40">
+      <p className="text-xs text-slate-400">Total <span className="font-bold text-slate-700">{pipelineTotal}</span> applications across all jobs</p>
      </div>
     </div>
 
    </div>
 
-   {/* Recent Active Jobs */}
-   <div className="glass-card rounded-2xl overflow-hidden min-w-0">
-    <div className="flex items-center justify-between border-b px-6 py-4 bg-slate-50/60">
+    {/* Recent Active Jobs */}
+   <div className="card-premium overflow-hidden min-w-0">
+    <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
      <div className="flex items-center gap-2">
-      <Briefcase className="h-5 w-5 text-blue-500"/>
+      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-500">
+       <Briefcase className="h-4 w-4"/>
+      </div>
       <h2 className="font-bold text-slate-800">Active Jobs</h2>
      </div>
-     <Link
-      to="/recruiter/jobs"
-      className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
-     >
+     <Link to="/recruiter/jobs" className="flex items-center gap-1 text-xs font-semibold text-violet-600 hover:text-violet-700 transition-colors">
       View all <ChevronRight className="h-3 w-3"/>
      </Link>
     </div>
@@ -243,47 +243,31 @@ export default function CompanyDashboardPage() {
      <div className="flex flex-col items-center justify-center py-12 text-center">
       <Briefcase className="h-10 w-10 text-slate-200 mb-3"/>
       <p className="text-sm text-slate-400">No active jobs. Post your first job to start hiring.</p>
-      <Link
-       to="/recruiter/jobs/new"
-       className="mt-3 text-sm font-semibold text-primary hover:underline"
-      >
-       Post a Job
-      </Link>
+      <Link to="/recruiter/jobs/new" className="mt-3 text-sm font-semibold text-violet-600 hover:underline">Post a Job</Link>
      </div>
     ) : (
-     <div className="overflow-x-auto w-full pb-2">
+     <div className="overflow-x-auto w-full">
       <table className="w-full text-sm">
-       <thead className="border-b text-xs uppercase tracking-wider text-slate-400 bg-slate-50/40">
+       <thead className="border-b border-slate-100 text-[11px] uppercase tracking-wider text-slate-400 bg-slate-50/60">
         <tr>
-         <th className="px-6 py-3 text-left font-semibold cursor-pointer hover:text-slate-700 transition-colors"onClick={() => handleSort('title')}>Job Title {sortField === 'title' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-         <th className="px-6 py-3 text-left font-semibold hidden sm:table-cell cursor-pointer hover:text-slate-700 transition-colors"onClick={() => handleSort('city')}>Location {sortField === 'city' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-         <th className="px-6 py-3 text-center font-semibold cursor-pointer hover:text-slate-700 transition-colors"onClick={() => handleSort('applications_count')}>Applications {sortField === 'applications_count' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
-         <th className="px-6 py-3 text-left font-semibold hidden md:table-cell cursor-pointer hover:text-slate-700 transition-colors"onClick={() => handleSort('created_at')}>Posted {sortField === 'created_at' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+         <th className="px-6 py-3 text-left font-semibold cursor-pointer hover:text-slate-700 transition-colors" onClick={() => handleSort('title')}>Job Title {sortField === 'title' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+         <th className="px-6 py-3 text-left font-semibold hidden sm:table-cell cursor-pointer hover:text-slate-700 transition-colors" onClick={() => handleSort('city')}>Location {sortField === 'city' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+         <th className="px-6 py-3 text-center font-semibold cursor-pointer hover:text-slate-700 transition-colors" onClick={() => handleSort('applications_count')}>Applications {sortField === 'applications_count' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+         <th className="px-6 py-3 text-left font-semibold hidden md:table-cell cursor-pointer hover:text-slate-700 transition-colors" onClick={() => handleSort('created_at')}>Posted {sortField === 'created_at' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
          <th className="px-6 py-3"></th>
         </tr>
        </thead>
-       <tbody className="divide-y">
+       <tbody className="divide-y divide-slate-100">
         {sortedJobs.map(job => (
-         <tr key={job.id} className="hover:bg-slate-50/50 transition-colors">
-          <td className="px-6 py-4">
-           <p className="font-semibold text-slate-900">{job.title}</p>
-          </td>
-          <td className="px-6 py-4 text-slate-500 hidden sm:table-cell">
-           {[job.city, job.country].filter(Boolean).join(', ') || '-'}
-          </td>
+         <tr key={job.id} className="hover:bg-slate-50 transition-colors group">
+          <td className="px-6 py-4"><p className="font-semibold text-slate-900 group-hover:text-violet-700 transition-colors">{job.title}</p></td>
+          <td className="px-6 py-4 text-slate-500 hidden sm:table-cell">{[job.city, job.country].filter(Boolean).join(', ') || '—'}</td>
           <td className="px-6 py-4 text-center">
-           <span className="inline-flex items-center justify-center min-w-[28px] rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
-            {job.applications_count}
-           </span>
+           <span className="inline-flex items-center justify-center min-w-[28px] rounded-full bg-violet-50 border border-violet-200 px-2.5 py-0.5 text-xs font-bold text-violet-700">{job.applications_count}</span>
           </td>
-          <td className="px-6 py-4 text-slate-400 text-xs hidden md:table-cell">
-           {new Date(job.created_at).toLocaleDateString()}
-          </td>
+          <td className="px-6 py-4 text-slate-400 text-xs hidden md:table-cell">{new Date(job.created_at).toLocaleDateString()}</td>
           <td className="px-6 py-4 text-right">
-           <Link
-            to={`/recruiter/jobs/${job.id}`}
-            className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
-           >
+           <Link to={`/recruiter/jobs/${job.id}`} className="text-xs font-semibold text-violet-600 hover:underline inline-flex items-center gap-1">
             View <ChevronRight className="h-3 w-3"/>
            </Link>
           </td>
@@ -296,19 +280,19 @@ export default function CompanyDashboardPage() {
    </div>
 
    {/* Quick Actions */}
-   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
     {[
-     { to: '/company/team', icon: Users, label: 'Manage Team', color: 'text-blue-600 bg-blue-50' },
-     { to: '/company/pools', icon: Sparkles, label: 'Talent Pools', color: 'text-ai bg-ai/10' },
-     { to: '/recruiter/candidates', icon: FileText, label: 'Find Talent', color: 'text-emerald-600 bg-emerald-50' },
-     { to: '/company/profile', icon: Building2, label: 'Company Profile', color: 'text-amber-600 bg-amber-50' },
+     { to: '/company/team', icon: Users, label: 'Manage Team', bg: 'bg-blue-50', color: 'text-blue-600', border: 'border-blue-100' },
+     { to: '/company/pools', icon: Sparkles, label: 'Talent Pools', bg: 'bg-violet-50', color: 'text-violet-600', border: 'border-violet-100' },
+     { to: '/recruiter/candidates', icon: FileText, label: 'Find Talent', bg: 'bg-emerald-50', color: 'text-emerald-600', border: 'border-emerald-100' },
+     { to: '/company/profile', icon: Building2, label: 'Company Profile', bg: 'bg-amber-50', color: 'text-amber-600', border: 'border-amber-100' },
     ].map(item => (
      <Link
       key={item.to}
       to={item.to}
-      className="flex flex-col items-center gap-3 rounded-2xl border bg-white p-5 text-center hover:shadow-md transition-shadow group"
+      className="flex flex-col items-center gap-3 card-premium p-5 text-center hover:shadow-md transition-all hover:-translate-y-0.5 group"
      >
-      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${item.color} group-hover:scale-110 transition-transform`}>
+      <div className={`flex h-11 w-11 items-center justify-center rounded-2xl border ${item.bg} ${item.color} ${item.border} group-hover:scale-110 transition-transform`}>
        <item.icon className="h-5 w-5"/>
       </div>
       <span className="text-sm font-semibold text-slate-700">{item.label}</span>

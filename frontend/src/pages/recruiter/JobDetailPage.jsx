@@ -14,6 +14,8 @@ import ConfirmModal from '@/components/common/ConfirmModal'
 import { ArrowLeft, Sparkles, Users, RefreshCw, ExternalLink, Edit2, Trash2, Repeat, GripVertical } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useToast } from '@/contexts/ToastContext'
+import { useAuth } from '@/contexts/AuthContext'
+import UpgradeModal from '@/components/common/UpgradeModal'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 export default function JobDetailPage() {
@@ -36,6 +38,8 @@ export default function JobDetailPage() {
  
  const navigate = useNavigate()
  const { success, error: showError } = useToast()
+ const { user } = useAuth()
+ const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
  const runMatch = async () => {
   setRunningMatch(true)
@@ -209,66 +213,92 @@ export default function JobDetailPage() {
        <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">{matchList.length} candidates ranked by AI score</p>
         {job.status === 'active' && (
-         <button onClick={runMatch} disabled={runningMatch}
+         <button onClick={(e) => {
+           if (user?.is_pro === false) {
+             setShowUpgradeModal(true)
+             return
+           }
+           runMatch()
+         }} disabled={runningMatch}
           className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted disabled:opacity-50">
           <RefreshCw className={`h-4 w-4 ${runningMatch ? 'animate-spin' : ''}`} /> {runningMatch ? 'Running...' : 'Re-run AI'}
          </button>
         )}
        </div>
-     {matchList.map((match) => (
-      <div key={match.id} className="flex items-center gap-5 rounded-xl border bg-card p-5 hover:shadow-md transition-shadow">
-       <ProfileAvatar src={match.candidate_avatar} name={match.candidate_name} size="xl"className="shrink-0"/>
-       <div className="flex-1">
-        <div className="flex items-start justify-between">
-         <Link to={`/recruiter/candidates/${match.candidate_id}?job_id=${job.id}`} className="flex items-center gap-3 group">
-          <div>
-           <div className="flex items-center gap-2">
-            <p className="font-semibold group-hover:text-primary transition-colors">{match.candidate_name}</p>
-            <div className="flex items-center gap-1.5 ml-2">
-             <span className="text-[10px] font-bold uppercase tracking-widest text-ai opacity-80 mt-0.5">AI Match</span>
-             <MatchScoreBadge score={match.overall_score} size="sm"/>
-            </div>
+     {user?.is_pro === false ? (
+       <div className="relative rounded-xl border bg-card p-8 text-center overflow-hidden">
+         <div className="absolute inset-0 bg-slate-50/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
+           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ai/10 text-ai mb-4">
+             <Sparkles className="h-6 w-6" />
            </div>
-           <p className="text-sm text-muted-foreground">{match.candidate_headline}</p>
-           {match.match_explainer && (
-            <div className="mt-1.5 flex items-center gap-1.5">
-             <Sparkles className="h-3 w-3 text-ai shrink-0"/>
-             <p className="text-xs font-medium text-slate-600">{match.match_explainer}</p>
+           <h3 className="text-lg font-bold text-slate-900 mb-2">AI Match Insights Locked</h3>
+           <p className="text-sm text-slate-600 max-w-md mb-6">Upgrade to TalentTap Pro to unlock AI match scoring, see why candidates are a fit, and auto-source passive talent.</p>
+           <button onClick={() => setShowUpgradeModal(true)} className="rounded-full bg-ai px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-ai/90 transition-all">
+             Upgrade to Pro
+           </button>
+         </div>
+         {/* Dummy blurred background content */}
+         <div className="opacity-20 flex flex-col gap-4">
+           <div className="h-32 rounded-xl bg-slate-200 w-full animate-pulse"></div>
+           <div className="h-32 rounded-xl bg-slate-200 w-full animate-pulse"></div>
+         </div>
+       </div>
+     ) : (
+       matchList.map((match) => (
+        <div key={match.id} className="flex items-center gap-5 rounded-xl border bg-card p-5 hover:shadow-md transition-shadow">
+         <ProfileAvatar src={match.candidate_avatar} name={match.candidate_name} size="xl"className="shrink-0"/>
+         <div className="flex-1">
+          <div className="flex items-start justify-between">
+           <Link to={`/recruiter/candidates/${match.candidate_id}?job_id=${job.id}`} className="flex items-center gap-3 group">
+            <div>
+             <div className="flex items-center gap-2">
+              <p className="font-semibold group-hover:text-primary transition-colors">{match.candidate_name}</p>
+              <div className="flex items-center gap-1.5 ml-2">
+               <span className="text-[10px] font-bold uppercase tracking-widest text-ai opacity-80 mt-0.5">AI Match</span>
+               <MatchScoreBadge score={match.overall_score} size="sm"/>
+              </div>
+             </div>
+             <p className="text-sm text-muted-foreground">{match.candidate_headline}</p>
+             {match.match_explainer && (
+              <div className="mt-1.5 flex items-center gap-1.5">
+               <Sparkles className="h-3 w-3 text-ai shrink-0"/>
+               <p className="text-xs font-medium text-slate-600">{match.match_explainer}</p>
+              </div>
+             )}
             </div>
-           )}
+           </Link>
+           <div className="flex gap-2">
+            <Link
+             to={`/recruiter/candidates/${match.candidate_id}?job_id=${job.id}`}
+             className="flex items-center justify-center gap-1.5 rounded-lg border px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+             <ExternalLink className="h-4 w-4"/> Profile
+            </Link>
+            <MessageButton recipientId={match.candidate_user_id} name={match.candidate_name} />
+            <ShortlistButton 
+             candidateId={match.candidate_id} 
+             jobId={job.id} 
+             initialIsShortlisted={shortlistsArray.some(s => s.candidate === match.candidate_id)}
+            />
+           </div>
           </div>
-         </Link>
-         <div className="flex gap-2">
-          <Link
-           to={`/recruiter/candidates/${match.candidate_id}?job_id=${job.id}`}
-           className="flex items-center justify-center gap-1.5 rounded-lg border px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-           <ExternalLink className="h-4 w-4"/> Profile
-          </Link>
-          <MessageButton recipientId={match.candidate_user_id} name={match.candidate_name} />
-          <ShortlistButton 
-           candidateId={match.candidate_id} 
-           jobId={job.id} 
-           initialIsShortlisted={shortlistsArray.some(s => s.candidate === match.candidate_id)}
-          />
+          <div className="mt-2 grid grid-cols-5 gap-2">
+           {['Skills', 'Experience', 'Location', 'Availability', 'Type'].map((label, i) => {
+            const scores = [match.skills_score, match.experience_score, match.location_score, match.availability_score, match.employment_type_score]
+            return (
+             <div key={label} className="text-center">
+              <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+               <div className="h-full rounded-full bg-primary"style={{ width: `${scores[i] || 0}%` }} />
+              </div>
+              <p className="mt-1 text-[10px] text-muted-foreground">{label}</p>
+             </div>
+            )
+           })}
+          </div>
          </div>
         </div>
-        <div className="mt-2 grid grid-cols-5 gap-2">
-         {['Skills', 'Experience', 'Location', 'Availability', 'Type'].map((label, i) => {
-          const scores = [match.skills_score, match.experience_score, match.location_score, match.availability_score, match.employment_type_score]
-          return (
-           <div key={label} className="text-center">
-            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-             <div className="h-full rounded-full bg-primary"style={{ width: `${scores[i] || 0}%` }} />
-            </div>
-            <p className="mt-1 text-[10px] text-muted-foreground">{label}</p>
-           </div>
-          )
-         })}
-        </div>
-       </div>
-      </div>
-     ))}
+       ))
+     )}
     </div>
    )}
 
@@ -359,6 +389,12 @@ export default function JobDetailPage() {
     message="Are you sure you want to delete this job post? This action cannot be undone."
     confirmText="Delete"
     isDestructive={true}
+   />
+
+   <UpgradeModal
+     isOpen={showUpgradeModal}
+     onClose={() => setShowUpgradeModal(false)}
+     featureName="AI Job Matching"
    />
   </div>
  )

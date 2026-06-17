@@ -1,19 +1,51 @@
-import { cn } from '@/lib/utils'
-
-export default function SkeletonCard({ className }) {
+export default function SkeletonCard({ lines = 3, className = '' }) {
   return (
-    <div className={cn('animate-pulse rounded-xl border bg-card p-6', className)}>
-      <div className="flex items-center gap-4">
-        <div className="h-12 w-12 rounded-full bg-muted" />
+    <div className={`card-premium p-5 animate-pulse ${className}`}>
+      {/* Header row */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="h-9 w-9 rounded-xl bg-slate-100 flex-shrink-0" />
         <div className="flex-1 space-y-2">
-          <div className="h-4 w-3/4 rounded bg-muted" />
-          <div className="h-3 w-1/2 rounded bg-muted" />
+          <div className="h-3.5 bg-slate-100 rounded-full w-2/3" />
+          <div className="h-2.5 bg-slate-100 rounded-full w-1/2" />
         </div>
       </div>
-      <div className="mt-4 space-y-2">
-        <div className="h-3 w-full rounded bg-muted" />
-        <div className="h-3 w-5/6 rounded bg-muted" />
+      {/* Content lines */}
+      <div className="space-y-2.5">
+        {Array.from({ length: lines }).map((_, i) => (
+          <div
+            key={i}
+            className="h-2.5 bg-slate-100 rounded-full"
+            style={{ width: i === lines - 1 ? '60%' : '100%' }}
+          />
+        ))}
       </div>
+    </div>
+  )
+}
+
+export function SkeletonRow({ className = '' }) {
+  return (
+    <div className={`flex items-center gap-3 py-3 animate-pulse ${className}`}>
+      <div className="h-9 w-9 rounded-xl bg-slate-100 flex-shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-3 bg-slate-100 rounded-full w-1/2" />
+        <div className="h-2.5 bg-slate-100 rounded-full w-1/3" />
+      </div>
+      <div className="h-7 w-20 bg-slate-100 rounded-full flex-shrink-0" />
+    </div>
+  )
+}
+
+export function SkeletonText({ lines = 3, className = '' }) {
+  return (
+    <div className={`space-y-2 animate-pulse ${className}`}>
+      {Array.from({ length: lines }).map((_, i) => (
+        <div
+          key={i}
+          className="h-3 bg-slate-100 rounded-full"
+          style={{ width: i === lines - 1 ? '50%' : '100%' }}
+        />
+      ))}
     </div>
   )
 }

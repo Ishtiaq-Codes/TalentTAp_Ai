@@ -20,6 +20,8 @@ import { getImageUrl } from '@/lib/utils'
 import { ProfileStrengthCompact } from '@/components/common/ProfileStrength'
 import OutreachModal from './modals/OutreachModal'
 import InterviewPrepModal from './modals/InterviewPrepModal'
+import { useAuth } from '@/contexts/AuthContext'
+import UpgradeModal from '@/components/common/UpgradeModal'
 
 /* ─── Proficiency bar ─── */
 function SkillBar({ name, proficiency, isVerified }) {
@@ -61,6 +63,9 @@ export default function CandidateDetailPage() {
  
  const [isPoolModalOpen, setIsPoolModalOpen] = useState(false)
  const [localIsInPool, setLocalIsInPool] = useState(false)
+ const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+ const [upgradeFeature, setUpgradeFeature] = useState('')
+ const { user } = useAuth()
  
  const [outreachLoading, setOutreachLoading] = useState(false)
  const [outreachDraft, setOutreachDraft] = useState(null)
@@ -354,18 +359,26 @@ export default function CandidateDetailPage() {
          </span>
         )}
        </div>
-       <p className="text-sm text-slate-700 leading-relaxed max-w-2xl mb-4">
-        {profile.match_reason ? (
-         profile.match_reason
-        ) : (
-         <>
-          TalentTap AI identifies this candidate as a strong prospect. 
-          {profile.years_of_experience > 0 && ` They bring ${profile.years_of_experience} years of professional experience, `}
-          {profile.skills?.length > 0 && `anchored by core competencies in ${profile.skills.slice(0, 3).map(s => typeof s === 'string' ? s : s.name).join(', ')}.`}
-          {profile.is_open_to_work &&"Crucially, they are currently open to new opportunities and likely to respond quickly."}
-         </>
-        )}
-       </p>
+        <div className="text-sm text-slate-700 leading-relaxed max-w-2xl mb-4">
+         {profile.match_reason ? (
+          profile.match_reason.startsWith('Upgrade') ? (
+            <div className="flex flex-col items-start bg-white/50 p-4 rounded-xl border border-dashed border-ai/30 mt-2">
+              <span className="font-semibold text-slate-900 mb-1">AI Insights Locked</span>
+              <span className="text-slate-600 mb-3">{profile.match_reason}</span>
+              <button onClick={() => navigate('/pricing')} className="rounded-full bg-ai px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-ai/90 transition-all">
+                Upgrade to Pro
+              </button>
+            </div>
+          ) : <p>{profile.match_reason}</p>
+         ) : (
+          <p>
+           TalentTap AI identifies this candidate as a strong prospect. 
+           {profile.years_of_experience > 0 && ` They bring ${profile.years_of_experience} years of professional experience, `}
+           {profile.skills?.length > 0 && `anchored by core competencies in ${profile.skills.slice(0, 3).map(s => typeof s === 'string' ? s : s.name).join(', ')}.`}
+           {profile.is_open_to_work &&"Crucially, they are currently open to new opportunities and likely to respond quickly."}
+          </p>
+         )}
+        </div>
        
        {/* Detailed Context Factors */}
        {((profile.relevance_factors && profile.relevance_factors.length > 0) || (profile.missing_factors && profile.missing_factors.length > 0)) && (
@@ -400,7 +413,14 @@ export default function CandidateDetailPage() {
        {/* Premium AI Actions */}
        <div className="mt-5 flex flex-wrap gap-3 pt-5 border-t border-ai/10">
         <button
-         onClick={handleGenerateOutreach}
+         onClick={() => {
+           if (user?.is_pro === false) {
+             setUpgradeFeature('AI Auto-Draft Outreach')
+             setShowUpgradeModal(true)
+             return
+           }
+           handleGenerateOutreach()
+         }}
          disabled={outreachLoading}
          className="inline-flex items-center gap-2 rounded-lg bg-ai/10 px-4 py-2 text-sm font-semibold text-ai hover:bg-ai/20 transition-colors disabled:opacity-50"
         >
@@ -408,7 +428,14 @@ export default function CandidateDetailPage() {
          {outreachLoading ? 'Drafting...' : 'Auto-Draft Message'}
         </button>
         <button
-         onClick={handleGenerateInterview}
+         onClick={() => {
+           if (user?.is_pro === false) {
+             setUpgradeFeature('AI Interview Prep')
+             setShowUpgradeModal(true)
+             return
+           }
+           handleGenerateInterview()
+         }}
          disabled={interviewLoading}
          className="inline-flex items-center gap-2 rounded-lg bg-ai/10 px-4 py-2 text-sm font-semibold text-ai hover:bg-ai/20 transition-colors disabled:opacity-50"
         >
@@ -589,6 +616,18 @@ export default function CandidateDetailPage() {
      {/* Contact */}
      <div className="glass-card rounded-2xl p-5">
       <h2 className="text-sm font-bold text-slate-900 mb-4">Contact</h2>
+      {profile.user_email === "Hidden (Pro Feature)" ? (
+        <div className="flex flex-col items-center text-center py-6 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 mb-3">
+            <Award className="h-5 w-5 text-primary"/>
+          </div>
+          <h3 className="text-sm font-bold text-slate-900">Pro Feature</h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-[200px] mb-3">Upgrade to TalentTap Pro to unlock candidate contact details.</p>
+          <button onClick={() => navigate('/pricing')} className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary/90 transition-all">
+            View Plans
+          </button>
+        </div>
+      ) : (
       <div className="space-y-3 text-sm">
        <div className="flex items-center gap-3">
         <Mail className="h-4 w-4 text-slate-400 shrink-0"/>
@@ -601,12 +640,22 @@ export default function CandidateDetailPage() {
         </div>
        )}
       </div>
+      )}
      </div>
 
      {/* Links */}
-     {(profile.github_url || profile.linkedin_url || profile.portfolio_url) && (
+     {(profile.github_url || profile.linkedin_url || profile.portfolio_url || profile.user_email === "Hidden (Pro Feature)") && (
       <div className="glass-card rounded-2xl p-5">
        <h2 className="text-sm font-bold text-slate-900 mb-4">Links</h2>
+       {profile.user_email === "Hidden (Pro Feature)" ? (
+        <div className="flex flex-col items-center text-center py-6 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 mb-3">
+            <Globe className="h-5 w-5 text-primary"/>
+          </div>
+          <h3 className="text-sm font-bold text-slate-900">Links Hidden</h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-[200px] mb-3">Upgrade to view LinkedIn, GitHub, and portfolios.</p>
+        </div>
+       ) : (
        <div className="space-y-2">
         {profile.github_url && (
          <a href={profile.github_url} target="_blank"rel="noreferrer"className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
@@ -624,6 +673,7 @@ export default function CandidateDetailPage() {
          </a>
         )}
        </div>
+       )}
       </div>
      )}
     </div>
@@ -647,10 +697,15 @@ export default function CandidateDetailPage() {
     outreachSending={outreachSending} 
    />
 
-   {/* AI Interview Prep Modal */}
    <InterviewPrepModal 
     interviewDraft={interviewDraft} 
     setInterviewDraft={setInterviewDraft} 
+   />
+
+   <UpgradeModal
+     isOpen={showUpgradeModal}
+     onClose={() => setShowUpgradeModal(false)}
+     featureName={upgradeFeature}
    />
   </div>
  )

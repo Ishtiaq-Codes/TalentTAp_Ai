@@ -1,15 +1,33 @@
-export default function EmptyState({ icon: Icon, title, description, action }) {
+import { cn } from '@/lib/utils'
+
+export default function EmptyState({
+  icon: Icon,
+  title = 'Nothing here yet',
+  description,
+  action,
+  className,
+}) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-4 text-center animate-fade-in">
+    <div className={cn(
+      'flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 py-16 px-8 text-center',
+      className
+    )}>
       {Icon && (
-        <div className="relative mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-slate-50 border border-slate-100 shadow-sm transition-transform hover:scale-105 duration-300">
-          <div className="absolute inset-0 rounded-full bg-primary/5 blur-xl pointer-events-none" />
-          <Icon className="h-10 w-10 text-slate-400" strokeWidth={1.5} />
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-violet-400 mb-1">
+          <Icon className="h-7 w-7" />
         </div>
       )}
-      <h3 className="text-xl font-bold tracking-tight text-slate-900">{title}</h3>
-      {description && <p className="mt-2.5 max-w-sm text-sm text-slate-500 leading-relaxed">{description}</p>}
-      {action && <div className="mt-8 transition-all hover:-translate-y-0.5">{action}</div>}
+      <div>
+        <h3 className="text-base font-semibold text-slate-800">{title}</h3>
+        {description && (
+          <p className="mt-1.5 text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">{description}</p>
+        )}
+      </div>
+      {action && (
+        <div className="mt-2">
+          {action}
+        </div>
+      )}
     </div>
   )
 }

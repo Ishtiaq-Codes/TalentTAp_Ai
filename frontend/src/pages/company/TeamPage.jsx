@@ -8,6 +8,7 @@ import ConfirmModal from '@/components/common/ConfirmModal'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 import { useToast } from '@/contexts/ToastContext'
 import MessageButton from '@/components/common/MessageButton'
+import UpgradeModal from '@/components/common/UpgradeModal'
 
 /* ─── Recruiter Card ─── */
 function RecruiterCard({ recruiter, onRemove, onToggleStatus, isSelf, isAdmin, className = '' }) {
@@ -112,6 +113,7 @@ export default function TeamPage() {
  const [form, setForm] = useState({ first_name: '', last_name: '', email: '', title: '' })
  const [showInvite, setShowInvite] = useState(false)
  const [inviteSuccess, setInviteSuccess] = useState(false)
+ const [showUpgradeModal, setShowUpgradeModal] = useState(false)
  const { success, error } = useToast()
 
  const [confirmRemove, setConfirmRemove] = useState({ isOpen: false, recruiter: null })
@@ -193,7 +195,13 @@ export default function TeamPage() {
      </p>
     </div>
     <button
-     onClick={() => setShowInvite(!showInvite)}
+     onClick={() => {
+       if (authUser?.is_pro === false) {
+         setShowUpgradeModal(true)
+       } else {
+         setShowInvite(!showInvite)
+       }
+     }}
      className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-primary/90 transition-all"
     >
      <UserPlus className="h-4 w-4"/> Invite Team Member
@@ -343,6 +351,11 @@ export default function TeamPage() {
    </div>
 
    {/* Modals */}
+   <UpgradeModal
+     isOpen={showUpgradeModal}
+     onClose={() => setShowUpgradeModal(false)}
+     featureName="Inviting Team Members"
+   />
    <ConfirmModal
     isOpen={confirmRemove.isOpen}
     onClose={() => setConfirmRemove({ isOpen: false, recruiter: null })}

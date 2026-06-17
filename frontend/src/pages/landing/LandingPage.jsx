@@ -146,16 +146,18 @@ const faqs = [
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="border-b border-slate-200 last:border-0">
+    <div className="border-b border-slate-100 last:border-0">
       <button
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between py-5 text-left"
       >
-        <span className="text-base font-medium text-foreground pr-4">{q}</span>
-        <ChevronDown className={`h-5 w-5 flex-shrink-0 text-muted-foreground transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
+        <span className="text-base font-semibold text-slate-800 pr-4">{q}</span>
+        <div className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full transition-all duration-300 ${open ? 'bg-violet-100 rotate-180' : 'bg-slate-100'}`}>
+          <ChevronDown className={`h-4 w-4 ${open ? 'text-violet-600' : 'text-slate-400'}`} />
+        </div>
       </button>
       <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-96 pb-5' : 'max-h-0'}`}>
-        <p className="text-sm leading-relaxed text-muted-foreground">{a}</p>
+        <p className="text-sm leading-relaxed text-slate-500">{a}</p>
       </div>
     </div>
   )
@@ -166,10 +168,10 @@ function StatCounter({ value, suffix, label }) {
   const { count, ref } = useCountUp(value)
   return (
     <div ref={ref} className="text-center">
-      <p className="text-4xl font-bold text-primary sm:text-5xl">
-        {count.toLocaleString()}{suffix}
+      <p className="text-4xl font-black text-slate-900 sm:text-5xl">
+        <span className="text-gradient-primary">{count.toLocaleString()}{suffix}</span>
       </p>
-      <p className="mt-2 text-sm font-medium text-muted-foreground">{label}</p>
+      <p className="mt-2 text-sm font-medium text-slate-500">{label}</p>
     </div>
   )
 }
@@ -199,121 +201,131 @@ export default function LandingPage() {
       <PublicNavbar />
 
       {/* ── 1. HERO ── */}
-      <section className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-24 bg-slate-50">
-        {/* Animated Mesh Background */}
+      <section className="relative overflow-hidden pt-28 pb-16 lg:pt-36 lg:pb-24" style={{ background: 'linear-gradient(to bottom, hsl(224,40%,97%), white)' }}>
+        {/* Brand mesh background */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-[20%] -right-[10%] h-[70vw] w-[70vw] max-w-[800px] animate-pulse-soft rounded-full bg-gradient-to-br from-primary/20 to-ai/20 blur-[100px]" />
-          <div className="absolute -bottom-[20%] -left-[10%] h-[70vw] w-[70vw] max-w-[800px] animate-pulse-soft rounded-full bg-gradient-to-tr from-blue-500/20 to-primary/20 blur-[100px]" style={{ animationDelay: '2s' }} />
-          <div className="absolute top-1/2 left-1/2 h-[80vw] w-[80vw] max-w-[1000px] -translate-x-1/2 -translate-y-1/2 animate-pulse-soft rounded-full bg-gradient-to-r from-primary/5 to-ai/5 blur-[120px]" style={{ animationDelay: '4s' }} />
+          <div className="absolute top-[-15%] right-[-5%] h-[600px] w-[600px] animate-pulse-soft rounded-full bg-gradient-to-br from-violet-500/12 to-indigo-500/10 blur-[120px]" />
+          <div className="absolute bottom-[-10%] left-[-5%] h-[500px] w-[500px] animate-pulse-soft rounded-full bg-gradient-to-tr from-amber-500/8 to-violet-500/8 blur-[100px]" style={{ animationDelay: '2s' }} />
         </div>
 
-        <div ref={heroReveal.targetRef} className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20">
+        <div ref={heroReveal.targetRef} className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
           <div className="mx-auto max-w-4xl text-center">
             {/* Badge */}
-            <div className={`mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/60 backdrop-blur-sm px-4 py-1.5 text-sm font-semibold text-primary shadow-sm transition-all duration-700 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <Sparkles className="h-4 w-4" />
-              Next-Generation AI Talent Platform
+            <div className={`mb-8 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-4 py-1.5 text-sm font-semibold text-violet-700 shadow-sm transition-all duration-700 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <Sparkles className="h-4 w-4 text-violet-500" />
+              AI-Powered Talent Intelligence Platform
             </div>
 
             {/* Headline */}
-            <h1 className={`text-[3.5rem] font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-[5.5rem] transition-all duration-700 delay-100 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <h1 className={`text-[3.5rem] font-black leading-[1.05] tracking-tight text-slate-900 sm:text-6xl lg:text-[5.5rem] transition-all duration-700 delay-100 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               Stop Applying.<br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-ai to-blue-500 animate-gradient">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600">
                 Start Getting Discovered.
               </span>
             </h1>
 
             {/* Subheadline */}
-            <p className={`mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl transition-all duration-700 delay-200 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              TalentTap AI matches candidates with the right companies automatically
-              - no more endless applications, no more filtering thousands of resumes.
+            <p className={`mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-500 sm:text-xl transition-all duration-700 delay-200 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              TalentTap AI matches candidates with the right companies automatically —
+              no more endless applications, no more filtering thousands of resumes.
             </p>
 
             {/* CTAs */}
-            <div className={`mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row transition-all duration-700 delay-300 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <div className="relative group w-full sm:w-auto">
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-blue-500 rounded-full blur opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse-soft"></div>
-                <Link
-                  to="/register"
-                  className="relative flex items-center justify-center gap-2 rounded-full bg-slate-900 px-8 py-4 text-sm font-semibold text-white shadow-xl transition-all hover:bg-slate-800 hover:scale-[1.02] w-full"
-                >
-                  Start Hiring Top Talent
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </div>
+            <div className={`mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row transition-all duration-700 delay-300 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <Link
                 to="/register"
-                className="group flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white/60 backdrop-blur-md px-8 py-4 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:bg-white transition-all hover:scale-[1.02] w-full sm:w-auto shadow-sm"
+                className="btn btn-primary btn-lg w-full sm:w-auto"
+              >
+                Start Hiring Top Talent
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/register"
+                className="btn btn-secondary btn-lg w-full sm:w-auto"
               >
                 I'm a Candidate
-                <ArrowUpRight className="h-4 w-4 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
+                <ArrowUpRight className="h-4 w-4 text-slate-400" />
               </Link>
             </div>
           </div>
 
-          {/* Hero visual - mock dashboard */}
-          <div className={`mx-auto mt-16 max-w-5xl transition-all duration-1000 delay-500 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-            <div className="animate-float">
-              <div className="glass-panel rounded-2xl p-2 sm:p-3">
-                <div className="rounded-xl bg-white/90 backdrop-blur-xl p-5 sm:p-6 border border-slate-100 shadow-inner">
-                {/* Mock dashboard header */}
-                <div className="flex items-center justify-between mb-5">
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900">Recruiting Overview</h3>
-                    <p className="text-xs sm:text-sm text-slate-500 mt-1">Welcome back to TalentTap AI</p>
+          {/* Hero visual - premium mock dashboard */}
+          <div className={`mx-auto mt-14 max-w-5xl transition-all duration-1000 delay-500 ${heroReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+            <div>
+              {/* Outer frame */}
+              <div className="rounded-2xl bg-white border border-slate-200/80 shadow-2xl shadow-slate-900/10 overflow-hidden transform-gpu">
+                {/* Mock browser bar */}
+                <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50 px-4 py-3">
+                  <div className="flex gap-1.5">
+                    <div className="h-3 w-3 rounded-full bg-red-400" />
+                    <div className="h-3 w-3 rounded-full bg-amber-400" />
+                    <div className="h-3 w-3 rounded-full bg-emerald-400" />
                   </div>
-                  <div className="hidden sm:flex items-center gap-2 bg-white rounded-lg border border-slate-200 px-3 py-1.5 shadow-sm">
-                    <Search className="h-4 w-4 text-slate-400" />
-                    <span className="text-sm text-slate-400">Search candidates...</span>
+                  <div className="mx-auto flex items-center justify-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-1 text-xs text-slate-500 font-medium w-64 shadow-sm">
+                    <Shield className="h-3.5 w-3.5 text-emerald-500" />
+                    app.TalentTapAi.com/dashboard
                   </div>
                 </div>
-                {/* Mock stat cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                  {[
-                    { bg: 'bg-blue-50', title: 'Active Jobs', val: '24' },
-                    { bg: 'bg-emerald-50', title: 'Candidates', val: '115' },
-                    { bg: 'bg-amber-50', title: 'Interviews', val: '18' },
-                    { bg: 'bg-purple-50', title: 'Offers', val: '4' },
-                  ].map((stat, i) => (
-                    <div key={i} className={`${stat.bg} rounded-xl p-3 sm:p-4 border border-slate-100 shadow-sm`}>
-                      <div className="text-xs text-slate-600 font-medium mb-1">{stat.title}</div>
-                      <div className="text-xl sm:text-2xl font-bold text-slate-900">{stat.val}</div>
+                {/* Dashboard content */}
+                <div className="p-5 sm:p-6 bg-gradient-mesh">
+                  <div className="flex items-center justify-between mb-5">
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900">Recruiting Command Center</h3>
+                      <p className="text-xs text-slate-500 mt-0.5">Powered by TalentTap AI</p>
                     </div>
-                  ))}
-                </div>
-                {/* Mock candidate rows */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                  <div className="px-4 py-2 sm:py-3 border-b border-border bg-background/50">
-                    <span className="text-sm font-semibold text-foreground">Recent AI Matches</span>
+                    <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-violet-50 border border-violet-200 px-3 py-1">
+                      <div className="h-1.5 w-1.5 rounded-full bg-violet-500 animate-pulse" />
+                      <span className="text-xs font-bold text-violet-600">AI Active</span>
+                    </div>
                   </div>
-                  <div className="p-2 sm:p-3 space-y-2 bg-background">
+                  {/* Stat cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                     {[
-                      {name: 'Elias Pena', role: 'Product Designer', score: 92, pic: 'https://randomuser.me/api/portraits/men/22.jpg'},
-                      {name: 'Arlen McCoy', role: 'Frontend Lead', score: 87, pic: 'https://randomuser.me/api/portraits/men/68.jpg'},
-                      {name: 'Jerome Bell', role: 'QA Engineer', score: 78, pic: 'https://randomuser.me/api/portraits/men/33.jpg'}
-                    ].map((c, i) => (
-                      <div key={i} className="flex items-center gap-3 sm:gap-4 rounded-lg bg-white p-2.5 sm:p-3 shadow-sm border border-slate-100">
-                        <img src={c.pic} alt={c.name} className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover border border-slate-200" />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs sm:text-sm font-semibold text-slate-900 truncate">{c.name}</div>
-                          <div className="text-[10px] sm:text-xs text-slate-500 font-medium truncate">{c.role}</div>
-                        </div>
-                        <div className={`rounded-full px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-bold whitespace-nowrap ${c.score >= 90 ? 'bg-emerald-100 text-emerald-700' : c.score >= 80 ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
-                          {c.score}% match
-                        </div>
+                      { bg: 'bg-violet-50 border-violet-100', title: 'Active Jobs', val: '24', color: 'text-violet-700' },
+                      { bg: 'bg-emerald-50 border-emerald-100', title: 'AI Matches', val: '115', color: 'text-emerald-700' },
+                      { bg: 'bg-amber-50 border-amber-100', title: 'Interviews', val: '18', color: 'text-amber-700' },
+                      { bg: 'bg-blue-50 border-blue-100', title: 'Offers Sent', val: '4', color: 'text-blue-700' },
+                    ].map((stat, i) => (
+                      <div key={i} className={`${stat.bg} rounded-xl p-3 sm:p-4 border`}>
+                        <div className="text-[11px] text-slate-500 font-medium mb-1">{stat.title}</div>
+                        <div className={`text-xl sm:text-2xl font-black ${stat.color}`}>{stat.val}</div>
                       </div>
                     ))}
+                  </div>
+                  {/* Candidate rows */}
+                  <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
+                      <span className="text-sm font-bold text-slate-800">Top AI Matches</span>
+                      <span className="badge badge-primary text-[11px]">Live</span>
+                    </div>
+                    <div className="p-2 space-y-1.5">
+                      {[
+                        {name: 'Elias Pena', role: 'Product Designer', score: 92, img: 'https://i.pravatar.cc/150?u=elias'},
+                        {name: 'Arlen McCoy', role: 'Frontend Lead', score: 87, img: 'https://i.pravatar.cc/150?u=arlen'},
+                        {name: 'Jerome Bell', role: 'QA Engineer', score: 78, img: 'https://i.pravatar.cc/150?u=jerome'}
+                      ].map((c, i) => (
+                        <div key={i} className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-slate-50 transition-colors">
+                          <img src={c.img} alt={c.name} className="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-sm flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-semibold text-slate-900 truncate">{c.name}</div>
+                            <div className="text-xs text-slate-400 truncate">{c.role}</div>
+                          </div>
+                          <div className={`rounded-full px-2.5 py-1 text-xs font-black ${c.score >= 90 ? 'bg-emerald-100 text-emerald-700' : c.score >= 80 ? 'bg-violet-100 text-violet-700' : 'bg-amber-100 text-amber-700'}`}>
+                            {c.score}% match
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
       {/* ── 2. TRUST BAR ── */}
-      <section className="border-y bg-white">
+      <section className="border-y border-slate-100 bg-white">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-16 sm:grid-cols-4 sm:px-6">
           {stats.map((s) => (
             <StatCounter key={s.label} {...s} />
@@ -377,31 +389,33 @@ export default function LandingPage() {
       </section>
 
       {/* ── 4. HOW IT WORKS ── */}
-      <section className="bg-slate-50/50 py-16 sm:py-24">
+      <section className="bg-slate-50 py-16 sm:py-24 border-y border-slate-100">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center">
-            <span className="text-sm font-semibold uppercase tracking-wider text-primary">How It Works</span>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Three steps. Zero hassle.</h2>
+            <span className="inline-flex items-center gap-2 rounded-full bg-violet-50 border border-violet-200 px-4 py-1.5 text-xs font-bold text-violet-700 uppercase tracking-wider mb-4">
+              <Sparkles className="h-3.5 w-3.5" /> How It Works
+            </span>
+            <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">Three steps. Zero hassle.</h2>
           </div>
 
-          <div className="mt-16 grid gap-8 md:grid-cols-3">
+          <div className="mt-16 grid gap-6 md:grid-cols-3">
             {[
-              { step: '01', icon: UserCheck, title: 'Create Your Profile', desc: 'Candidates add skills, experience, and preferences. Recruiters post their open roles.' },
-              { step: '02', icon: Brain, title: 'AI Finds Matches', desc: 'Our engine scores every candidate-job pair across 5 dimensions and ranks them in real-time.' },
-              { step: '03', icon: Zap, title: 'Connect & Hire', desc: 'Review detailed match breakdowns, shortlist top talent, and start conversations directly.' },
-            ].map(({ step, icon: Icon, title, desc }, i) => (
-              <div key={step} className="glass-card group relative rounded-2xl p-6 sm:p-8">
-                <div className="flex items-center gap-4 mb-4">
-                  <span className="text-4xl font-bold text-slate-200 group-hover:text-primary/20 transition-colors">{step}</span>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-indigo-100 text-primary shadow-inner">
-                    <Icon className="h-6 w-6" />
+              { step: '01', icon: UserCheck, title: 'Create Your Profile', desc: 'Candidates add skills, experience, and preferences. Recruiters post their open roles.', color: 'bg-violet-100 text-violet-600' },
+              { step: '02', icon: Brain, title: 'AI Finds Matches', desc: 'Our engine scores every candidate-job pair across 5 dimensions and ranks them in real-time.', color: 'bg-indigo-100 text-indigo-600' },
+              { step: '03', icon: Zap, title: 'Connect & Hire', desc: 'Review detailed match breakdowns, shortlist top talent, and start conversations directly.', color: 'bg-amber-100 text-amber-600' },
+            ].map(({ step, icon: Icon, title, desc, color }, i) => (
+              <div key={step} className="card-premium group relative p-6 sm:p-8">
+                <div className="flex items-center gap-4 mb-5">
+                  <span className="text-5xl font-black text-slate-100 group-hover:text-violet-100 transition-colors leading-none">{step}</span>
+                  <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${color}`}>
+                    <Icon className="h-5 w-5" />
                   </div>
                 </div>
-                <h3 className="text-lg font-semibold">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">{desc}</p>
+                <h3 className="text-base font-bold text-slate-900">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-500">{desc}</p>
                 {i < 2 && (
-                  <div className="absolute -right-4 top-1/2 hidden -translate-y-1/2 md:block">
-                    <ArrowRight className="h-5 w-5 text-slate-300" />
+                  <div className="absolute -right-3 top-1/2 hidden -translate-y-1/2 md:flex h-6 w-6 items-center justify-center rounded-full bg-white border border-slate-200 shadow-sm z-10">
+                    <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
                   </div>
                 )}
               </div>
@@ -412,22 +426,24 @@ export default function LandingPage() {
 
       {/* ── 5. FEATURES ── */}
       <section className="py-16 sm:py-24 bg-white relative">
-        <div className="absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-blue-500/5 blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-violet-500/5 blur-3xl pointer-events-none" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
           <div className="text-center">
-            <span className="text-sm font-semibold uppercase tracking-wider text-primary">Features</span>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Everything you need for modern hiring</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-slate-600">A complete platform built from the ground up to make talent discovery effortless.</p>
+            <span className="inline-flex items-center gap-2 rounded-full bg-violet-50 border border-violet-200 px-4 py-1.5 text-xs font-bold text-violet-700 uppercase tracking-wider mb-4">
+              Platform Features
+            </span>
+            <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">Everything you need for modern hiring</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-slate-500">A complete platform built from the ground up to make talent discovery effortless.</p>
           </div>
-          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="glass-card group rounded-2xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 h-32 w-32 bg-primary/5 rounded-bl-full transition-transform duration-500 group-hover:scale-110" />
-                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-blue-100 text-primary transition-all group-hover:shadow-md group-hover:shadow-primary/10 border border-white/50">
-                  <Icon className="h-6 w-6" />
+          <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map(({ icon: Icon, title, desc }, idx) => (
+              <div key={title} className="card-premium group p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 h-24 w-24 bg-violet-500/4 rounded-bl-full transition-transform duration-500 group-hover:scale-150" />
+                <div className="relative z-10 flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 border border-violet-100">
+                  <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-5 text-base font-semibold text-slate-900">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">{desc}</p>
+                <h3 className="mt-4 text-base font-bold text-slate-900">{title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-slate-500">{desc}</p>
               </div>
             ))}
           </div>
@@ -650,28 +666,31 @@ export default function LandingPage() {
       {/* ── 11. CTA ── */}
       <section className="py-12 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-8 py-16 text-center sm:px-16 sm:py-20">
-            {/* Background decoration */}
-            <div className="absolute top-0 left-1/4 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-blue-400/10 blur-3xl" />
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[hsl(224,60%,8%)] via-[hsl(240,50%,12%)] to-[hsl(263,55%,16%)] px-8 py-16 text-center sm:px-16 sm:py-20">
+            <div className="absolute top-0 left-1/4 h-64 w-64 rounded-full bg-violet-500/15 blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
 
             <div className="relative">
-              <h2 className="text-3xl font-bold text-white sm:text-4xl">
+              <div className="inline-flex items-center gap-2 rounded-full bg-violet-500/15 border border-violet-500/20 px-4 py-1.5 mb-6">
+                <Sparkles className="h-3.5 w-3.5 text-violet-400" />
+                <span className="text-xs font-bold text-violet-300 uppercase tracking-wider">Join 15,000+ users</span>
+              </div>
+              <h2 className="text-3xl font-black text-white sm:text-4xl tracking-tight">
                 Ready to transform your hiring?
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-lg text-slate-400">
                 Join thousands of companies and candidates using AI to make better hiring decisions, faster.
               </p>
-              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link
                   to="/register"
-                  className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 shadow-lg hover:bg-slate-100 transition-all"
+                  className="btn w-full sm:w-auto justify-center bg-white text-slate-900 hover:bg-slate-100 shadow-lg px-8 py-3.5"
                 >
                   Get Started Free <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full border border-slate-600 px-8 py-3.5 text-sm font-semibold text-white hover:bg-white/10 transition-all"
+                  className="btn w-full sm:w-auto justify-center border border-white/20 text-white hover:bg-white/10 px-8 py-3.5"
                 >
                   Request a Demo
                 </Link>

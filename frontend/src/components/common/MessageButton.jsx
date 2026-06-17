@@ -4,16 +4,33 @@ import { messagingAPI } from '@/api/messaging'
 import { useNavigate } from 'react-router-dom'
 import { Mail, X } from 'lucide-react'
 import { useToast } from '@/contexts/ToastContext'
+import { useAuth } from '@/contexts/AuthContext'
+import UpgradeModal from '@/components/common/UpgradeModal'
 
 export default function MessageButton({ recipientId, name, showText = true, className = "" }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
   const navigate = useNavigate()
   const { success, error } = useToast()
+  const { user } = useAuth()
 
   // If no recipientId is provided, we can't send a message.
   if (!recipientId) return null
+
+  const handleOpen = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    // Pro check
+    if (user?.role === 'recruiter' || user?.role === 'company_admin') {
+      if (user.is_pro === false) {
+        setShowUpgradeModal(true)
+        return
+      }
+    }
+    setIsOpen(true)
+  }
 
   const handleSend = async (e) => {
     e.preventDefault()
@@ -32,20 +49,21 @@ export default function MessageButton({ recipientId, name, showText = true, clas
     }
   }
 
-
   return (
     <>
       <button
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          setIsOpen(true)
-        }}
+        onClick={handleOpen}
         className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium border text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors ${className}`}
         title="Send Message"
       >
         <Mail className="h-3.5 w-3.5" /> {showText && "Message"}
       </button>
+
+      <UpgradeModal 
+        isOpen={showUpgradeModal} 
+        onClose={() => setShowUpgradeModal(false)} 
+        featureName="Direct Candidate Messaging" 
+      />
 
       {isOpen && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-100/80 backdrop-blur-sm" onClick={(e) => e.stopPropagation()}>

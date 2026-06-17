@@ -54,15 +54,14 @@ export default function RecruiterDashboard() {
 
  return (
   <div className="space-y-8 pb-8 animate-fade-in">
-   {/* Header */}
-   <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+   {/* ── Header ── */}
+   <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
-     <p className="mt-2 text-sm text-slate-500">Welcome back, {user?.first_name}. Here's what's happening in your hiring pipeline.</p>
+     <h1 className="text-2xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+     <p className="mt-1 text-sm text-slate-500">Welcome back, <span className="font-semibold text-slate-700">{user?.first_name}</span>. Here's your hiring pipeline.</p>
     </div>
-    <Link to="/recruiter/jobs/new"
-     className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all hover:shadow-primary/20 hover:-translate-y-0.5">
-     <Plus className="mr-2 h-4 w-4"/> Post New Job
+    <Link to="/recruiter/jobs/new" className="btn btn-primary">
+     <Plus className="h-4 w-4"/> Post New Job
     </Link>
    </div>
 
@@ -79,18 +78,20 @@ export default function RecruiterDashboard() {
     <div className="xl:col-span-2 space-y-8 min-w-0">
      
      {/* Pipeline Chart */}
-     <div className="glass-card rounded-xl overflow-hidden p-6 min-w-0">
-      <h2 className="text-base font-semibold text-slate-900 mb-6">Pipeline Health</h2>
-      <div className="h-64 w-full">
+     <div className="card-premium p-6 min-w-0">
+      <div className="flex items-center gap-2 mb-5">
+       <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-50 text-violet-500">
+        <TrendingUp className="h-4 w-4"/>
+       </div>
+       <h2 className="text-base font-bold text-slate-900">Pipeline Health</h2>
+      </div>
+      <div className="h-60 w-full">
        <ResponsiveContainer width="100%" height="100%">
         <BarChart data={pipelineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} allowDecimals={false} />
-         <Tooltip 
-          cursor={{ fill: '#f1f5f9' }}
-          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }}
-         />
-         <Bar dataKey="count" radius={[6, 6, 6, 6]} barSize={40}>
+         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} allowDecimals={false} />
+         <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px -4px rgba(0,0,0,0.1)' }} />
+         <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={36}>
           {pipelineData.map((entry, index) => (
            <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
@@ -101,48 +102,45 @@ export default function RecruiterDashboard() {
      </div>
      
      {/* Recent Candidates Table */}
-     <div className="glass-card rounded-xl overflow-hidden">
-      <div className="border-b border-slate-200 bg-slate-50/50 px-6 py-4 flex items-center justify-between">
-       <h2 className="text-base font-semibold text-slate-900">Recent Candidates</h2>
-       <Link to="/recruiter/candidates"className="text-sm font-medium text-primary hover:text-primary/80">View all</Link>
+     <div className="card-premium overflow-hidden">
+      <div className="border-b border-slate-100 bg-slate-50/60 px-6 py-4 flex items-center justify-between">
+       <div className="flex items-center gap-2">
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-500"><Users className="h-4 w-4"/></div>
+        <h2 className="text-sm font-bold text-slate-900">Recent Candidates</h2>
+       </div>
+       <Link to="/recruiter/candidates" className="text-xs font-semibold text-violet-600 hover:text-violet-700 transition-colors">View all</Link>
       </div>
       <div className="overflow-x-auto min-h-[400px] w-full pb-2">
        <table className="min-w-full divide-y divide-slate-200">
-        <thead className="bg-white">
+        <thead className="border-b border-slate-100 bg-slate-50/60">
          <tr>
-          <th scope="col"className="py-3.5 pl-6 pr-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Candidate</th>
-          <th scope="col"className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Applied For</th>
-          <th scope="col"className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
-          <th scope="col"className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-          <th scope="col"className="relative py-3.5 pl-3 pr-6"><span className="sr-only">Action</span></th>
+          <th scope="col" className="py-3 pl-6 pr-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Candidate</th>
+          <th scope="col" className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Applied For</th>
+          <th scope="col" className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Date</th>
+          <th scope="col" className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+          <th scope="col" className="relative py-3 pl-3 pr-6"><span className="sr-only">Action</span></th>
          </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200 bg-white">
+        <tbody className="divide-y divide-slate-100 bg-white">
          {appList.length === 0 ? (
-          <tr><td colSpan="5"className="py-8 text-center text-sm text-slate-500">No candidates found</td></tr>
+          <tr><td colSpan="5" className="py-8 text-center text-sm text-slate-400">No candidates found</td></tr>
          ) : appList.map((app) => (
-          <tr key={app.id} className="hover:bg-slate-50 transition-colors">
+          <tr key={app.id} className="hover:bg-slate-50 transition-colors group">
            <td className="whitespace-nowrap py-4 pl-6 pr-3">
             <div className="flex items-center gap-3">
-             <ProfileAvatar src={app.candidate_avatar} name={app.candidate_name} size="sm"className="h-9 w-9 rounded-full border border-slate-200"/>
+             <ProfileAvatar src={app.candidate_avatar} name={app.candidate_name} size="sm" className="h-9 w-9 rounded-full border border-slate-200"/>
              <div>
-              <div className="font-medium text-slate-900">{app.candidate_name}</div>
-              <div className="text-xs text-slate-500 w-48 truncate">{app.candidate_headline || 'Candidate'}</div>
+              <div className="font-semibold text-slate-900 text-sm group-hover:text-violet-700 transition-colors">{app.candidate_name}</div>
+              <div className="text-xs text-slate-400 w-48 truncate">{app.candidate_headline || 'Candidate'}</div>
              </div>
             </div>
            </td>
-           <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-600 font-medium">
-            {app.job_title}
-           </td>
-           <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-            {formatDate(app.created_at)}
-           </td>
-           <td className="whitespace-nowrap px-3 py-4 text-sm">
-            <StatusSelect appId={app.id} initialStatus={app.status} />
-           </td>
-           <td className="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
-            <Link to={`/recruiter/candidates/${app.candidate}?job_id=${app.job}`} className="text-primary hover:text-primary/80 inline-flex items-center gap-1">
-             <Eye className="h-4 w-4"/> View
+           <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-600 font-medium">{app.job_title}</td>
+           <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-400">{formatDate(app.created_at)}</td>
+           <td className="whitespace-nowrap px-3 py-4 text-sm"><StatusSelect appId={app.id} initialStatus={app.status} /></td>
+           <td className="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm">
+            <Link to={`/recruiter/candidates/${app.candidate}?job_id=${app.job}`} className="text-violet-600 hover:text-violet-700 inline-flex items-center gap-1 font-semibold text-xs">
+             <Eye className="h-3.5 w-3.5"/> View
             </Link>
            </td>
           </tr>
@@ -165,48 +163,41 @@ export default function RecruiterDashboard() {
      </div>
 
      {/* Job Postings Table */}
-     <div className="glass-card rounded-xl overflow-hidden">
-      <div className="border-b border-slate-200 bg-slate-50/50 px-6 py-4 flex items-center justify-between">
-       <h2 className="text-base font-semibold text-slate-900">Active Job Postings</h2>
-       <Link to="/recruiter/jobs"className="text-sm font-medium text-primary hover:text-primary/80">View all</Link>
+     <div className="card-premium overflow-hidden">
+      <div className="border-b border-slate-100 bg-slate-50/60 px-6 py-4 flex items-center justify-between">
+       <div className="flex items-center gap-2">
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-50 text-violet-500"><Briefcase className="h-4 w-4"/></div>
+        <h2 className="text-sm font-bold text-slate-900">Active Job Postings</h2>
+       </div>
+       <Link to="/recruiter/jobs" className="text-xs font-semibold text-violet-600 hover:text-violet-700 transition-colors">View all</Link>
       </div>
       <div className="overflow-x-auto min-h-[400px] w-full pb-2">
        <table className="min-w-full divide-y divide-slate-200">
-        <thead className="bg-white">
+        <thead className="border-b border-slate-100 bg-slate-50/60">
          <tr>
-          <th scope="col"className="py-3.5 pl-6 pr-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
-          <th scope="col"className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Department</th>
-          <th scope="col"className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Location</th>
-          <th scope="col"className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Applicants</th>
-          <th scope="col"className="px-3 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-          <th scope="col"className="relative py-3.5 pl-3 pr-6"><span className="sr-only">Action</span></th>
+          <th scope="col" className="py-3 pl-6 pr-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Role</th>
+          <th scope="col" className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Department</th>
+          <th scope="col" className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Location</th>
+          <th scope="col" className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Applicants</th>
+          <th scope="col" className="px-3 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+          <th scope="col" className="relative py-3 pl-3 pr-6"><span className="sr-only">Action</span></th>
          </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200 bg-white">
+        <tbody className="divide-y divide-slate-100 bg-white">
          {jobList.length === 0 ? (
-          <tr><td colSpan="6"className="py-8 text-center text-sm text-slate-500">No jobs posted yet</td></tr>
+          <tr><td colSpan="6" className="py-8 text-center text-sm text-slate-400">No jobs posted yet</td></tr>
          ) : jobList.map((job) => (
-          <tr key={job.id} className="hover:bg-slate-50 transition-colors">
-           <td className="whitespace-nowrap py-4 pl-6 pr-3 font-medium text-slate-900 text-sm">
-            {job.title}
-           </td>
-           <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-            {job.department || 'General'}
-           </td>
-           <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-            {job.is_remote === 'remote' ? 'Remote' : (job.city || job.country || 'Not specified')}
-           </td>
+          <tr key={job.id} className="hover:bg-slate-50 transition-colors group">
+           <td className="whitespace-nowrap py-4 pl-6 pr-3 font-semibold text-slate-900 text-sm group-hover:text-violet-700 transition-colors">{job.title}</td>
+           <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">{job.department || 'General'}</td>
+           <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">{job.is_remote === 'remote' ? 'Remote' : (job.city || job.country || 'Not specified')}</td>
            <td className="whitespace-nowrap px-3 py-4 text-sm">
-            <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
-             {job.applicants_count || 0}
-            </span>
+            <span className="inline-flex items-center justify-center rounded-full bg-violet-50 border border-violet-200 px-2.5 py-0.5 text-xs font-bold text-violet-700">{job.applicants_count || 0}</span>
            </td>
-           <td className="whitespace-nowrap px-3 py-4 text-sm">
-            <StatusBadge status={job.status} />
-           </td>
-           <td className="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
-            <Link to={`/recruiter/jobs/${job.id}`} className="text-primary hover:text-primary/80 inline-flex items-center gap-1">
-             <Eye className="h-4 w-4"/> View
+           <td className="whitespace-nowrap px-3 py-4 text-sm"><StatusBadge status={job.status} /></td>
+           <td className="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm">
+            <Link to={`/recruiter/jobs/${job.id}`} className="text-violet-600 hover:text-violet-700 inline-flex items-center gap-1 font-semibold text-xs">
+             <Eye className="h-3.5 w-3.5"/> View
             </Link>
            </td>
           </tr>
@@ -230,13 +221,13 @@ export default function RecruiterDashboard() {
 
     </div>
 
-    {/* Action Center / Tasks (Takes 1/3 width) */}
-    <div className="space-y-6">
-     <div className="glass-card rounded-xl overflow-hidden">
-      <div className="p-5 border-b border-slate-200 bg-slate-50/50">
-       <h3 className="font-semibold text-slate-900 text-sm">Tasks & Notifications</h3>
+    {/* Action Center */}
+    <div className="space-y-5">
+     <div className="card-premium overflow-hidden">
+      <div className="p-5 border-b border-slate-100">
+       <h3 className="font-bold text-slate-900 text-sm">Quick Actions</h3>
       </div>
-      <div className="divide-y divide-slate-100 p-2">
+      <div className="divide-y divide-slate-50 p-2">
        <Link to="/recruiter/jobs"className="flex items-start gap-3 p-3 hover:bg-slate-50 transition-colors rounded-lg">
         <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
          <Clock className="h-4 w-4"/>
@@ -270,9 +261,9 @@ export default function RecruiterDashboard() {
      </div>
 
      {/* Recent Activity Feed */}
-     <div className="glass-card rounded-xl overflow-hidden flex flex-col max-h-[500px]">
-      <div className="p-5 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
-       <h3 className="font-semibold text-slate-900 text-sm">Recent Activity</h3>
+     <div className="card-premium overflow-hidden flex flex-col max-h-[500px]">
+      <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+       <h3 className="font-bold text-slate-900 text-sm">Recent Activity</h3>
        <Activity className="h-4 w-4 text-slate-400"/>
       </div>
       <div className="p-2 overflow-y-auto overflow-x-hidden flex-1">

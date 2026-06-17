@@ -10,6 +10,8 @@ import ConfirmModal from '@/components/common/ConfirmModal'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/contexts/ToastContext'
+import { useAuth } from '@/contexts/AuthContext'
+import UpgradeModal from '@/components/common/UpgradeModal'
 
 const STATUS_COLORS = {
  active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -26,6 +28,17 @@ export default function JobsListPage() {
  
  const [jobToDelete, setJobToDelete] = useState(null)
  const [updatingId, setUpdatingId] = useState(null)
+ const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+ const { user } = useAuth()
+ 
+ const activeJobsCount = Array.isArray(jobs) ? jobs.filter(j => j.status === 'active').length : 0
+ 
+ const handleCreateClick = (e) => {
+   if (user?.is_pro === false && activeJobsCount >= 1) {
+     e.preventDefault()
+     setShowUpgradeModal(true)
+   }
+ }
 
  const handleDelete = async () => {
   if (!jobToDelete) return
@@ -40,6 +53,10 @@ export default function JobsListPage() {
  }
 
  const handleStatusChange = async (id, newStatus) => {
+  if ((newStatus === 'repost' || newStatus === 'active') && user?.is_pro === false && activeJobsCount >= 1) {
+    setShowUpgradeModal(true)
+    return
+  }
   setUpdatingId(id)
   try {
    if (newStatus === 'repost') {
@@ -81,6 +98,7 @@ export default function JobsListPage() {
     </div>
     <Link
      to="/recruiter/jobs/new"
+     onClick={handleCreateClick}
      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-primary/90 transition-all"
     >
      <Plus className="h-4 w-4"/> Post New Job
@@ -98,6 +116,7 @@ export default function JobsListPage() {
      </p>
      <Link
       to="/recruiter/jobs/new"
+      onClick={handleCreateClick}
       className="mt-8 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-white shadow-md hover:bg-primary/90 transition-all"
      >
       Create Job Post
@@ -181,6 +200,12 @@ export default function JobsListPage() {
     message="Are you sure you want to delete this job post? All applications and matches associated with it will also be deleted."
     confirmText="Delete"
     isDestructive={true}
+   />
+
+   <UpgradeModal
+     isOpen={showUpgradeModal}
+     onClose={() => setShowUpgradeModal(false)}
+     featureName="Multiple Active Jobs"
    />
   </div>
  )

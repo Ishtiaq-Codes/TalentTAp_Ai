@@ -1,10 +1,29 @@
 import { useState, useRef } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { Bell, LogOut, Menu, Search, Settings, User } from 'lucide-react'
+import { Bell, LogOut, Menu, Settings, User, ChevronDown, Zap } from 'lucide-react'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 import NotificationDropdown from '@/components/common/NotificationDropdown'
 import { useOnClickOutside } from '@/hooks/useOnClickOutside'
+import { cn } from '@/lib/utils'
+
+// Human-readable page names from path segments
+const PAGE_LABELS = {
+  dashboard: 'Dashboard',
+  candidates: 'Candidates',
+  jobs: 'Jobs',
+  messages: 'Messages',
+  profile: 'Profile',
+  settings: 'Settings',
+  team: 'Team',
+  pools: 'Talent Pools',
+  shortlists: 'Shortlists',
+  applications: 'Applications',
+  matches: 'AI Matches',
+  analytics: 'Analytics',
+  companies: 'Companies',
+  billing: 'Billing',
+}
 
 export default function Topbar({ onToggleMobile }) {
   const { user, logout } = useAuth()
@@ -13,113 +32,134 @@ export default function Topbar({ onToggleMobile }) {
   const [showMenu, setShowMenu] = useState(false)
   const menuRef = useRef(null)
 
-  useOnClickOutside(menuRef, () => {
-    if (showMenu) setShowMenu(false)
-  })
+  useOnClickOutside(menuRef, () => { if (showMenu) setShowMenu(false) })
 
   const handleLogout = () => {
     logout()
     navigate('/login')
   }
 
-  // Simple breadcrumb generator based on pathname
+  // Build breadcrumb
   const pathParts = location.pathname.split('/').filter(Boolean)
-  const isDashboard = pathParts.length > 0 && pathParts[1] === 'dashboard'
+  const breadcrumb = pathParts.map((p) => PAGE_LABELS[p] || (p.charAt(0).toUpperCase() + p.slice(1)))
+
+  const getRoleColor = (role) => {
+    if (role === 'company_admin') return 'badge-primary'
+    if (role === 'recruiter') return 'badge-neutral'
+    if (role === 'candidate') return 'badge-success'
+    if (role === 'admin') return 'badge-danger'
+    return 'badge-neutral'
+  }
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-white/50 bg-white/60 px-4 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.04)] sm:px-6">
-      <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200/70 bg-white/80 px-4 backdrop-blur-xl sm:px-6">
+      {/* Left — Hamburger + Breadcrumb */}
+      <div className="flex items-center gap-3">
         <button
           onClick={onToggleMobile}
-          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+          className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors lg:hidden"
           aria-label="Toggle menu"
         >
-          <Menu className="h-6 w-6" />
+          <Menu className="h-5 w-5" />
         </button>
 
-        {/* Breadcrumbs - hidden on mobile */}
-        <div className="hidden items-center text-sm font-medium text-slate-500 md:flex">
-          <span className="capitalize">{pathParts[0]}</span>
-          {pathParts.length > 1 && (
-            <>
-              <span className="mx-2 text-slate-300">/</span>
-              <span className="capitalize text-foreground">{pathParts[1]}</span>
-            </>
-          )}
-        </div>
+        {/* Breadcrumb */}
+        <nav className="hidden items-center gap-1.5 text-sm md:flex">
+          {breadcrumb.map((segment, idx) => (
+            <div key={idx} className="flex items-center gap-1.5">
+              {idx > 0 && <span className="text-slate-300">/</span>}
+              <span className={cn(
+                'font-medium',
+                idx === breadcrumb.length - 1
+                  ? 'text-slate-900'
+                  : 'text-slate-400'
+              )}>
+                {segment}
+              </span>
+            </div>
+          ))}
+        </nav>
       </div>
 
-      {/* Global Search - Center (visible on larger screens) */}
-      <div className="hidden flex-1 items-center justify-center lg:flex">
-        {!isDashboard && (
-          <div className="relative w-full max-w-md">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Search className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search anything..."
-              className="block w-full rounded-full border bg-slate-50 py-2 pl-10 pr-4 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-            />
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-              <kbd className="hidden rounded bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-500 sm:block">⌘K</kbd>
-            </div>
-          </div>
+      {/* Right — Actions */}
+      <div className="flex items-center gap-2">
+
+        {/* Upgrade pill (free users) */}
+        {user && !user.is_pro && (user.role === 'company_admin' || user.role === 'recruiter') && (
+          <Link
+            to="/pricing"
+            className="hidden items-center gap-1.5 rounded-full bg-gradient-to-r from-violet-500 to-amber-400 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:shadow-md hover:scale-105 transition-all sm:flex"
+          >
+            <Zap className="h-3 w-3" />
+            Upgrade
+          </Link>
         )}
-      </div>
 
-      <div className="flex items-center gap-3">
-        {/* Notifications */}
+        {/* Notification bell */}
         <NotificationDropdown />
 
-        {/* User Dropdown */}
+        {/* User dropdown */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-slate-100 transition-colors"
+            className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-slate-100 transition-colors"
           >
             <ProfileAvatar name={`${user?.first_name} ${user?.last_name}`} src={user?.avatar} size="sm" />
             <div className="hidden text-left sm:block">
-              <p className="text-sm font-semibold leading-none">{user?.first_name}</p>
+              <p className="text-[13px] font-semibold text-slate-800 leading-tight">{user?.first_name}</p>
             </div>
+            <ChevronDown className={cn('h-3.5 w-3.5 text-slate-400 transition-transform', showMenu && 'rotate-180')} />
           </button>
 
           {showMenu && (
-            <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border bg-white py-2 shadow-xl animate-fade-in-up origin-top-right">
-                <div className="px-4 py-2 border-b mb-2">
-                  <p className="text-sm font-semibold">{user?.first_name} {user?.last_name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                </div>
-
-                <div className="px-2 space-y-1 border-b pb-2 mb-2">
-                  <Link
-                    to={user?.role === 'candidate' ? '/candidate/profile' : '/company/profile'}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-slate-100 transition-colors"
-                    onClick={() => setShowMenu(false)}
-                  >
-                    <User className="h-4 w-4 text-slate-400" />
-                    My Profile
-                  </Link>
-                  <Link
-                    to={user?.role === 'candidate' ? '/candidate/settings' : '/company/settings'}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-slate-100 transition-colors"
-                    onClick={() => setShowMenu(false)}
-                  >
-                    <Settings className="h-4 w-4 text-slate-400" />
-                    Settings
-                  </Link>
-                </div>
-
-                <div className="px-2">
-                  <button
-                    onClick={handleLogout}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign Out
-                  </button>
+            <div className="absolute right-0 z-50 mt-2 w-60 rounded-2xl border border-slate-200 bg-white py-1.5 shadow-xl shadow-slate-900/10 animate-scale-in origin-top-right">
+              {/* User header */}
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
+                <ProfileAvatar name={`${user?.first_name} ${user?.last_name}`} src={user?.avatar} size="md" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-900 truncate">{user?.first_name} {user?.last_name}</p>
+                  <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className={`badge text-[10px] ${getRoleColor(user?.role)}`}>
+                      {user?.role?.replace('_', ' ')}
+                    </span>
+                    {user?.is_pro && (
+                      <span className="badge badge-pro text-[10px]">Pro</span>
+                    )}
+                  </div>
                 </div>
               </div>
+
+              {/* Menu items */}
+              <div className="px-1.5 py-1.5 border-b border-slate-100">
+                <Link
+                  to={user?.role === 'candidate' ? '/candidate/profile' : '/company/profile'}
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                  onClick={() => setShowMenu(false)}
+                >
+                  <User className="h-4 w-4 text-slate-400" />
+                  My Profile
+                </Link>
+                <Link
+                  to={user?.role === 'candidate' ? '/candidate/settings' : '/company/settings'}
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                  onClick={() => setShowMenu(false)}
+                >
+                  <Settings className="h-4 w-4 text-slate-400" />
+                  Settings
+                </Link>
+              </div>
+
+              <div className="px-1.5 py-1.5">
+                <button
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>
