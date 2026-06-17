@@ -69,6 +69,12 @@ class CompanySubscription(models.Model):
             return False
         if self.status not in ('active', 'trialing'):
             return False
+            
+        # Check if the subscription period has expired
+        from django.utils import timezone
+        if self.current_period_end and self.current_period_end < timezone.now():
+            return False
+            
         return self.plan.name.lower() in ('pro', 'enterprise')
 
 

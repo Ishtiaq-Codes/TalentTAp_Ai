@@ -10,7 +10,7 @@ class SubscriptionPlanAdmin(admin.ModelAdmin):
 
 @admin.register(CompanySubscription)
 class CompanySubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('company', 'plan', 'status', 'is_pro_or_higher', 'current_period_end', 'cancel_at_period_end', 'stripe_customer_id')
+    list_display = ('company', 'plan', 'status', 'is_pro_or_higher', 'created_at', 'current_period_end', 'stripe_customer_id')
     list_filter = ('status', 'plan')
     search_fields = ('company__name', 'stripe_customer_id', 'stripe_subscription_id')
     readonly_fields = ('stripe_customer_id', 'stripe_subscription_id', 'created_at', 'updated_at')
