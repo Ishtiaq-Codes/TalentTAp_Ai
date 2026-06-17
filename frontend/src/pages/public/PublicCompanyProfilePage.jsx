@@ -36,8 +36,12 @@ export default function PublicCompanyProfilePage() {
     </div>
     <div className="px-8 pb-8 sm:px-10">
      <div className="flex flex-col sm:flex-row sm:items-end gap-6">
-      <div className="-mt-16 relative z-10 flex h-32 w-32 items-center justify-center rounded-2xl border-4 border-white bg-white shadow-lg overflow-hidden shrink-0">
-       <ProfileAvatar name={company.name} src={company.logo} size="xl"className="h-full w-full rounded-xl"/>
+      <div className="-mt-16 relative z-10 flex h-32 w-32 items-center justify-center rounded-2xl border-4 border-white shadow-lg overflow-hidden shrink-0 bg-gradient-to-br from-violet-500 to-amber-500">
+       {company.logo ? (
+        <img src={getImageUrl(company.logo)} alt={company.name} className="h-full w-full object-cover" />
+       ) : (
+        <span className="text-5xl font-bold text-white leading-none">{company.name?.charAt(0) || 'C'}</span>
+       )}
       </div>
       <div className="flex-1 pb-2">
        <h1 className="text-3xl font-bold text-slate-900">{company.name}</h1>

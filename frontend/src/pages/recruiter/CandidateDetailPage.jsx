@@ -169,8 +169,12 @@ export default function CandidateDetailPage() {
     </div>
     <div className="px-6 sm:px-8 pb-6">
      <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6">
-      <div className="-mt-14 relative z-10 flex h-28 w-28 items-center justify-center rounded-2xl border-4 border-white bg-white shadow-lg overflow-hidden shrink-0">
-       <ProfileAvatar name={profile.user_name} src={profile.avatar} size="xl"className="h-full w-full"/>
+      <div className="-mt-14 relative z-10 flex h-28 w-28 items-center justify-center rounded-2xl border-4 border-white shadow-lg overflow-hidden shrink-0 bg-gradient-to-br from-violet-500 to-amber-500">
+       {profile.avatar ? (
+        <img src={getImageUrl(profile.avatar)} alt={profile.user_name} className="h-full w-full object-cover" />
+       ) : (
+        <span className="text-4xl font-bold text-white leading-none">{profile.user_name?.charAt(0)}</span>
+       )}
       </div>
       <div className="flex-1 pb-1">
        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

@@ -2,7 +2,7 @@ import { useFetch } from '@/hooks/useFetch'
 import { jobsAPI } from '@/api/jobs'
 import EmptyState from '@/components/common/EmptyState'
 import SkeletonCard from '@/components/common/SkeletonCard'
-import { formatDate } from '@/lib/utils'
+import { formatDate, getImageUrl } from '@/lib/utils'
 import { Link } from 'react-router-dom'
 import ProfileAvatar from '@/components/common/ProfileAvatar'
 import { Briefcase, Plus, Eye, MapPin, Clock, Users, ArrowRight, Edit2, Trash2, Repeat, Archive, Loader2 } from 'lucide-react'
@@ -153,7 +153,13 @@ export default function JobsListPage() {
         </div>
 
         <div className="mt-4 flex gap-4">
-         <ProfileAvatar src={job.company_logo} name={job.company_name} size="md"className="rounded-xl border border-slate-100 shadow-sm shrink-0"/>
+          {job.company_logo ? (
+           <img src={getImageUrl(job.company_logo)} alt={job.company_name} className="h-12 w-12 rounded-xl border border-slate-100 shadow-sm object-cover shrink-0 bg-white" />
+          ) : (
+           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-100 shadow-sm shrink-0">
+            <span className="text-lg font-bold text-white">{job.company_name?.charAt(0) || '?'}</span>
+           </div>
+          )}
          <div>
           <h3 className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">{job.title}</h3>
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-slate-600">

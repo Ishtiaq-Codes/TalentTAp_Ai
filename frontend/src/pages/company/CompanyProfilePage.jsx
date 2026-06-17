@@ -107,8 +107,12 @@ export default function CompanyProfilePage() {
     <div className="px-6 pb-6">
      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
       <div className="flex items-end gap-4">
-       <div className="-mt-12 relative z-10 group flex h-24 w-24 items-center justify-center rounded-xl border-4 border-white bg-white shadow-md overflow-hidden shrink-0">
-        <ProfileAvatar name={profile?.name || 'Company'} src={profile?.logo} size="xl"className="h-full w-full rounded-none"/>
+       <div className="-mt-12 relative z-10 group flex h-24 w-24 items-center justify-center rounded-xl border-4 border-white shadow-md overflow-hidden shrink-0 bg-gradient-to-br from-violet-500 to-amber-500">
+        {profile?.logo ? (
+         <img src={getImageUrl(profile.logo)} alt={profile?.name} className="h-full w-full object-cover" />
+        ) : (
+         <span className="text-3xl font-bold text-white leading-none">{(profile?.name || 'C').charAt(0)}</span>
+        )}
         {isCompanyAdmin && (
          <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100 backdrop-blur-sm">
           <Camera className="h-6 w-6"/>
