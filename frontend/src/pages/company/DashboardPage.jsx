@@ -28,11 +28,28 @@ export default function CompanyDashboardPage() {
 
  // Handle Stripe success
  useEffect(() => {
-  if (searchParams.get('upgrade') === 'success') {
-   success('Subscription upgraded successfully! Welcome to TalentTap Pro.')
-   // remove query params
-   window.history.replaceState({}, '', '/company/dashboard')
+  const verifyUpgrade = async () => {
+   const sessionId = searchParams.get('session_id')
+   if (searchParams.get('upgrade') === 'success' && sessionId) {
+    try {
+     // Verify session synchronously to bypass webhook delay (critical for local dev)
+     const { default: client } = await import('@/api/client')
+     await client.post('/subscriptions/verify/', { session_id: sessionId })
+     
+     success('Subscription upgraded successfully! Welcome to TalentTap Pro.')
+     // Full reload to refresh subscription state across the app
+     window.location.href = '/company/dashboard'
+    } catch (err) {
+     console.error('Failed to verify session:', err)
+     window.history.replaceState({}, '', '/company/dashboard')
+    }
+   } else if (searchParams.get('upgrade') === 'success') {
+     success('Subscription upgraded successfully! Welcome to TalentTap Pro.')
+     window.history.replaceState({}, '', '/company/dashboard')
+   }
   }
+  
+  verifyUpgrade()
  }, [searchParams, success])
 
  if (loading) {

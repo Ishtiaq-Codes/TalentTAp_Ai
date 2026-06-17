@@ -152,6 +152,32 @@ class CreateCheckoutSessionView(APIView):
 
 
 # ---------------------------------------------------------------------------
+# Verify Checkout Session — sync frontend without webhook
+# ---------------------------------------------------------------------------
+class VerifyCheckoutSessionView(APIView):
+    """
+    Verify a checkout session directly from the frontend and update the DB synchronously.
+    This acts as a fallback for local development or when webhooks are delayed.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        session_id = request.data.get('session_id')
+        if not session_id:
+            return Response({'error': 'Missing session_id'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+            if session.payment_status == 'paid':
+                _handle_checkout_session(session)
+                return Response({'status': 'success', 'is_pro': True})
+            return Response({'status': 'pending', 'is_pro': False})
+        except Exception as exc:
+            logger.error("Error verifying checkout session: %s", exc)
+            return Response({'error': 'Unable to verify session.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ---------------------------------------------------------------------------
 # Customer Portal — billing management for paying customers
 # ---------------------------------------------------------------------------
 class CreatePortalSessionView(APIView):
@@ -322,17 +348,28 @@ def stripe_webhook(request):
 
 def _resolve_company_from_session(session):
     """Attempt to find the Company from a checkout session."""
-    # First try metadata (set by our Checkout Session creation)
-    company_id = session.get('metadata', {}).get('company_id')
-    # Fall back to client_reference_id (set by Payment Links)
+    # Handle both dict-like webhook events and StripeObjects correctly
+    metadata = getattr(session, 'metadata', {})
+    if hasattr(metadata, 'get'):
+        company_id = metadata.get('company_id')
+    else:
+        # If metadata is a StripeObject
+        company_id = getattr(metadata, 'company_id', None)
+        
+    # Fall back to client_reference_id
     if not company_id:
-        company_id = session.get('client_reference_id')
+        if hasattr(session, 'get'):
+            company_id = session.get('client_reference_id')
+        else:
+            company_id = getattr(session, 'client_reference_id', None)
+
     if not company_id:
         return None
     try:
         return Company.objects.get(id=company_id)
     except (Company.DoesNotExist, Exception):
-        logger.error("Company %s not found for checkout session %s", company_id, session.get('id'))
+        session_id = session.get('id') if hasattr(session, 'get') else getattr(session, 'id', None)
+        logger.error("Company %s not found for checkout session %s", company_id, session_id)
         return None
 
 
@@ -343,14 +380,21 @@ def _handle_checkout_session(session):
         return
 
     sub, _ = CompanySubscription.objects.get_or_create(company=company)
-    sub.stripe_customer_id = session.get('customer') or sub.stripe_customer_id
-    sub.stripe_subscription_id = session.get('subscription') or sub.stripe_subscription_id
+    
+    # Retrieve customer and subscription safely
+    customer_id = session.get('customer') if hasattr(session, 'get') else getattr(session, 'customer', None)
+    subscription_id = session.get('subscription') if hasattr(session, 'get') else getattr(session, 'subscription', None)
+    
+    sub.stripe_customer_id = customer_id or sub.stripe_customer_id
+    sub.stripe_subscription_id = subscription_id or sub.stripe_subscription_id
     sub.status = 'active'
 
     # Try to assign the correct Plan from our database
     _assign_plan_to_subscription(sub)
     sub.save()
-    logger.info("Company %s subscription activated via checkout session %s.", company.id, session.get('id'))
+    
+    session_id = session.get('id') if hasattr(session, 'get') else getattr(session, 'id', None)
+    logger.info("Company %s subscription activated via checkout session %s.", company.id, session_id)
 
 
 def _handle_subscription_updated(subscription):
@@ -443,5 +487,8 @@ def _handle_invoice_payment_failed(invoice):
 def _assign_plan_to_subscription(sub):
     """Fallback: assign a Pro plan when we cannot match by Price ID."""
     plan = SubscriptionPlan.objects.filter(name__icontains='pro').first()
+    if not plan:
+        plan = SubscriptionPlan.objects.create(name='Pro', price_monthly=49.00)
+        
     if plan and not sub.plan:
         sub.plan = plan
