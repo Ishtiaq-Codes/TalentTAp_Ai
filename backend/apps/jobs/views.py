@@ -127,6 +127,15 @@ class JobStatusView(APIView):
         if new_status not in dict(Job.Status.choices):
             return Response({'detail': 'Invalid status.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Check limits if making a job active
+        if new_status == 'active' and job.status != 'active':
+            active_count = Job.objects.filter(company=job.company, status='active').count()
+            has_pro = hasattr(job.company, 'subscription') and job.company.subscription.is_pro_or_higher
+            limit = 10 if has_pro else 1
+            if active_count >= limit:
+                msg = f'Active job limit reached ({limit}). Upgrade to TalentTap Pro to post more active jobs.' if not has_pro else f'Pro tier limit reached ({limit} active jobs).'
+                return Response({'detail': msg}, status=status.HTTP_403_FORBIDDEN)
+
         job.status = new_status
         job.save()
         
@@ -152,6 +161,15 @@ class JobRepostView(APIView):
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         from django.utils import timezone
+        
+        if job.status != 'active':
+            active_count = Job.objects.filter(company=job.company, status='active').count()
+            has_pro = hasattr(job.company, 'subscription') and job.company.subscription.is_pro_or_higher
+            limit = 10 if has_pro else 1
+            if active_count >= limit:
+                msg = f'Active job limit reached ({limit}). Upgrade to TalentTap Pro to post more active jobs.' if not has_pro else f'Pro tier limit reached ({limit} active jobs).'
+                return Response({'detail': msg}, status=status.HTTP_403_FORBIDDEN)
+
         now = timezone.now()
         job.created_at = now
         job.updated_at = now

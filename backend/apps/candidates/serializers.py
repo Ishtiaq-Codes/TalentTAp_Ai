@@ -98,6 +98,29 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
             } for i in qs
         ]
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        if request and request.user.role in ['company_admin', 'recruiter']:
+            from apps.companies.models import Company, RecruiterProfile
+            user = request.user
+            profile = RecruiterProfile.objects.filter(user=user).first()
+            company = profile.company if profile else Company.objects.filter(created_by=user).first()
+            
+            if company and (not hasattr(company, 'subscription') or not company.subscription.is_pro_or_higher):
+                data['user_email'] = "Hidden (Pro Feature)"
+                data['phone'] = "Hidden (Pro Feature)"
+                data['linkedin_url'] = None
+                data['github_url'] = None
+                data['portfolio_url'] = None
+                data['resume'] = None
+                data['interviews_summary'] = []
+                data['ranking_score'] = None
+                data['relevance_factors'] = None
+                data['missing_factors'] = None
+                data['match_reason'] = "Upgrade to TalentTap Pro to unlock full candidate contact details and AI insights."
+        return data
+
 class CandidateSearchSerializer(serializers.ModelSerializer):
     """Lightweight serializer for search results."""
     is_shortlisted = serializers.SerializerMethodField()
@@ -144,3 +167,19 @@ class CandidateSearchSerializer(serializers.ModelSerializer):
             if profile:
                 return Shortlist.objects.filter(recruiter=profile, candidate=obj).exists()
         return False
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        if request and request.user.role in ['company_admin', 'recruiter']:
+            from apps.companies.models import Company, RecruiterProfile
+            user = request.user
+            profile = RecruiterProfile.objects.filter(user=user).first()
+            company = profile.company if profile else Company.objects.filter(created_by=user).first()
+            
+            if company and (not hasattr(company, 'subscription') or not company.subscription.is_pro_or_higher):
+                data['ranking_score'] = None
+                data['relevance_factors'] = None
+                data['missing_factors'] = None
+                data['match_reason'] = "Upgrade to TalentTap Pro to unlock AI match insights."
+        return data

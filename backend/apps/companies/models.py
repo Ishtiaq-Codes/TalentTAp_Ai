@@ -74,49 +74,6 @@ class RecruiterProfile(models.Model):
         return f'{self.user.full_name} @ {self.company.name}'
 
 
-# ---------------------------------------------------------------------------
-# Future-ready billing models
-# ---------------------------------------------------------------------------
-
-class Plan(models.Model):
-    """Subscription plan - for future monetization."""
-
-    class Cycle(models.TextChoices):
-        MONTHLY = 'monthly', 'Monthly'
-        YEARLY = 'yearly', 'Yearly'
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=50)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    billing_cycle = models.CharField(max_length=10, choices=Cycle.choices)
-    max_jobs = models.IntegerField(default=5)
-    max_candidates_per_search = models.IntegerField(default=50)
-    features = models.JSONField(default=dict, blank=True)
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f'{self.name} ({self.billing_cycle})'
-
-
-class Subscription(models.Model):
-    """Company subscription - for future billing integration."""
-
-    class Status(models.TextChoices):
-        ACTIVE = 'active', 'Active'
-        CANCELLED = 'cancelled', 'Cancelled'
-        EXPIRED = 'expired', 'Expired'
-        TRIAL = 'trial', 'Trial'
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    company = models.OneToOneField(Company, on_delete=models.CASCADE, related_name='subscription')
-    plan = models.ForeignKey(Plan, on_delete=models.PROTECT, related_name='subscriptions')
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.TRIAL)
-    starts_at = models.DateTimeField()
-    expires_at = models.DateTimeField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f'{self.company.name} - {self.plan.name}'
 
 
 class CompanyInvitation(models.Model):

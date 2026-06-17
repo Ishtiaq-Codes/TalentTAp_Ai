@@ -136,6 +136,11 @@ class InviteRecruiterView(APIView):
         company = Company.objects.filter(created_by=request.user).first()
         if not company:
             return Response({'detail': 'Create a company first.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Feature Gate: Free tier cannot invite recruiters
+        if not hasattr(company, 'subscription') or not company.subscription.is_pro_or_higher:
+            return Response({'detail': 'Inviting team members requires TalentTap Pro. Upgrade to collaborate.'}, status=status.HTTP_403_FORBIDDEN)
+
         invitation = services.invite_recruiter(
             company=company,
             email=serializer.validated_data['email'],

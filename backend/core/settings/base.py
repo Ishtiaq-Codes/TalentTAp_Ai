@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'apps.analytics',
     'apps.blog',
     'apps.interviews',
+    'apps.subscriptions',
 ]
 
 MIDDLEWARE = [
@@ -253,3 +254,18 @@ CKEDITOR_CONFIGS = {
 # AI / LLM Configuration
 # ---------------------------------------------------------------------------
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
+# ---------------------------------------------------------------------------
+# Stripe API Configuration
+# ---------------------------------------------------------------------------
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
+
+# Optional: If set, the checkout will use this pre-existing Stripe Price ID.
+# If not set, the backend generates price_data dynamically.
+STRIPE_PRO_PRICE_ID = os.getenv('STRIPE_PRO_PRICE_ID', None)
+
+# The public-facing URL of the frontend (used for Stripe redirect URLs).
+# Must NOT have a trailing slash.
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')

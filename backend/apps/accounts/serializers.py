@@ -31,6 +31,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.ReadOnlyField()
+    is_pro = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -38,9 +39,20 @@ class UserSerializer(serializers.ModelSerializer):
             'id', 'email', 'first_name', 'last_name', 'full_name',
             'role', 'avatar', 'is_email_verified', 'is_onboarded', 'created_at',
             'notify_new_apps', 'notify_ai_match', 'notify_messages',
-            'mfa_enabled'
+            'mfa_enabled', 'is_pro'
         ]
-        read_only_fields = ['id', 'email', 'role', 'is_email_verified', 'is_onboarded', 'created_at', 'mfa_enabled']
+        read_only_fields = ['id', 'email', 'role', 'is_email_verified', 'is_onboarded', 'created_at', 'mfa_enabled', 'is_pro']
+
+    def get_is_pro(self, obj):
+        company = None
+        if obj.role == 'company_admin':
+            company = obj.owned_companies.first()
+        elif obj.role == 'recruiter' and hasattr(obj, 'recruiter_profile'):
+            company = obj.recruiter_profile.company
+            
+        if company and hasattr(company, 'subscription'):
+            return company.subscription.is_pro_or_higher
+        return False
 
 
 class ChangePasswordSerializer(serializers.Serializer):

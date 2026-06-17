@@ -39,6 +39,14 @@ class StartConversationView(APIView):
         except User.DoesNotExist:
             return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+        # Feature Gate: Free tier recruiters cannot message candidates
+        if request.user.role in ['company_admin', 'recruiter']:
+            from apps.companies.models import Company, RecruiterProfile
+            profile = RecruiterProfile.objects.filter(user=request.user).first()
+            company = profile.company if profile else Company.objects.filter(created_by=request.user).first()
+            if company and (not hasattr(company, 'subscription') or not company.subscription.is_pro_or_higher):
+                return Response({'detail': 'Direct messaging candidates requires TalentTap Pro.'}, status=status.HTTP_403_FORBIDDEN)
+
         # Check if conversation already exists
         existing = Conversation.objects.filter(
             participants__user=request.user,
@@ -101,6 +109,14 @@ class SendMessageView(APIView):
         content = request.data.get('content', '').strip()
         if not content:
             return Response({'detail': 'Message cannot be empty.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Feature Gate: Free tier recruiters cannot message candidates
+        if request.user.role in ['company_admin', 'recruiter']:
+            from apps.companies.models import Company, RecruiterProfile
+            profile = RecruiterProfile.objects.filter(user=request.user).first()
+            company = profile.company if profile else Company.objects.filter(created_by=request.user).first()
+            if company and (not hasattr(company, 'subscription') or not company.subscription.is_pro_or_higher):
+                return Response({'detail': 'Direct messaging candidates requires TalentTap Pro.'}, status=status.HTTP_403_FORBIDDEN)
 
         message = Message.objects.create(
             conversation_id=pk,

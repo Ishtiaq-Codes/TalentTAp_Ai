@@ -24,6 +24,26 @@ class MatchScoreSerializer(serializers.ModelSerializer):
             'breakdown', 'created_at', 'match_explainer'
         ]
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        if request and request.user.role in ['company_admin', 'recruiter']:
+            from apps.companies.models import Company, RecruiterProfile
+            user = request.user
+            profile = RecruiterProfile.objects.filter(user=user).first()
+            company = profile.company if profile else Company.objects.filter(created_by=user).first()
+            
+            if company and (not hasattr(company, 'subscription') or not company.subscription.is_pro_or_higher):
+                data['overall_score'] = None
+                data['skills_score'] = None
+                data['experience_score'] = None
+                data['location_score'] = None
+                data['availability_score'] = None
+                data['employment_type_score'] = None
+                data['breakdown'] = None
+                data['match_explainer'] = "Upgrade to TalentTap Pro to unlock AI match insights."
+        return data
+
     def get_match_explainer(self, obj):
         breakdown = obj.breakdown or {}
         skills_bd = breakdown.get('skills', {}) if isinstance(breakdown, dict) else {}

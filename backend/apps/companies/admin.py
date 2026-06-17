@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Company, RecruiterProfile, Plan, Subscription
+from .models import Company, RecruiterProfile
 
 
 @admin.register(Company)
@@ -13,14 +13,3 @@ class CompanyAdmin(admin.ModelAdmin):
 class RecruiterProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'company', 'title', 'is_active']
     list_filter = ['is_active']
-
-
-@admin.register(Plan)
-class PlanAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price', 'billing_cycle', 'is_active']
-
-
-@admin.register(Subscription)
-class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ['company', 'plan', 'status', 'expires_at']
-    list_filter = ['status']

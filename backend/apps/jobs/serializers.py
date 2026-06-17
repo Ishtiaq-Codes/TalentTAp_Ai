@@ -41,6 +41,31 @@ class JobSerializer(serializers.ModelSerializer):
                 return Application.objects.filter(candidate=profile, job=obj).exists()
         return False
 
+    def validate(self, attrs):
+        request = self.context.get('request')
+        if not request:
+            return attrs
+            
+        status = attrs.get('status', getattr(self.instance, 'status', 'draft'))
+        
+        # Check limits if making a job active
+        if status == 'active' and (not self.instance or self.instance.status != 'active'):
+            from apps.companies.models import RecruiterProfile, Company
+            user = request.user
+            profile = RecruiterProfile.objects.filter(user=user).first()
+            company = profile.company if profile else Company.objects.filter(created_by=user).first()
+            
+            if company:
+                from .models import Job
+                active_count = Job.objects.filter(company=company, status='active').count()
+                has_pro = hasattr(company, 'subscription') and company.subscription.is_pro_or_higher
+                limit = 10 if has_pro else 1
+                
+                if active_count >= limit:
+                    msg = f'Active job limit reached ({limit}). Upgrade to TalentTap Pro to post more active jobs.' if not has_pro else f'Pro tier limit reached ({limit} active jobs).'
+                    raise serializers.ValidationError({'status': msg})
+        return attrs
+
     def create(self, validated_data):
         skills_data = validated_data.pop('skills', [])
         job = Job.objects.create(**validated_data)
