@@ -131,7 +131,7 @@ class JobStatusView(APIView):
         if new_status == 'active' and job.status != 'active':
             active_count = Job.objects.filter(company=job.company, status='active').count()
             has_pro = hasattr(job.company, 'subscription') and job.company.subscription.is_pro_or_higher
-            limit = 10 if has_pro else 1
+            limit = 50 if has_pro else 1
             if active_count >= limit:
                 msg = f'Active job limit reached ({limit}). Upgrade to TalentTap Pro to post more active jobs.' if not has_pro else f'Pro tier limit reached ({limit} active jobs).'
                 return Response({'detail': msg}, status=status.HTTP_403_FORBIDDEN)
@@ -165,7 +165,7 @@ class JobRepostView(APIView):
         if job.status != 'active':
             active_count = Job.objects.filter(company=job.company, status='active').count()
             has_pro = hasattr(job.company, 'subscription') and job.company.subscription.is_pro_or_higher
-            limit = 10 if has_pro else 1
+            limit = 50 if has_pro else 1
             if active_count >= limit:
                 msg = f'Active job limit reached ({limit}). Upgrade to TalentTap Pro to post more active jobs.' if not has_pro else f'Pro tier limit reached ({limit} active jobs).'
                 return Response({'detail': msg}, status=status.HTTP_403_FORBIDDEN)

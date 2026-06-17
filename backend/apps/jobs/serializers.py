@@ -59,7 +59,7 @@ class JobSerializer(serializers.ModelSerializer):
                 from .models import Job
                 active_count = Job.objects.filter(company=company, status='active').count()
                 has_pro = hasattr(company, 'subscription') and company.subscription.is_pro_or_higher
-                limit = 10 if has_pro else 1
+                limit = 50 if has_pro else 1
                 
                 if active_count >= limit:
                     msg = f'Active job limit reached ({limit}). Upgrade to TalentTap Pro to post more active jobs.' if not has_pro else f'Pro tier limit reached ({limit} active jobs).'
