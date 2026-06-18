@@ -4,26 +4,24 @@ export default function Logo({ collapsed = false, linkTo = '/', theme = 'light' 
   const isDark = theme === 'dark'
 
   const content = (
-    <div className="flex items-center gap-2.5">
+    <div className="flex items-center gap-1.5">
       {/* Custom TT Monogram Symbol (Imported from Figma) */}
-      <div className="relative flex h-8 w-12 items-center justify-center shrink-0">
+      <div className="relative flex h-7 w-11 items-center justify-center shrink-0">
         <img
-          src="/monogram.svg"
+          src={isDark ? "/simplification-dark.svg" : "/simplification.svg"}
           alt="TalentTap Monogram"
-          className={`absolute max-w-none h-[250%] w-auto object-contain ${isDark ? '' : 'mix-blend-multiply'}`}
-          style={isDark ? { filter: 'drop-shadow(0px 0px 3px rgba(255,255,255,0.6))' } : {}}
+          className="absolute max-w-none h-[120%] w-auto object-contain"
         />
       </div>
 
       {/* Figma Wordmark */}
       {!collapsed && (
         <img
-          src="/talenttap-wordmark.svg"
+          src={isDark ? "/talenttap-wordmark-dark.svg" : "/talenttap-wordmark.svg"}
           alt="TalentTap Wordmark"
           className="h-12 w-auto object-contain shrink-0"
           style={{
-            marginLeft: '-0.75rem',
-            filter: isDark ? 'drop-shadow(0px 0px 3px rgba(255,255,255,0.6))' : 'none'
+            marginLeft: '-0.75rem'
           }}
         />
       )}

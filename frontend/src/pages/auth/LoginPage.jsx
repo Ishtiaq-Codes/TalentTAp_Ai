@@ -149,7 +149,7 @@ export default function LoginPage() {
                         required
                         value={form.email}
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        className="input pl-10"
+                        className="input !pl-10"
                         placeholder="you@company.com"
                       />
                     </div>
@@ -173,7 +173,7 @@ export default function LoginPage() {
                         required
                         value={form.password}
                         onChange={(e) => setForm({ ...form, password: e.target.value })}
-                        className="input pl-10"
+                        className="input !pl-10"
                         placeholder="••••••••"
                       />
                     </div>
@@ -193,7 +193,7 @@ export default function LoginPage() {
                       required
                       value={mfaCode}
                       onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ''))}
-                      className="input pl-10 font-mono tracking-[0.4em] text-center text-lg"
+                      className="input !pl-10 font-mono tracking-[0.4em] text-center text-lg"
                       placeholder="000000"
                     />
                   </div>

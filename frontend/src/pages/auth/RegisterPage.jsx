@@ -189,7 +189,7 @@ export default function RegisterPage() {
                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400 pointer-events-none" style={{ height: '16px', width: '16px' }} />
                     <input
                       id="reg-fname" required value={form.first_name} onChange={update('first_name')}
-                      className="input pl-9" placeholder="Jane"
+                      className="input !pl-9" placeholder="Jane"
                     />
                   </div>
                 </div>
@@ -209,7 +209,7 @@ export default function RegisterPage() {
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ height: '18px', width: '18px' }} />
                   <input
                     id="reg-email" type="email" required value={form.email} onChange={update('email')}
-                    className="input pl-10" placeholder="you@company.com"
+                    className="input !pl-10" placeholder="you@company.com"
                   />
                 </div>
               </div>
@@ -221,7 +221,7 @@ export default function RegisterPage() {
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ height: '18px', width: '18px' }} />
                   <input
                     id="reg-pw" type="password" required minLength={8} value={form.password} onChange={update('password')}
-                    className="input pl-10" placeholder="Min. 8 characters"
+                    className="input !pl-10" placeholder="Min. 8 characters"
                   />
                 </div>
               </div>
@@ -233,7 +233,7 @@ export default function RegisterPage() {
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ height: '18px', width: '18px' }} />
                   <input
                     id="reg-pw2" type="password" required value={form.password_confirm} onChange={update('password_confirm')}
-                    className="input pl-10" placeholder="••••••••"
+                    className="input !pl-10" placeholder="••••••••"
                   />
                 </div>
               </div>
